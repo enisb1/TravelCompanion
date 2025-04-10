@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.travelcompanion.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_history"
+        android:name="com.example.travelcompanion.ui.history.HistoryFragment"
+        android:label="@string/menu_history"
+        tools:layout="@layout/fragment_history" />
+
+    <fragment
+        android:id="@+id/nav_planned_trips"
+        android:name="com.example.travelcompanion.ui.planned.PlannedTripsFragment"
+        android:label="@string/menu_planned_trips"
+        tools:layout="@layout/fragment_planned_trips" />
+
+    <fragment
+        android:id="@+id/nav_progress_prediction"
+        android:name="com.example.travelcompanion.ui.prediction.AnalysisPredictionFragment"
+        android:label="@string/menu_progress_prediction"
+        tools:layout="@layout/fragment_analysis_prediction" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.example.travelcompanion.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+</navigation>
