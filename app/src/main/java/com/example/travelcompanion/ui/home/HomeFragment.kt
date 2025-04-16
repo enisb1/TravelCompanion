@@ -9,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class HomeFragment : Fragment() {
 
@@ -30,11 +32,18 @@ class HomeFragment : Fragment() {
         // TODO: use VM
         // TabLayout setup
         val tabLayout : TabLayout = view.findViewById(R.id.home_tabLayout)
-        val viewPager: ViewPager = view.findViewById(R.id.home_viewPager)
+        val viewPager: ViewPager2 = view.findViewById(R.id.home_viewPager)
 
-        val tabPagerAdapter : PagerAdapter = HomePagerAdapter()
-        viewPager.adapter = tabPagerAdapter
-        tabLayout.setupWithViewPager(viewPager)
+        viewPager.adapter = HomePagerAdapter(this)
+
+        // Attach TabLayout with ViewPager2
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> "Start"
+                1 -> "Plan"
+                else -> null
+            }
+        }.attach()
     }
 
 }

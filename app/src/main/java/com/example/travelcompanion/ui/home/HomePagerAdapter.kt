@@ -3,35 +3,21 @@ package com.example.travelcompanion.ui.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.travelcompanion.R
+import com.example.travelcompanion.ui.home.plan.PlanFragment
+import com.example.travelcompanion.ui.home.start.StartFragment
 
-class HomePagerAdapter : PagerAdapter() {
-    override fun getCount(): Int {
-        return 2
-    }
+class HomePagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+    override fun getItemCount(): Int = 2
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view === `object`
-    }
-
-    override fun getPageTitle(position: Int): CharSequence? {
-        //TODO: change this to string value
-        return if (position==0)
-            "Start"
-        else
-            "Plan"
-    }
-
-    override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val layoutInflater = LayoutInflater.from(container.context)
-        val layout = when (position) {
-            0 -> R.layout.home_page_start
-            1 -> R.layout.home_page_plan
-            else -> throw IllegalArgumentException("Invalid position")
+    override fun createFragment(position: Int): Fragment {
+        return when (position) {
+            0 -> StartFragment()
+            1 -> PlanFragment()
+            else -> throw IllegalArgumentException("Invalid tab position")
         }
-        val view = layoutInflater.inflate(layout, container, false)
-        container.addView(view)
-        return view
     }
 }
