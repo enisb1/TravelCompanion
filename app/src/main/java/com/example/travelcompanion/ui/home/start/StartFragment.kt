@@ -6,6 +6,8 @@ import android.app.AlertDialog
 import android.content.pm.PackageManager
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +22,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import com.example.travelcompanion.R
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -37,6 +44,8 @@ class StartFragment : Fragment() {
     private lateinit var map: GoogleMap
     private lateinit var startButton: Button
     private lateinit var trackingLayout: ConstraintLayout
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,6 +99,13 @@ class StartFragment : Fragment() {
         }
     }
 
+    //TODO: keep current tracking in viewmodel and modify it from foreground service that calculates
+    //the coordinates like below
+    //activity listens for changes to the livedata and displays it
+    //only add coordinate to list in viewmodel if it's distant at least 10 meters or smth like that
+    //from previous position
+
+    @SuppressLint("MissingPermission")
     private fun setUpMap() {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
@@ -100,12 +116,25 @@ class StartFragment : Fragment() {
             // show/hide map and start button
             startButton.visibility = View.GONE
             trackingLayout.visibility = View.VISIBLE
+            // start tracking
+            val locationRequest = LocationRequest.Builder(5000)
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build()
+            val locationCallback = object : LocationCallback() {
+                override fun onLocationResult(result: LocationResult) {
+                    for (location in result.locations) {
+                        Log.i("TrackingService", "Location: ${location.latitude}, ${location.longitude}")
+                        // Save location or send to ViewModel, DB, etc.
+                    }
+                }
+            }
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun addStartAndZoom() {
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
