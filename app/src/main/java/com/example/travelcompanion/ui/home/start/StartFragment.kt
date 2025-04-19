@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolylineOptions
 
 class StartFragment : Fragment() {
 
@@ -105,36 +107,40 @@ class StartFragment : Fragment() {
         mapFragment.getMapAsync {googleMap ->
             map = googleMap
             // show start position on map
-            addStartAndZoom()
             // show/hide map and start button
             startButton.visibility = View.GONE
             trackingLayout.visibility = View.VISIBLE
-            // start tracking
-            viewModel.locationsList.observe(requireActivity()) {
-                newValue -> Log.i("Tracking", newValue.toString())
+            // draw polyline
+            val polylineOptions = PolylineOptions().apply {
+                color(Color.GREEN)
+                width(20f)
+            }
+            val points = mutableListOf<LatLng>()
+            val polyline = map.addPolyline(polylineOptions)
+            // start tracking and observing changes in ViewModel
+            viewModel.locationsList.observe(requireActivity()) { newValue ->
+                val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
+                    newValue[newValue.size-1].longitude)
+                if (newValue.size == 1)
+                    addStartAndZoom(addedLatLng)    // added locations is start location
+                points.add(addedLatLng)
+                polyline.points = points
             }
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
         }
     }
 
     @SuppressLint("MissingPermission")
-    private fun addStartAndZoom() {
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLatLng = LatLng(location.latitude, location.longitude)
+    private fun addStartAndZoom(startLatLng: LatLng) {
+        map.addMarker(
+            MarkerOptions()
+                .position(startLatLng)
+                .title("Start")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+        )
 
-                map.addMarker(
-                    MarkerOptions()
-                        .position(currentLatLng)
-                        .title("Start")
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                )
-
-                map.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(currentLatLng, 17f)
-                )
-            }
-        }
+        map.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(startLatLng, 17f)
+        )
     }
 }
