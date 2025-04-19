@@ -5,12 +5,22 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.start.StartFragment">
 
-    <fragment
-        android:id="@+id/mapFragment"
+    <!-- change marginHorizontal and vertical
+    to reflect screen's size -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/mapContainer"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="20dp"/>
+        android:layout_marginVertical="20dp"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/start"/>
 
 </FrameLayout>
