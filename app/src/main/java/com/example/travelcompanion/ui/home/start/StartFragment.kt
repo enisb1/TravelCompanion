@@ -29,7 +29,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 class StartFragment : Fragment() {
 
     private val viewModel: StartViewModel by viewModels()
-    private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<Array<String>>
+
+    private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
+
     private lateinit var map: GoogleMap
     private lateinit var startButton: Button
     private lateinit var fgContainerView: FragmentContainerView
@@ -46,19 +48,18 @@ class StartFragment : Fragment() {
 
         // location permission launcher
         requestPermissionLauncherForLocation = registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-            val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
-            if (fineGranted && coarseGranted) {
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
                 setUpMap()
             } else {
                 Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
             }
         }
 
-        startButton = view.findViewById(R.id.startButton)
         fgContainerView = view.findViewById(R.id.mapContainer)
+
+        startButton = view.findViewById(R.id.startButton)
         startButton.setOnClickListener {
             // check for permission before setting up the map
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -71,18 +72,14 @@ class StartFragment : Fragment() {
                     AlertDialog.Builder(requireContext())
                         .setMessage(R.string.location_permission_needed)
                         .setPositiveButton(R.string.positive_button_string) { _, _ ->
-                            requestPermissionLauncherForLocation.launch(arrayOf(
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION
-                            ))
+                            requestPermissionLauncherForLocation.launch(
+                                Manifest.permission.ACCESS_FINE_LOCATION)
                         }
                         .setNegativeButton(R.string.negative_button_string, null)
                         .show()
                 }else {
-                    requestPermissionLauncherForLocation.launch(arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    ))
+                    requestPermissionLauncherForLocation.launch(
+                        Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             }
             else {
@@ -111,7 +108,6 @@ class StartFragment : Fragment() {
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
 
-                // Call this when the map is ready
                 map.addMarker(
                     MarkerOptions()
                         .position(currentLatLng)
