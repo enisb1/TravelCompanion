@@ -1,14 +1,12 @@
 package com.example.travelcompanion.ui.home.start
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import androidx.fragment.app.viewModels
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,8 +19,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.travelcompanion.R
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
@@ -40,8 +36,6 @@ class StartFragment : Fragment() {
     private lateinit var map: GoogleMap
     private lateinit var startButton: Button
     private lateinit var trackingLayout: ConstraintLayout
-
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,12 +89,6 @@ class StartFragment : Fragment() {
         }
     }
 
-    //TODO: keep current tracking in viewmodel and modify it from foreground service that calculates
-    //the coordinates like below
-    //activity listens for changes to the livedata and displays it
-    //only add coordinate to list in viewmodel if it's distant at least 10 meters or smth like that
-    //from previous position
-
     private fun setUpMap() {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
@@ -117,7 +105,7 @@ class StartFragment : Fragment() {
             }
             val points = mutableListOf<LatLng>()
             val polyline = map.addPolyline(polylineOptions)
-            // start tracking and observing changes in ViewModel
+            // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
                 val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
                     newValue[newValue.size-1].longitude)
@@ -126,11 +114,11 @@ class StartFragment : Fragment() {
                 points.add(addedLatLng)
                 polyline.points = points
             }
+            // start tracking locations
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun addStartAndZoom(startLatLng: LatLng) {
         map.addMarker(
             MarkerOptions()

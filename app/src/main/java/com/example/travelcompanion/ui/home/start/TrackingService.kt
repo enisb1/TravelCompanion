@@ -26,11 +26,11 @@ class TrackingService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        var lastLocation: Location? = null
-
         val locationRequest = LocationRequest.Builder(5000)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
+
+        var lastLocation: Location? = null
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
@@ -52,6 +52,7 @@ class TrackingService : Service() {
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
+    // not a bound service
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
