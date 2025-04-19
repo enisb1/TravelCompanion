@@ -17,9 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TravelCompanion"
         tools:targetApi="31">
+        <service
+            android:name=".ui.home.start.TrackingService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCMBhKFa9IKdn6lHpajZdfFYyF2NZWJwcw" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
