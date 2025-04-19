@@ -2,6 +2,7 @@ package com.example.travelcompanion.ui.home.start
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
 import com.example.travelcompanion.R
@@ -49,41 +51,56 @@ class StartFragment : Fragment() {
             val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
             val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
             if (fineGranted && coarseGranted) {
-                addStartAndZoom()
+                setUpMap()
             } else {
-                Toast.makeText(activity, "Location permission is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
             }
         }
 
         startButton = view.findViewById(R.id.startButton)
         fgContainerView = view.findViewById(R.id.mapContainer)
         startButton.setOnClickListener {
-            val mapFragment: SupportMapFragment =
-                childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
-            mapFragment.getMapAsync {googleMap ->
-                map = googleMap
+            // check for permission before setting up the map
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                // check if we need to give rationale to the user or not
+                if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    AlertDialog.Builder(requireContext())
+                        .setMessage(R.string.location_permission_needed)
+                        .setPositiveButton(R.string.positive_button_string) { _, _ ->
+                            requestPermissionLauncherForLocation.launch(arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ))
+                        }
+                        .setNegativeButton(R.string.negative_button_string, null)
+                        .show()
+                }else {
+                    requestPermissionLauncherForLocation.launch(arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ))
+                }
+            }
+            else {
                 setUpMap()
-                // TODO: set interval to draw line based on current location (needs to be distant from
-                // previous location)
             }
         }
     }
 
     private fun setUpMap() {
-        // check for permission before setting up the map
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissionLauncherForLocation.launch(arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ))
-        }
-        else {
+        val mapFragment: SupportMapFragment =
+            childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
+        mapFragment.getMapAsync {googleMap ->
+            map = googleMap
+            // show start position on map
             addStartAndZoom()
+            // show/hide map and start button
+            startButton.visibility = View.GONE
+            fgContainerView.visibility = View.VISIBLE
         }
     }
 
@@ -107,8 +124,5 @@ class StartFragment : Fragment() {
                 )
             }
         }
-        // show/hide map and start button
-        startButton.visibility = View.GONE
-        fgContainerView.visibility = View.VISIBLE
     }
 }
