@@ -14,6 +14,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet.Constraint
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
@@ -34,7 +36,7 @@ class StartFragment : Fragment() {
 
     private lateinit var map: GoogleMap
     private lateinit var startButton: Button
-    private lateinit var fgContainerView: FragmentContainerView
+    private lateinit var trackingLayout: ConstraintLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,7 +59,7 @@ class StartFragment : Fragment() {
             }
         }
 
-        fgContainerView = view.findViewById(R.id.mapContainer)
+        trackingLayout = view.findViewById(R.id.trackingLayout)
 
         startButton = view.findViewById(R.id.startButton)
         startButton.setOnClickListener {
@@ -97,7 +99,7 @@ class StartFragment : Fragment() {
             addStartAndZoom()
             // show/hide map and start button
             startButton.visibility = View.GONE
-            fgContainerView.visibility = View.VISIBLE
+            trackingLayout.visibility = View.VISIBLE
         }
     }
 

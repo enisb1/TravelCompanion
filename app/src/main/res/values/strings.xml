@@ -17,4 +17,6 @@
     <string name="positive_button_string">Okay</string>
     <string name="negative_button_string">Cancel</string>
     <string name="location_permission_denied">Location permission is required to track your trip</string>
+    <string name="stop_tracking_trip">Stop tracking trip</string>
+    <string name="start_fragment_title">TRACKING YOUR TRIP</string>
 </resources>
