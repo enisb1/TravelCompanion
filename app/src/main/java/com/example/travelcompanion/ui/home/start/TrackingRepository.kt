@@ -11,7 +11,6 @@ object TrackingRepository {
     fun addLocation(location: Location) {
         val updatedLocationList = _locationList.value?.toMutableList() ?: mutableListOf()
         updatedLocationList.add(location)
-        //TODO: add only if distance from last location is bigger than 20 meters
         _locationList.postValue(updatedLocationList)
     }
 }

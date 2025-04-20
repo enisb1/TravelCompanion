@@ -19,4 +19,5 @@
     <string name="location_permission_denied">Location permission is required to track your trip</string>
     <string name="stop_tracking_trip">Stop tracking trip</string>
     <string name="start_fragment_title">TRACKING YOUR TRIP</string>
+    <string name="tracking_service_notification_description">We are tracking your trip! Go back to the app to see your path</string>
 </resources>
