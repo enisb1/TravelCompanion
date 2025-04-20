@@ -52,12 +52,11 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:contentDescription="@string/stop_tracking_trip"
-            android:src="@drawable/ic_stop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"/>
+            android:background="@drawable/border_white"
+            android:scaleType="centerInside" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

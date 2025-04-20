@@ -82,7 +82,7 @@ class TrackingService : Service() {
             manager.createNotificationChannel(channel)
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setOngoing(true)
+            .setOngoing(true)   //TODO: it's dismissable on API 35, check with lower versions
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.tracking_service_notification_description))
             .setSmallIcon(R.drawable.ic_stop)   //TODO: replace with app's icon
