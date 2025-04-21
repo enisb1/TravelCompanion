@@ -2,8 +2,6 @@
     <string name="app_name">TravelCompanion</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -20,4 +18,6 @@
     <string name="stop_tracking_trip">Stop tracking trip</string>
     <string name="start_fragment_title">TRACKING YOUR TRIP</string>
     <string name="tracking_service_notification_description">We are tracking your trip! Go back to the app to see your path</string>
+    <string name="take_a_photo">Take a photo</string>
+    <string name="set_new_note">Set a new note</string>
 </resources>

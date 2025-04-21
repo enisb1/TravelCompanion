@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.media.Image
 import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -17,6 +18,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -46,6 +48,9 @@ class StartFragment : Fragment() {
     private lateinit var map: GoogleMap
     private lateinit var trackingTitle: TextView
     private lateinit var stopButton: ImageButton
+    private lateinit var newNoteImage: ImageView
+    private lateinit var newPicImage: ImageView
+
 
     private lateinit var viewPager: ViewPager2
 
@@ -117,22 +122,18 @@ class StartFragment : Fragment() {
         trackingTitle = view.findViewById(R.id.trackingTitle)
         startButton = view.findViewById(R.id.startButton)
         stopButton = view.findViewById(R.id.stopButton)
+        newNoteImage = view.findViewById(R.id.newNote)
+        newPicImage = view.findViewById(R.id.newPic)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
-        //TODO: enable tab swiping for remaining views
-        trackingLayout.setOnTouchListener { _, _ ->
-            enableTabSwiping()
-            false
-        }
-        trackingTitle.setOnTouchListener { _, _ ->
-            enableTabSwiping()
-            false
-        }
-        stopButton.setOnTouchListener { _, _ ->
-            enableTabSwiping()
-            false
+        // enable tab swiping for the views in the layout
+        for (view in arrayOf(trackingLayout, trackingTitle, stopButton, newNoteImage, newPicImage)) {
+            view.setOnTouchListener { _, _ ->
+                enableTabSwiping()
+                false
+            }
         }
         startButton.setOnClickListener {
             // check for permission before setting up the map
