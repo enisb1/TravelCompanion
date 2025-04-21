@@ -1,6 +1,7 @@
 package com.example.travelcompanion.ui.home.start
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,15 +12,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -36,9 +41,13 @@ class StartFragment : Fragment() {
     private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
     private lateinit var requestPermissionLauncherForNotification: ActivityResultLauncher<String>
 
-    private lateinit var map: GoogleMap
     private lateinit var startButton: Button
     private lateinit var trackingLayout: ConstraintLayout
+    private lateinit var map: GoogleMap
+    private lateinit var trackingTitle: TextView
+    private lateinit var stopButton: ImageButton
+
+    private lateinit var viewPager: ViewPager2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,9 +99,41 @@ class StartFragment : Fragment() {
             }
         }
 
-        trackingLayout = view.findViewById(R.id.trackingLayout)
+        instantiateViews(view)
+        setListeners()
+    }
 
+    private fun enableTabSwiping() {
+        viewPager.isUserInputEnabled = true
+    }
+
+    private fun disableTabSwiping() {
+        viewPager.isUserInputEnabled = false
+    }
+
+    private fun instantiateViews(view: View) {
+        viewPager = requireParentFragment().requireView().findViewById(R.id.home_viewPager)
+        trackingLayout = view.findViewById(R.id.trackingLayout)
+        trackingTitle = view.findViewById(R.id.trackingTitle)
         startButton = view.findViewById(R.id.startButton)
+        stopButton = view.findViewById(R.id.stopButton)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setListeners() {
+        //TODO: enable tab swiping for remaining views
+        trackingLayout.setOnTouchListener { _, _ ->
+            enableTabSwiping()
+            false
+        }
+        trackingTitle.setOnTouchListener { _, _ ->
+            enableTabSwiping()
+            false
+        }
+        stopButton.setOnTouchListener { _, _ ->
+            enableTabSwiping()
+            false
+        }
         startButton.setOnClickListener {
             // check for permission before setting up the map
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -126,11 +167,24 @@ class StartFragment : Fragment() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setUpMap() {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
         mapFragment.getMapAsync {googleMap ->
             map = googleMap
+
+            // disable tab swiping in order to move freely on the map
+            val mapTouchInterceptor = requireView().findViewById<View>(R.id.mapTouchInterceptor)
+            mapTouchInterceptor.setOnTouchListener { _, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        disableTabSwiping()
+                        false
+                    }
+                    else -> false
+                }
+            }
             // show start position on map
             // show/hide map and start button
             startButton.visibility = View.GONE
