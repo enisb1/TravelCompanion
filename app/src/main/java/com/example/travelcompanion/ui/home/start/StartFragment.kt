@@ -174,7 +174,7 @@ class StartFragment : Fragment() {
             childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
         mapFragment.getMapAsync {googleMap ->
             map = googleMap
-
+            map.uiSettings.isZoomControlsEnabled = true
             // disable tab swiping in order to move freely on the map
             val mapTouchInterceptor = requireView().findViewById<View>(R.id.mapTouchInterceptor)
             mapTouchInterceptor.setOnTouchListener { _, event ->
