@@ -13,19 +13,20 @@ import androidx.room.RoomDatabase
 abstract class PlanDatabase : RoomDatabase() {
     abstract fun planDao(): PlanDao
 
-    companion object {
+    companion object{
         @Volatile
-        private var INSTANCE: PlanDatabase? = null
-
-        fun getDatabase(context: Context): PlanDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    PlanDatabase::class.java,
-                    "plan_data_database"
-                ).build()
-                INSTANCE = instance
-                instance
+        private var INSTANCE : PlanDatabase? = null
+        fun getInstance(context: Context): PlanDatabase {
+            synchronized(this) {
+                var instance = INSTANCE
+                if (instance == null) {
+                    instance = Room.databaseBuilder(
+                        context.applicationContext,
+                        PlanDatabase::class.java,
+                        "plan_database"
+                    ).build()
+                }
+                return instance
             }
         }
     }

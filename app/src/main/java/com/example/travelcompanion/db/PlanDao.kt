@@ -19,5 +19,5 @@ interface PlanDao {
     suspend fun deletePlan(plan: Plan)
 
     @Query("SELECT * FROM plan_table")
-    fun getAllStudents(): LiveData<List<Plan>>
+    fun getAllPlans(): LiveData<List<Plan>>
 }

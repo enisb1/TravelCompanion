@@ -11,14 +11,20 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
+import com.example.travelcompanion.db.PlanDatabase
 import com.example.travelcompanion.db.PlanType
 import java.util.Calendar
 
 class PlanFragment : Fragment() {
 
-    private val viewModel: PlanViewModel by viewModels()
+    private lateinit var pickDateButton: Button
+    private lateinit var typeSpinner: Spinner
+    private lateinit var destinationEditText: EditText
+    private lateinit var saveButton: Button
+
+    private lateinit var viewModel: PlanViewModel
     private var selectedDate: Calendar? = null
 
     override fun onCreateView(
@@ -31,10 +37,10 @@ class PlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val pickDateButton = view.findViewById<Button>(R.id.pickDateButton)
-        val typeSpinner = view.findViewById<Spinner>(R.id.typeSpinner)
-        val destinationEditText = view.findViewById<EditText>(R.id.destinationEditText)
-        val saveButton = view.findViewById<View>(R.id.saveButton)
+        pickDateButton = view.findViewById(R.id.pickDateButton)
+        typeSpinner = view.findViewById(R.id.typeSpinner)
+        destinationEditText = view.findViewById(R.id.destinationEditText)
+        saveButton = view.findViewById(R.id.saveButton)
 
         // Configure spinner
         val types = PlanType.entries.map { it.name }
@@ -62,17 +68,33 @@ class PlanFragment : Fragment() {
             datePickerDialog.show()
         }
 
-        // Gestione pulsante Salva
+        val dao = PlanDatabase.getInstance(requireContext()).planDao()
+        val factory = PlanViewModelFactory(dao)
+        viewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
+
+        // Manage save button
         saveButton.setOnClickListener {
-            Log.i("PlanFragment", "Save button clicked")
-            val date = selectedDate?.time
-            if (date != null) {
-                val type = PlanType.valueOf(typeSpinner.selectedItem.toString())
-                val destination = destinationEditText.text.toString()
-                Log.i("PlanFragment", "Saving plan: $date, $type, $destination")
-                viewModel.savePlan(date, type, destination)
-                Log.i("PlanFragment", "Plan saved successfully")
-            }
+            savePlanData()
+            clearInput()
         }
+    }
+
+    private fun savePlanData() {
+        val date = selectedDate?.time
+        val type = PlanType.valueOf(typeSpinner.selectedItem.toString())
+        val destination = destinationEditText.text.toString()
+
+        if (date != null && destination.isNotEmpty()) {
+            viewModel.savePlan(date, type, destination)
+        } else {
+            Log.e("PlanFragment", "Invalid input data")
+        }
+    }
+
+    private fun clearInput() {
+        selectedDate = null
+        pickDateButton.text = resources.getText(R.string.pick_start_date)
+        typeSpinner.setSelection(0)
+        destinationEditText.text.clear()
     }
 }
