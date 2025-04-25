@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 
+@Dao
 interface PlanDao {
     @Insert
     suspend fun insertPlan(plan: Plan)
