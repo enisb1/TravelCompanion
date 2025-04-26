@@ -12,7 +12,9 @@ class PlanViewModel(private val dao: PlanDao) : ViewModel() {
     val plans = dao.getAllPlans()
 
     fun savePlan(date: Date, type: PlanType, destination: String) {
-        val plan = Plan(0, date, type, destination)
+        // Convert Date to milliseconds since epoch
+        val dateInMillis = date.time
+        val plan = Plan(0, dateInMillis, type, destination)
         viewModelScope.launch {
             dao.insertPlan(plan)
         }
