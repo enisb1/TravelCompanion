@@ -52,19 +52,13 @@ class StartFragment : Fragment() {
     private lateinit var newNoteImage: ImageView
     private lateinit var newPicImage: ImageView
 
-
-    private lateinit var viewPager: ViewPager2
+    private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         return inflater.inflate(R.layout.fragment_start, container, false)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.i("Tracking", "resumed")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,20 +69,9 @@ class StartFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // location permission launcher
-        requestPermissionLauncherForLocation = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
                     setUpMap()
-                else
+                else    // notification permission is also needed
                     Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
