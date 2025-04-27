@@ -3,20 +3,19 @@ package com.example.travelcompanion.ui.home.start
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.Image
 import android.os.Build
-import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -26,6 +25,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -165,6 +166,26 @@ class StartFragment : Fragment() {
             else {
                 setUpMap()
             }
+        }
+        newNoteImage.setOnClickListener {
+            // show dialog
+            val inflater = LayoutInflater.from(requireContext())
+            val dialogView = inflater.inflate(R.layout.dialog_add_note, null)
+
+            val editTextTitle = dialogView.findViewById<EditText>(R.id.titleEditText)
+            val editTextNote = dialogView.findViewById<EditText>(R.id.contentEditText)
+
+            AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setPositiveButton(getString(R.string.add)) { _, _ ->
+                    val title = editTextTitle.text.toString()
+                    val note = editTextNote.text.toString()
+                    //TODO: save in db
+                }
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+                .show()
         }
     }
 

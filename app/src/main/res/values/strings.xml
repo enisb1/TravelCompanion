@@ -20,4 +20,9 @@
     <string name="tracking_service_notification_description">We are tracking your trip! Go back to the app to see your path</string>
     <string name="take_a_photo">Take a photo</string>
     <string name="set_new_note">Set a new note</string>
+    <string name="add_note">Add note</string>
+    <string name="note_content">Note content</string>
+    <string name="note_title">Note title</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
 </resources>
