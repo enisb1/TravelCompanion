@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
@@ -75,7 +76,6 @@ class PlanFragment : Fragment() {
         // Manage save button
         saveButton.setOnClickListener {
             savePlanData()
-            clearInput()
         }
     }
 
@@ -86,8 +86,13 @@ class PlanFragment : Fragment() {
 
         if (date != null && destination.isNotEmpty()) {
             viewModel.savePlan(date, type, destination)
+            clearInput()
         } else {
-            Log.e("PlanFragment", "Invalid input data")
+            Toast.makeText(
+                requireContext(),
+                "Please fill all fields",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
