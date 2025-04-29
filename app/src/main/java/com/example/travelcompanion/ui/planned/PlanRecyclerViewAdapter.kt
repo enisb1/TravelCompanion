@@ -8,9 +8,14 @@ import com.example.travelcompanion.R
 import com.example.travelcompanion.db.Plan
 
 
-class PlanRecyclerViewAdapter() : RecyclerView.Adapter<PlanViewHolder>() {
+class PlanRecyclerViewAdapter(val clickFun : (Plan) -> Unit) : RecyclerView.Adapter<PlanViewHolder>() {
 
     private val planList = ArrayList<Plan>()
+    private var onItemClick: (Plan) -> Unit
+
+    init {
+        onItemClick = clickFun
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlanViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -23,8 +28,14 @@ class PlanRecyclerViewAdapter() : RecyclerView.Adapter<PlanViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: PlanViewHolder, position: Int) {
-        holder.bind(planList[position])
+        val plan = planList[position]
+        holder.bind(plan)
+        holder.itemView.setOnClickListener {
+            onItemClick(plan)
+        }
     }
+
+
 
     fun setList(plans: List<Plan>) {
         planList.clear()
