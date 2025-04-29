@@ -4,11 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.material.tabs.TabLayout
@@ -35,6 +32,9 @@ class HomeFragment : Fragment() {
         val viewPager: ViewPager2 = view.findViewById(R.id.home_viewPager)
 
         viewPager.adapter = HomePagerAdapter(this)
+
+        val defaultTab = arguments?.getInt("tab") ?: 0
+        viewPager.setCurrentItem(defaultTab, false)
 
         // Attach TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->

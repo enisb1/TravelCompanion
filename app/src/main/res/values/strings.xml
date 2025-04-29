@@ -25,4 +25,7 @@
     <string name="note_title">Note title</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
+    <string name="pick_start_date">Pick Start Date</string>
+    <string name="enter_destination">Enter destination</string>
+    <string name="save">Save</string>
 </resources>
