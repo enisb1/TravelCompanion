@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import java.util.Locale
 
 class StartFragment : Fragment() {
 
@@ -60,6 +61,7 @@ class StartFragment : Fragment() {
     private lateinit var stopButton: ImageButton
     private lateinit var newNoteImage: ImageView
     private lateinit var newPicImage: ImageView
+    private lateinit var timerTextView: TextView
 
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
@@ -95,7 +97,7 @@ class StartFragment : Fragment() {
         ) { granted ->
             if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-                    setUpMap()
+                    startTracking()
                 else    // notification permission is also needed
                     Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
             } else {
@@ -107,7 +109,7 @@ class StartFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                setUpMap()
+                startTracking()
             } else {
                 Toast.makeText(activity, "Notification permission is required", Toast.LENGTH_SHORT).show()
             }
@@ -146,6 +148,7 @@ class StartFragment : Fragment() {
         stopButton = view.findViewById(R.id.stopButton)
         newNoteImage = view.findViewById(R.id.newNote)
         newPicImage = view.findViewById(R.id.newPic)
+        timerTextView = view.findViewById(R.id.trackingTimer)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -185,7 +188,7 @@ class StartFragment : Fragment() {
                 requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             else {
-                setUpMap()
+                startTracking()
             }
         }
         newNoteImage.setOnClickListener {
@@ -243,7 +246,7 @@ class StartFragment : Fragment() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setUpMap() {
+    private fun startTracking() {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.mapContainer) as SupportMapFragment
         mapFragment.getMapAsync {googleMap ->
@@ -285,8 +288,25 @@ class StartFragment : Fragment() {
             }
             // start tracking
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
+            // start timer
+            startTimer()
         }
     }
+
+    private fun startTimer() {
+        var duration = 0
+        Thread {
+            while (true) {
+                Thread.sleep(1000)
+                duration++
+                requireActivity().runOnUiThread {
+                    timerTextView.text = String.format(
+                        Locale.getDefault(), "%02d:%02d", duration/60, duration%60)
+                }
+            }
+        }.start()
+    }
+
 
     private fun addStartAndZoom(startLatLng: LatLng) {
         map.addMarker(
