@@ -6,24 +6,24 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Plan::class],
+    entities = [Trip::class],
     version = 1,
     exportSchema = false
 )
-abstract class PlanDatabase : RoomDatabase() {
-    abstract fun planDao(): PlanDao
+abstract class TripDatabase : RoomDatabase() {
+    abstract fun tripDao(): TripDao
 
     companion object{
         @Volatile
-        private var INSTANCE : PlanDatabase? = null
-        fun getInstance(context: Context): PlanDatabase {
+        private var INSTANCE : TripDatabase? = null
+        fun getInstance(context: Context): TripDatabase {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        PlanDatabase::class.java,
-                        "plan_database"
+                        TripDatabase::class.java,
+                        "trip_database"
                     ).build()
                     INSTANCE = instance
                 }

@@ -2,7 +2,6 @@ package com.example.travelcompanion.ui.home.plan
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,8 +13,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.PlanDatabase
-import com.example.travelcompanion.db.PlanType
+import com.example.travelcompanion.db.TripDatabase
+import com.example.travelcompanion.db.TripType
 import java.util.Calendar
 
 class PlanFragment : Fragment() {
@@ -44,7 +43,7 @@ class PlanFragment : Fragment() {
         saveButton = view.findViewById(R.id.saveButton)
 
         // Configure spinner
-        val types = PlanType.entries.map { it.name }
+        val types = TripType.entries.map { it.name }
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         typeSpinner.adapter = adapter
@@ -69,7 +68,7 @@ class PlanFragment : Fragment() {
             datePickerDialog.show()
         }
 
-        val dao = PlanDatabase.getInstance(requireContext()).planDao()
+        val dao = TripDatabase.getInstance(requireContext()).tripDao()
         val factory = PlanViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
@@ -81,7 +80,7 @@ class PlanFragment : Fragment() {
 
     private fun savePlanData() {
         val date = selectedDate?.time
-        val type = PlanType.valueOf(typeSpinner.selectedItem.toString())
+        val type = TripType.valueOf(typeSpinner.selectedItem.toString())
         val destination = destinationEditText.text.toString()
 
         if (date != null && destination.isNotEmpty()) {

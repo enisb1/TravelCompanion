@@ -2,33 +2,34 @@ package com.example.travelcompanion.ui.home.plan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.travelcompanion.db.Plan
-import com.example.travelcompanion.db.PlanDao
-import com.example.travelcompanion.db.PlanType
+import com.example.travelcompanion.db.Trip
+import com.example.travelcompanion.db.TripDao
+import com.example.travelcompanion.db.TripState
+import com.example.travelcompanion.db.TripType
 import kotlinx.coroutines.launch
 import java.util.Date
 
-class PlanViewModel(private val dao: PlanDao) : ViewModel() {
-    val plans = dao.getAllPlans()
+class PlanViewModel(private val dao: TripDao) : ViewModel() {
+    val plans = dao.getTripsByState(TripState.PLANNED)
 
-    fun savePlan(date: Date, type: PlanType, destination: String) {
+    fun savePlan(date: Date, type: TripType, destination: String) {
         // Convert Date to milliseconds since epoch
         val dateInMillis = date.time
-        val plan = Plan(0, dateInMillis, type, destination)
+        val trip = Trip(0, dateInMillis, type, destination, TripState.PLANNED)
         viewModelScope.launch {
-            dao.insertPlan(plan)
+            dao.insertTrip(trip)
         }
     }
 
-    fun updatePlan(plan: Plan) {
+    fun updatePlan(trip: Trip) {
         viewModelScope.launch {
-            dao.updatePlan(plan)
+            dao.updateTrip(trip)
         }
     }
 
-    fun deletePlan(plan: Plan) {
+    fun deletePlan(trip: Trip) {
         viewModelScope.launch {
-            dao.deletePlan(plan)
+            dao.deleteTrip(trip)
         }
     }
 
