@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import android.util.Log
 
 @Database(
     entities = [Plan::class],
@@ -20,11 +21,13 @@ abstract class PlanDatabase : RoomDatabase() {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
+                    Log.d("PlanDatabase", "Creating new instance of PlanDatabase")
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         PlanDatabase::class.java,
                         "plan_database"
                     ).build()
+                    INSTANCE = instance
                 }
                 return instance
             }

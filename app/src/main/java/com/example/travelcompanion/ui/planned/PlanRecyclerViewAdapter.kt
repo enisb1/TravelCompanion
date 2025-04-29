@@ -1,7 +1,6 @@
 package com.example.travelcompanion.ui.planned
 
 import PlanViewHolder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +29,6 @@ class PlanRecyclerViewAdapter() : RecyclerView.Adapter<PlanViewHolder>() {
     fun setList(plans: List<Plan>) {
         planList.clear()
         planList.addAll(plans)
-        Log.d("PlanRecyclerViewAdapter", "setList: $planList")
         notifyDataSetChanged()
     }
 }

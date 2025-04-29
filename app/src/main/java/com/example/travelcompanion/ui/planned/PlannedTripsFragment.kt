@@ -45,7 +45,7 @@ class PlannedTripsFragment : Fragment() {
         initRecyclerView()
 
         plusButton.setOnClickListener {
-            // Navigate using action action_nav_planned_to_plan passing 1 for parameter "tab"
+            // Navigate using action action_nav_planned_to_plan implicitly passing 1 for parameter "tab"
             val action = PlannedTripsFragmentDirections.actionNavPlannedToPlan()
             findNavController().navigate(action)
         }
