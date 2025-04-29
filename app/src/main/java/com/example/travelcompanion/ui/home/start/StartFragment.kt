@@ -2,14 +2,16 @@ package com.example.travelcompanion.ui.home.start
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -20,11 +22,13 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
@@ -36,6 +40,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
+import java.io.File
+import android.provider.MediaStore
 
 class StartFragment : Fragment() {
 
@@ -43,6 +49,9 @@ class StartFragment : Fragment() {
 
     private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
     private lateinit var requestPermissionLauncherForNotification: ActivityResultLauncher<String>
+    private lateinit var requestPermissionLauncherForCamera: ActivityResultLauncher<String>
+
+    private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
 
     private lateinit var startButton: Button
     private lateinit var trackingLayout: ConstraintLayout
@@ -54,6 +63,9 @@ class StartFragment : Fragment() {
 
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
+    private lateinit var currentPictureFile: File
+    private lateinit var currentPictureUri: Uri
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,7 +76,20 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // location permission launcher
+        setLaunchers()
+        instantiateViews(view)
+        setListeners()
+    }
+
+    private fun enableTabSwiping() {
+        viewPager.isUserInputEnabled = true
+    }
+
+    private fun disableTabSwiping() {
+        viewPager.isUserInputEnabled = false
+    }
+
+    private fun setLaunchers() {
         requestPermissionLauncherForLocation = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
@@ -88,16 +113,29 @@ class StartFragment : Fragment() {
             }
         }
 
-        instantiateViews(view)
-        setListeners()
-    }
+        requestPermissionLauncherForCamera = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                takePicture()
+            } else {
+                Toast.makeText(activity, "Camera permission is required", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-    private fun enableTabSwiping() {
-        viewPager.isUserInputEnabled = true
-    }
-
-    private fun disableTabSwiping() {
-        viewPager.isUserInputEnabled = false
+        takePictureLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result: ActivityResult? ->
+            if (result!!.resultCode == RESULT_OK) {
+                // TODO: save uri in local database to later access it
+            } else {
+                // clean up the empty file if no photo was taken
+                if (currentPictureFile.exists()) {
+                    currentPictureFile.delete()
+                }
+                Toast.makeText(requireContext(), "Photo capture cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun instantiateViews(view: View) {
@@ -170,6 +208,38 @@ class StartFragment : Fragment() {
                 ) { dialog: DialogInterface, _ -> dialog.dismiss() }
                 .show()
         }
+        newPicImage.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncherForCamera.launch(Manifest.permission.CAMERA)
+            } else {
+                takePicture()
+            }
+        }
+    }
+
+    private fun takePicture() {
+        val directory = File(
+            Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES
+            ), "TravelCompanion"
+        )
+
+        // create directory if it doesn't exist
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
+        val file = File(directory, "photo_" + System.currentTimeMillis() + ".jpg")
+        // generate content uri through file provider to allow access to camera app
+        val uri: Uri = FileProvider.getUriForFile(requireContext(),
+            "com.example.travelcompanion.provider", file)
+
+        currentPictureFile = file
+        currentPictureUri = uri
+
+        val takePicIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        takePicIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)   // extra used to indicate uri to store image
+        takePictureLauncher.launch(takePicIntent)
     }
 
     @SuppressLint("ClickableViewAccessibility")
