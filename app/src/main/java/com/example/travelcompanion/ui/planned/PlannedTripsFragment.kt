@@ -14,10 +14,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.Plan
+import com.example.travelcompanion.db.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
-import com.example.travelcompanion.db.PlanDatabase
+import com.example.travelcompanion.db.TravelCompanionDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class PlannedTripsFragment : Fragment() {
@@ -43,7 +43,7 @@ class PlannedTripsFragment : Fragment() {
         planRecyclerView = view.findViewById(R.id.rvPlanned)
         plusButton = view.findViewById(R.id.fabAdd)
 
-        val dao = PlanDatabase.getInstance(requireContext()).planDao()
+        val dao = TravelCompanionDatabase.getInstance(requireContext()).tripDao()
         val factory = PlanViewModelFactory(dao)
         planViewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
@@ -67,13 +67,13 @@ class PlannedTripsFragment : Fragment() {
         displayPlanList()
     }
 
-    private fun showPlanDialog(plan: Plan) {
+    private fun showPlanDialog(trip: Trip) {
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_plan_details, null)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<TextView>(R.id.tvPlanDetails).text = "Destination: ${plan.destination}\nDate: ${SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(plan.date))}\nType: ${plan.type}"
+        dialogView.findViewById<TextView>(R.id.tvPlanDetails).text = "Destination: ${trip.destination}\nDate: ${SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.start_date))}\nType: ${trip.type}"
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
             // TODO
             dialog.dismiss()
@@ -83,7 +83,7 @@ class PlannedTripsFragment : Fragment() {
             dialog.dismiss()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
-            planViewModel.deletePlan(plan)
+            planViewModel.deletePlan(trip)
             dialog.dismiss()
             displayPlanList()
         }

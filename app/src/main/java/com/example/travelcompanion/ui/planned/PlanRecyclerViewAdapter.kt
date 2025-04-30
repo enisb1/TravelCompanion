@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.Plan
+import com.example.travelcompanion.db.Trip
 
 
-class PlanRecyclerViewAdapter(val clickFun : (Plan) -> Unit) : RecyclerView.Adapter<PlanViewHolder>() {
+class PlanRecyclerViewAdapter(val clickFun : (Trip) -> Unit) : RecyclerView.Adapter<PlanViewHolder>() {
 
-    private val planList = ArrayList<Plan>()
-    private var onItemClick: (Plan) -> Unit
+    private val tripList = ArrayList<Trip>()
+    private var onItemClick: (Trip) -> Unit
 
     init {
         onItemClick = clickFun
@@ -24,11 +24,11 @@ class PlanRecyclerViewAdapter(val clickFun : (Plan) -> Unit) : RecyclerView.Adap
     }
 
     override fun getItemCount(): Int {
-        return planList.size
+        return tripList.size
     }
 
     override fun onBindViewHolder(holder: PlanViewHolder, position: Int) {
-        val plan = planList[position]
+        val plan = tripList[position]
         holder.bind(plan)
         holder.itemView.setOnClickListener {
             onItemClick(plan)
@@ -37,9 +37,9 @@ class PlanRecyclerViewAdapter(val clickFun : (Plan) -> Unit) : RecyclerView.Adap
 
 
 
-    fun setList(plans: List<Plan>) {
-        planList.clear()
-        planList.addAll(plans)
+    fun setList(trips: List<Trip>) {
+        tripList.clear()
+        tripList.addAll(trips)
         notifyDataSetChanged()
     }
 }
