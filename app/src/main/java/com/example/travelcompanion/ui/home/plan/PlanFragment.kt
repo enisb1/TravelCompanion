@@ -85,6 +85,11 @@ class PlanFragment : Fragment() {
 
         if (startDate != null && destination.isNotEmpty()) {
             viewModel.savePlan(startDate, type, destination)
+            Toast.makeText(
+                requireContext(),
+                "Plan created successfully",
+                Toast.LENGTH_SHORT
+            ).show()
             clearInput()
         } else {
             Toast.makeText(
