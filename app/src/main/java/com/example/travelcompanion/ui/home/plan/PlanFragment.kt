@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.TripDatabase
+import com.example.travelcompanion.db.TravelCompanionDatabase
 import com.example.travelcompanion.db.TripType
 import java.util.Calendar
 
@@ -68,7 +68,7 @@ class PlanFragment : Fragment() {
             datePickerDialog.show()
         }
 
-        val dao = TripDatabase.getInstance(requireContext()).tripDao()
+        val dao = TravelCompanionDatabase.getInstance(requireContext()).tripDao()
         val factory = PlanViewModelFactory(dao)
         viewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
@@ -79,12 +79,12 @@ class PlanFragment : Fragment() {
     }
 
     private fun savePlanData() {
-        val date = selectedDate?.time
+        val startDate = selectedDate?.time
         val type = TripType.valueOf(typeSpinner.selectedItem.toString())
         val destination = destinationEditText.text.toString()
 
-        if (date != null && destination.isNotEmpty()) {
-            viewModel.savePlan(date, type, destination)
+        if (startDate != null && destination.isNotEmpty()) {
+            viewModel.savePlan(startDate, type, destination)
             clearInput()
         } else {
             Toast.makeText(

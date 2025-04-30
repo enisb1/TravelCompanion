@@ -12,7 +12,7 @@ class PlanViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         val destinationTextView = view.findViewById<TextView>(R.id.tvDestination)
 
         // Format the date to DD/MM/YYYY format
-        dateTextView.text = SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.date))
+        dateTextView.text = SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.start_date))
         typeTextView.text = trip.type.name
         destinationTextView.text = trip.destination
 

@@ -10,20 +10,20 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = false
 )
-abstract class TripDatabase : RoomDatabase() {
+abstract class TravelCompanionDatabase : RoomDatabase() {
     abstract fun tripDao(): TripDao
 
     companion object{
         @Volatile
-        private var INSTANCE : TripDatabase? = null
-        fun getInstance(context: Context): TripDatabase {
+        private var INSTANCE : TravelCompanionDatabase? = null
+        fun getInstance(context: Context): TravelCompanionDatabase {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        TripDatabase::class.java,
-                        "trip_database"
+                        TravelCompanionDatabase::class.java,
+                        "travel_companion_database"
                     ).build()
                     INSTANCE = instance
                 }

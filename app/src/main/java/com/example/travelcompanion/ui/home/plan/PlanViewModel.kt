@@ -12,10 +12,15 @@ import java.util.Date
 class PlanViewModel(private val dao: TripDao) : ViewModel() {
     val plans = dao.getTripsByState(TripState.PLANNED)
 
-    fun savePlan(date: Date, type: TripType, destination: String) {
+    fun savePlan(startDate: Date, type: TripType, destination: String) {
         // Convert Date to milliseconds since epoch
-        val dateInMillis = date.time
-        val trip = Trip(0, dateInMillis, type, destination, TripState.PLANNED)
+        val dateInMillis = startDate.time
+        val trip = Trip(
+            id = 0,
+            start_date = dateInMillis,
+            type = type,
+            destination = destination,
+            state = TripState.PLANNED)
         viewModelScope.launch {
             dao.insertTrip(trip)
         }

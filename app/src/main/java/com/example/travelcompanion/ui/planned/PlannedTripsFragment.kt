@@ -17,7 +17,7 @@ import com.example.travelcompanion.R
 import com.example.travelcompanion.db.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
-import com.example.travelcompanion.db.TripDatabase
+import com.example.travelcompanion.db.TravelCompanionDatabase
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class PlannedTripsFragment : Fragment() {
@@ -43,7 +43,7 @@ class PlannedTripsFragment : Fragment() {
         planRecyclerView = view.findViewById(R.id.rvPlanned)
         plusButton = view.findViewById(R.id.fabAdd)
 
-        val dao = TripDatabase.getInstance(requireContext()).tripDao()
+        val dao = TravelCompanionDatabase.getInstance(requireContext()).tripDao()
         val factory = PlanViewModelFactory(dao)
         planViewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
@@ -73,7 +73,7 @@ class PlannedTripsFragment : Fragment() {
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<TextView>(R.id.tvPlanDetails).text = "Destination: ${trip.destination}\nDate: ${SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.date))}\nType: ${trip.type}"
+        dialogView.findViewById<TextView>(R.id.tvPlanDetails).text = "Destination: ${trip.destination}\nDate: ${SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.start_date))}\nType: ${trip.type}"
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
             // TODO
             dialog.dismiss()

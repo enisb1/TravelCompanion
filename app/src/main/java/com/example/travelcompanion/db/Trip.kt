@@ -10,8 +10,11 @@ data class Trip(
     @ColumnInfo(name = "trip_id")
     var id: Int,
 
-    @ColumnInfo(name = "trip_date")
-    var date: Long,
+    @ColumnInfo(name = "trip_start_date")
+    var start_date: Long,
+
+    @ColumnInfo(name = "trip_end_date")
+    var end_date: Long = 0,
 
     @ColumnInfo(name = "trip_type")
     var type: TripType,
@@ -20,5 +23,11 @@ data class Trip(
     var destination: String,
 
     @ColumnInfo(name = "trip_state")
-    var state: TripState
+    var state: TripState,
+
+    @ColumnInfo(name = "trip_duration")
+    var duration: Long = 0, // Duration in seconds
+
+    @ColumnInfo(name = "trip_distance")
+    var distance: Long = 0, // Distance in meters
 )

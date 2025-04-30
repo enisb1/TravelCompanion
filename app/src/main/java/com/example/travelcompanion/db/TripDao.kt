@@ -24,5 +24,9 @@ interface TripDao {
     @Query("SELECT * FROM trip_table WHERE trip_state = :state")
     fun getTripsByState(state: TripState): LiveData<List<Trip>>
 
+    @Query("SELECT * FROM trip_table WHERE trip_id = :id")
+    suspend fun getTripById(id: Int): Trip?
 
+    @Query("SELECT * FROM trip_table WHERE trip_start_date BETWEEN :startDate AND :endDate")
+    suspend fun getTripsByDateRange(startDate: Long, endDate: Long): List<Trip>
 }
