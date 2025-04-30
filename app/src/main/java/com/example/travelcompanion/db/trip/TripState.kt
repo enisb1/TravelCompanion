@@ -1,4 +1,4 @@
-package com.example.travelcompanion.db
+package com.example.travelcompanion.db.trip
 
 enum class TripState {
     PLANNED,

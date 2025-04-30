@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionDatabase
-import com.example.travelcompanion.db.TripType
+import com.example.travelcompanion.db.trip.TripType
 import java.util.Calendar
 
 class PlanFragment : Fragment() {

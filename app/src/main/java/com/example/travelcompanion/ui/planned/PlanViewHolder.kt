@@ -3,7 +3,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.Trip
+import com.example.travelcompanion.db.trip.Trip
 
 class PlanViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     fun bind(trip: Trip){

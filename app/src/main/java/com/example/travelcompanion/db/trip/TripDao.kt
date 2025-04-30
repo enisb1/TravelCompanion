@@ -1,4 +1,4 @@
-package com.example.travelcompanion.db
+package com.example.travelcompanion.db.trip
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

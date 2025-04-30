@@ -2,10 +2,10 @@ package com.example.travelcompanion.ui.home.plan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.travelcompanion.db.Trip
-import com.example.travelcompanion.db.TripDao
-import com.example.travelcompanion.db.TripState
-import com.example.travelcompanion.db.TripType
+import com.example.travelcompanion.db.trip.Trip
+import com.example.travelcompanion.db.trip.TripDao
+import com.example.travelcompanion.db.trip.TripState
+import com.example.travelcompanion.db.trip.TripType
 import kotlinx.coroutines.launch
 import java.util.Date
 

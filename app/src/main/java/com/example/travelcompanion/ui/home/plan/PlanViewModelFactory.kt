@@ -2,7 +2,7 @@ package com.example.travelcompanion.ui.home.plan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.travelcompanion.db.TripDao
+import com.example.travelcompanion.db.trip.TripDao
 
 class PlanViewModelFactory(private val dao: TripDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
-import com.example.travelcompanion.db.Trip
+import com.example.travelcompanion.db.trip.Trip
 
 
 class PlanRecyclerViewAdapter(val clickFun : (Trip) -> Unit) : RecyclerView.Adapter<PlanViewHolder>() {
