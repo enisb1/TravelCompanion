@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
-import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
 import com.google.android.material.floatingactionbutton.FloatingActionButton

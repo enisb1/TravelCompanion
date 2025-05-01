@@ -12,11 +12,11 @@ import java.util.Date
 
 class TravelCompanionRepository(app: Application) {
 
-    var dao : TripDao
+    private var tripDao : TripDao
 
     init {
         val db = TravelCompanionDatabase.getInstance(app)
-        dao = db.tripDao()
+        tripDao = db.tripDao()
     }
 
     fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState) {
@@ -29,38 +29,38 @@ class TravelCompanionRepository(app: Application) {
             destination = destination,
             state = state)
         GlobalScope.launch {
-            dao.insertTrip(trip)
+            tripDao.insertTrip(trip)
         }
     }
 
     fun updateTrip(trip: Trip) {
         GlobalScope.launch {
-            dao.updateTrip(trip)
+            tripDao.updateTrip(trip)
         }
     }
 
     fun deleteTrip(trip: Trip) {
         GlobalScope.launch {
-            dao.deleteTrip(trip)
+            tripDao.deleteTrip(trip)
         }
     }
 
     fun getAllTrips(): LiveData<List<Trip>> {
-        return dao.getAllTrips()
+        return tripDao.getAllTrips()
     }
 
     fun getTripsByState(state: TripState): LiveData<List<Trip>> {
-        return dao.getTripsByState(state)
+        return tripDao.getTripsByState(state)
     }
 
     // Not sure this will work
     suspend fun getTripById(id: Int): Trip? {
-        return dao.getTripById(id)
+        return tripDao.getTripById(id)
     }
 
     // Not sure this will work
     suspend fun getTripsByDateRange(startDate: Long, endDate: Long): List<Trip> {
-        return dao.getTripsByDateRange(startDate, endDate)
+        return tripDao.getTripsByDateRange(startDate, endDate)
     }
 
 }
