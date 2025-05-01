@@ -22,7 +22,7 @@ import com.example.travelcompanion.R
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
-import com.example.travelcompanion.db.TravelCompanionDatabase
+import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Calendar
@@ -51,8 +51,8 @@ class PlannedTripsFragment : Fragment() {
         planRecyclerView = view.findViewById(R.id.rvPlanned)
         plusButton = view.findViewById(R.id.fabAdd)
 
-        val dao = TravelCompanionDatabase.getInstance(requireContext()).tripDao()
-        val factory = PlanViewModelFactory(dao)
+
+        val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         planViewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
         initRecyclerView()
