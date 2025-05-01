@@ -1,14 +1,19 @@
 package com.example.travelcompanion.ui.planned
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,8 +22,10 @@ import com.example.travelcompanion.R
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
-import com.example.travelcompanion.db.TravelCompanionDatabase
+import com.example.travelcompanion.db.TravelCompanionRepository
+import com.example.travelcompanion.db.trip.TripType
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.util.Calendar
 
 class PlannedTripsFragment : Fragment() {
 
@@ -26,6 +33,7 @@ class PlannedTripsFragment : Fragment() {
     private lateinit var planRecyclerView : RecyclerView
     private lateinit var planAdapter : PlanRecyclerViewAdapter
     private lateinit var plusButton: FloatingActionButton
+    private var selectedDate: Calendar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,8 +51,8 @@ class PlannedTripsFragment : Fragment() {
         planRecyclerView = view.findViewById(R.id.rvPlanned)
         plusButton = view.findViewById(R.id.fabAdd)
 
-        val dao = TravelCompanionDatabase.getInstance(requireContext()).tripDao()
-        val factory = PlanViewModelFactory(dao)
+
+        val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         planViewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
 
         initRecyclerView()
@@ -73,17 +81,65 @@ class PlannedTripsFragment : Fragment() {
             .setView(dialogView)
             .create()
 
-        dialogView.findViewById<TextView>(R.id.tvPlanDetails).text = "Destination: ${trip.destination}\nDate: ${SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.start_date))}\nType: ${trip.type}"
+        val etDestination = dialogView.findViewById<EditText>(R.id.etDetailDestination)
+        etDestination.setText(trip.destination)
+
+        val tvStart = dialogView.findViewById<TextView>(R.id.tvDetailStart)
+        tvStart.text = SimpleDateFormat("d/M/yyyy").format(trip.start_date)
+        tvStart.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            // Set the calendar to the trip's start date
+            calendar.timeInMillis = trip.start_date
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    selectedDate = Calendar.getInstance().apply {
+                        set(selectedYear, selectedMonth, selectedDay)
+                    }
+                    tvStart.text = "${selectedDay}/${selectedMonth + 1}/${selectedYear}"
+                },
+                year, month, day
+            )
+            datePickerDialog.show()
+        }
+
+        val spinnerType = dialogView.findViewById<Spinner>(R.id.spinnerDetailType)
+        val types = TripType.entries.map { it.name }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerType.adapter = adapter
+        spinnerType.setSelection(when (trip.type) {
+            TripType.LOCAL -> 0
+            TripType.ONEDAY -> 1
+            TripType.MULTIDAY -> 2
+        })
+
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
             // TODO
             dialog.dismiss()
         }
         dialogView.findViewById<Button>(R.id.btnEditTrip).setOnClickListener {
-            // TODO
+            trip.destination = etDestination.text.toString()
+            trip.start_date = selectedDate?.timeInMillis ?: trip.start_date
+            trip.type = when (spinnerType.selectedItemPosition) {
+                0 -> TripType.LOCAL
+                1 -> TripType.ONEDAY
+                2 -> TripType.MULTIDAY
+                else -> trip.type // Default to the current type if something goes wrong
+            }
+
+            planViewModel.updatePlan(trip)
+            Toast.makeText(requireContext(), "Trip updated", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
+            displayPlanList()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
             planViewModel.deletePlan(trip)
+            Toast.makeText(requireContext(), "Trip deleted", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }
