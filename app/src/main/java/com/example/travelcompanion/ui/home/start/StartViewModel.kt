@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.db.TravelCompanionDatabase
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.notes.Note
+import com.example.travelcompanion.db.pictures.Picture
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
@@ -23,6 +24,10 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
 
     fun saveNote(note: Note) {
         repository.saveNote(note)
+    }
+
+    fun savePicture(picture: Picture) {
+        repository.savePicture(picture)
     }
 }
 

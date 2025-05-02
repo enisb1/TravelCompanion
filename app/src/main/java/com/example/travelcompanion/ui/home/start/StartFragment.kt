@@ -155,8 +155,9 @@ class StartFragment : Fragment() {
             ActivityResultContracts.StartActivityForResult()
         ) { result: ActivityResult? ->
             if (result!!.resultCode == RESULT_OK) {
-
-                // TODO: save uri (string) in local database to later access it
+                // add picture to pictures list
+                val picture = Picture(id = 0, timestamp = Date().time, uri = currentPictureUri.toString())
+                pictures.add(picture)
             } else {
                 // clean up the empty file if no photo was taken
                 if (currentPictureFile.exists()) {
@@ -239,7 +240,6 @@ class StartFragment : Fragment() {
                     if (destination.isEmpty())
                         Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
                     else {
-                        // TODO: salva la trip e dato il suo id salva anche tutte le note e le pictures
                         lifecycleScope.launch {
                             val id = withContext(Dispatchers.IO) {
                                 viewModel.saveTrip(Date(), TripType.valueOf(dialogTripTypeSpinner.selectedItem.toString()),
@@ -248,6 +248,10 @@ class StartFragment : Fragment() {
                             notes.forEach {
                                 it.tripId = id
                                 viewModel.saveNote(it)
+                            }
+                            pictures.forEach {
+                                it.tripId = id
+                                viewModel.savePicture(it)
                             }
                         }
                     }

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import com.example.travelcompanion.db.notes.Note
 import com.example.travelcompanion.db.notes.NoteDao
+import com.example.travelcompanion.db.pictures.Picture
 import com.example.travelcompanion.db.pictures.PictureDao
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripDao
@@ -76,6 +77,13 @@ class TravelCompanionRepository(app: Application) {
     fun saveNote(note: Note) {
         TravelCompanionDatabase.databaseWriteExecutor.execute {
             noteDao.insertNote(note)
+        }
+    }
+
+    // -------------------- PICTURES --------------------
+    fun savePicture(picture: Picture) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            pictureDao.insertPicture(picture)
         }
     }
 }
