@@ -56,8 +56,11 @@ class TrackingService : Service() {
                             LatLng(lastLocation!!.latitude, lastLocation!!.longitude),
                             LatLng(location.latitude, location.longitude))
                         Log.i("Tracking", distance.toString())
-                        if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS)
+                        if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS) {
                             TrackingRepository.addLocation(location)
+                            TrackingRepository.incrementDistance(distance)
+                        }
+
                     }
                     else
                         TrackingRepository.addLocation(location)

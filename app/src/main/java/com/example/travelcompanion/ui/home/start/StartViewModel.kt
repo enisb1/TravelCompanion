@@ -15,9 +15,18 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
     val locationsList: LiveData<List<Location>> = TrackingRepository.locationList
     val timerSeconds: LiveData<Long> = TrackingRepository.timerSeconds
 
-    fun saveTrip(date: Date, type: TripType, destination: String, state: TripState
+    fun saveTrip(startDate: Date, type: TripType, destination: String, state: TripState
     ): Long {
-        return repository.insertTrip(date, type, destination, state)
+        val tripId = repository.insertTrip(
+            startDate,
+            type,
+            destination,
+            state,
+            TrackingRepository.timerSeconds.value ?: 0,
+            TrackingRepository.currentDistance
+        )
+
+        return tripId
     }
 
     fun saveNote(note: Note) {

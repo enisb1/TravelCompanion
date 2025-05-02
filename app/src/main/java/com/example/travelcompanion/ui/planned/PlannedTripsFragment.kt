@@ -85,11 +85,11 @@ class PlannedTripsFragment : Fragment() {
         etDestination.setText(trip.destination)
 
         val tvStart = dialogView.findViewById<TextView>(R.id.tvDetailStart)
-        tvStart.text = SimpleDateFormat("d/M/yyyy").format(trip.start_date)
+        tvStart.text = SimpleDateFormat("d/M/yyyy").format(trip.startTimestamp)
         tvStart.setOnClickListener {
             val calendar = Calendar.getInstance()
             // Set the calendar to the trip's start date
-            calendar.timeInMillis = trip.start_date
+            calendar.timeInMillis = trip.startTimestamp
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
             val day = calendar.get(Calendar.DAY_OF_MONTH)
@@ -124,7 +124,7 @@ class PlannedTripsFragment : Fragment() {
         }
         dialogView.findViewById<Button>(R.id.btnEditTrip).setOnClickListener {
             trip.destination = etDestination.text.toString()
-            trip.start_date = selectedDate?.timeInMillis ?: trip.start_date
+            trip.startTimestamp = selectedDate?.timeInMillis ?: trip.startTimestamp
             trip.type = when (spinnerType.selectedItemPosition) {
                 0 -> TripType.LOCAL
                 1 -> TripType.ONEDAY

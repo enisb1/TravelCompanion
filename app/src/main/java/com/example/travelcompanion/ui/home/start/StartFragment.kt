@@ -88,6 +88,8 @@ class StartFragment : Fragment() {
     private val notes: MutableList<Note> = mutableListOf()
     private val pictures: MutableList<Picture> = mutableListOf()
 
+    private lateinit var startDate: Date
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -125,8 +127,8 @@ class StartFragment : Fragment() {
             if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
                     startTracking()
-                else    // notification permission is also needed
-                    Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
+                else
+                    requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
                 Toast.makeText(activity, R.string.fine_location_permission_denied, Toast.LENGTH_SHORT).show()
             }
@@ -190,7 +192,7 @@ class StartFragment : Fragment() {
                 else {
                     lifecycleScope.launch {
                         val id = withContext(Dispatchers.IO) {
-                            viewModel.saveTrip(Date(), TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
+                            viewModel.saveTrip(startDate, TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
                                 destination, TripState.COMPLETED)
                         }
                         notes.forEach {
@@ -234,7 +236,7 @@ class StartFragment : Fragment() {
                     Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
                 else {
                     notes.add(Note(id = 0, title = title, date = Date().time, content = content))
-                    Toast.makeText(requireContext(), "Note added to trip!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Note added to trip", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton(
@@ -315,7 +317,8 @@ class StartFragment : Fragment() {
         trackingLayout.visibility = View.GONE
         startButton.visibility = View.VISIBLE
         // reset data
-        viewModel.resetTrackingData()
+        TrackingRepository.resetData()
+        map.clear()
     }
 
     private fun takePicture() {
@@ -392,6 +395,8 @@ class StartFragment : Fragment() {
             }
             // start tracking
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
+            // set startDate
+            startDate = Date()
         }
     }
 

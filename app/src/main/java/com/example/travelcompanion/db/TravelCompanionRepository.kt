@@ -10,10 +10,8 @@ import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripDao
 import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 
 class TravelCompanionRepository(app: Application) {
@@ -30,15 +28,20 @@ class TravelCompanionRepository(app: Application) {
     }
 
     // -------------------- TRIPS --------------------
-    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState): Long {
+    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState,
+                   duration: Long = 0, distance: Double = 0.0): Long {
         // Convert Date to milliseconds since epoch
-        val dateInMillis = startDate.time
+        val startInMillis = startDate.time
         val trip = Trip(
             id = 0,
-            start_date = dateInMillis,
+            startTimestamp = startInMillis,
+            endTimestamp = startInMillis + duration * 1000,
             type = type,
             destination = destination,
-            state = state)
+            state = state,
+            duration = duration,
+            distance = distance
+        )
 
         return tripDao.insertTrip(trip)
     }

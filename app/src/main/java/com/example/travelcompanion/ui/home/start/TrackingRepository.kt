@@ -11,6 +11,10 @@ object TrackingRepository {
     private val _timerSeconds = MutableLiveData<Long>()
     val timerSeconds: LiveData<Long> = _timerSeconds
 
+    private var distance: Double = 0.0
+    val currentDistance: Double
+        get() = distance
+
     fun addLocation(location: Location) {
         val updatedLocationList = _locationList.value?.toMutableList() ?: mutableListOf()
         updatedLocationList.add(location)
@@ -24,5 +28,11 @@ object TrackingRepository {
     fun resetData() {
         _locationList.value = emptyList()
         _timerSeconds.value = 0L
+        distance = 0.0
     }
+
+    fun incrementDistance(metres: Double) {
+        distance += metres
+    }
+
 }
