@@ -75,10 +75,8 @@ class StartFragment : Fragment() {
     private lateinit var newPicImage: ImageView
     private lateinit var timerTextView: TextView
 
-    // stop dialog
     private lateinit var stopDialog: AlertDialog
-    private lateinit var tripTypeSpinner: Spinner
-    private lateinit var destinationEditText: EditText
+    private lateinit var newNoteDialog: AlertDialog
 
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
@@ -174,8 +172,8 @@ class StartFragment : Fragment() {
     private fun buildDialogs() {
         // --- stop dialog ---
         val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
-        tripTypeSpinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
-        destinationEditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+        val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
+        val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
 
         // Configure spinner
         val types = TripType.entries.map { it.name }
@@ -203,17 +201,49 @@ class StartFragment : Fragment() {
                             it.tripId = id
                             viewModel.savePicture(it)
                         }
+                        resetToStart()
+                        Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
                         //stop foreground tracking service
                         val stopIntent = Intent(requireContext(), TrackingService::class.java)
                         stopIntent.action = "ACTION_STOP"
                         requireContext().startService(stopIntent)
-                        resetToStart()
                     }
                 }
             }
             .setNegativeButton(
                 getString(R.string.cancel)
             ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+            .setOnDismissListener {
+                tripTypeSpinner.setSelection(0)
+                destinationEditText.setText("")
+            }
+            .create()
+
+        // --- new note dialog ---
+        val dialogNewNoteView = inflater.inflate(R.layout.dialog_add_note, null)
+
+        val editTextTitle = dialogNewNoteView.findViewById<EditText>(R.id.titleEditText)
+        val editTextContent = dialogNewNoteView.findViewById<EditText>(R.id.contentEditText)
+
+        newNoteDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogNewNoteView)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val title = editTextTitle.text.toString()
+                val content = editTextContent.text.toString()
+                if (title.isEmpty() || content.isEmpty())
+                    Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
+                else {
+                    notes.add(Note(id = 0, title = title, date = Date().time, content = content))
+                    Toast.makeText(requireContext(), "Note added to trip!", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(
+                getString(R.string.cancel)
+            ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+            .setOnDismissListener {
+                editTextTitle.setText("")
+                editTextContent.setText("")
+            }
             .create()
     }
 
@@ -270,28 +300,7 @@ class StartFragment : Fragment() {
             stopDialog.show()
         }
         newNoteImage.setOnClickListener {
-            // show dialog
-            val dialogView = inflater.inflate(R.layout.dialog_add_note, null)
-
-            val editTextTitle = dialogView.findViewById<EditText>(R.id.titleEditText)
-            val editTextContent = dialogView.findViewById<EditText>(R.id.contentEditText)
-
-            AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.add)) { _, _ ->
-                    val title = editTextTitle.text.toString()
-                    val content = editTextContent.text.toString()
-                    if (title.isEmpty() || content.isEmpty())
-                        Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
-                    else {
-                        notes.add(Note(id = 0, title = title, date = Date().time, content = content))
-                        Toast.makeText(requireContext(), "Note added to trip!", Toast.LENGTH_SHORT).show()
-                    }
-                }
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
-                .show()
+            newNoteDialog.show()
         }
         newPicImage.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -307,8 +316,6 @@ class StartFragment : Fragment() {
         startButton.visibility = View.VISIBLE
         // reset data
         viewModel.resetTrackingData()
-        tripTypeSpinner.setSelection(0)
-        destinationEditText.setText("")
     }
 
     private fun takePicture() {
