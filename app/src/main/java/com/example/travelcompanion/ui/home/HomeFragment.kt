@@ -26,12 +26,17 @@ class HomeFragment : Fragment() {
 
         val homeVM : HomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
-        // TODO: use VM
+        // TODO: if VM is not used then delete it
         // TabLayout setup
         val tabLayout : TabLayout = view.findViewById(R.id.home_tabLayout)
         val viewPager: ViewPager2 = view.findViewById(R.id.home_viewPager)
 
-        viewPager.adapter = HomePagerAdapter(this)
+        viewPager.adapter = HomePagerAdapter(
+            this,
+            arguments?.getLong("plannedTripId") ?: -1L,
+            arguments?.getString("tripType") ?: "",
+            arguments?.getString("tripDestination") ?: ""
+        )
 
         val defaultTab = arguments?.getInt("tab") ?: 0
         viewPager.setCurrentItem(defaultTab, false)

@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
@@ -90,6 +91,10 @@ class StartFragment : Fragment() {
 
     private lateinit var startDate: Date
 
+    private var unpackedTripId: Long = -1L
+    private lateinit var unpackedTripType: String
+    private lateinit var unpackedTripDestination: String
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -110,6 +115,13 @@ class StartFragment : Fragment() {
         instantiateViews(view)
         buildDialogs()
         setListeners()
+
+        // unpack received strings (empty if no value was sent)
+        unpackedTripId = arguments?.getLong("plannedTripId") ?: -1L
+        unpackedTripType = arguments?.getString("tripType") ?: ""
+        unpackedTripDestination = arguments?.getString("tripDestination") ?: ""
+        if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
+            startButton.performClick()
     }
 
     private fun enableTabSwiping() {
@@ -171,6 +183,29 @@ class StartFragment : Fragment() {
         }
     }
 
+    private fun endTrip(tripType: TripType, tripDestination: String) {
+        lifecycleScope.launch {
+            val id = withContext(Dispatchers.IO) {
+                viewModel.saveTrip(startDate, tripType,
+                    tripDestination, TripState.COMPLETED)
+            }
+            notes.forEach {
+                it.tripId = id
+                viewModel.saveNote(it)
+            }
+            pictures.forEach {
+                it.tripId = id
+                viewModel.savePicture(it)
+            }
+            resetToStart()
+            Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
+            //stop foreground tracking service
+            val stopIntent = Intent(requireContext(), TrackingService::class.java)
+            stopIntent.action = "ACTION_STOP"
+            requireContext().startService(stopIntent)
+        }
+    }
+
     private fun buildDialogs() {
         // --- stop dialog ---
         val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
@@ -190,26 +225,10 @@ class StartFragment : Fragment() {
                 if (destination.isEmpty())
                     Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
                 else {
-                    lifecycleScope.launch {
-                        val id = withContext(Dispatchers.IO) {
-                            viewModel.saveTrip(startDate, TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
-                                destination, TripState.COMPLETED)
-                        }
-                        notes.forEach {
-                            it.tripId = id
-                            viewModel.saveNote(it)
-                        }
-                        pictures.forEach {
-                            it.tripId = id
-                            viewModel.savePicture(it)
-                        }
-                        resetToStart()
-                        Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
-                        //stop foreground tracking service
-                        val stopIntent = Intent(requireContext(), TrackingService::class.java)
-                        stopIntent.action = "ACTION_STOP"
-                        requireContext().startService(stopIntent)
-                    }
+                    endTrip(
+                        TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
+                        destination
+                    )
                 }
             }
             .setNegativeButton(
@@ -299,7 +318,15 @@ class StartFragment : Fragment() {
             }
         }
         stopButton.setOnClickListener {
-            stopDialog.show()
+            if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
+                endTrip(TripType.valueOf(unpackedTripType), unpackedTripDestination)
+                unpackedTripId = -1L
+                unpackedTripType = ""
+                unpackedTripDestination = ""
+                // TODO: remove trip through its id
+            }
+            else
+                stopDialog.show()
         }
         newNoteImage.setOnClickListener {
             newNoteDialog.show()

@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class Trip(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "trip_id")
-    var id: Int,
+    var id: Long,
 
     @ColumnInfo(name = "trip_start_date")
     var startTimestamp: Long,

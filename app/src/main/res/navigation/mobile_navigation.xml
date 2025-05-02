@@ -9,10 +9,6 @@
         android:id="@+id/nav_home"
         android:name="com.example.travelcompanion.ui.home.HomeFragment"
         android:label="Home">
-        <argument
-            android:name="tab"
-            app:argType="integer"
-            android:defaultValue="0" />
     </fragment>
 
     <fragment
@@ -27,12 +23,23 @@
         android:label="@string/menu_planned_trips"
         tools:layout="@layout/fragment_planned_trips" >
         <action
-            android:id="@+id/action_nav_planned_to_plan"
+            android:id="@+id/action_nav_planned_to_home"
             app:destination="@id/nav_home">
             <argument
                 android:name="tab"
-                app:argType="integer"
-                android:defaultValue="1" />
+                app:argType="integer" />
+
+            <argument
+                android:name="plannedTripId"
+                app:argType="long"/>
+
+            <argument
+                android:name="tripType"
+                app:argType="string"/>
+
+            <argument
+                android:name="tripDestination"
+                app:argType="string"/>
         </action>
     </fragment>
 

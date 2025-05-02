@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -58,8 +59,12 @@ class PlannedTripsFragment : Fragment() {
         initRecyclerView()
 
         plusButton.setOnClickListener {
-            // Navigate using action action_nav_planned_to_plan implicitly passing 1 for parameter "tab"
-            val action = PlannedTripsFragmentDirections.actionNavPlannedToPlan()
+            val action = PlannedTripsFragmentDirections.actionNavPlannedToHome(
+                1,
+                -1,
+                "",
+                ""
+            )
             findNavController().navigate(action)
         }
 
@@ -119,7 +124,14 @@ class PlannedTripsFragment : Fragment() {
         })
 
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
-            // TODO
+            // start trip by navigating to home (start) fragment
+            val action = PlannedTripsFragmentDirections.actionNavPlannedToHome(
+                0,
+                trip.id,
+                trip.type.toString(),
+                trip.destination
+            )
+            findNavController().navigate(action)
             dialog.dismiss()
         }
         dialogView.findViewById<Button>(R.id.btnEditTrip).setOnClickListener {
