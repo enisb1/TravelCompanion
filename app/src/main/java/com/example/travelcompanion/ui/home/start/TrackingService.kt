@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.travelcompanion.R
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -31,7 +32,12 @@ class TrackingService : Service() {
         val NOTIFICATION_ID = 1
         val CHANNEL_ID = "location_tracking_service"
         val CHANNEL_NAME = "Location tracking channel"
+        val ACTION_STOP = "ACTION_STOP"
     }
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var incrementTimerThread: Thread
 
     @SuppressLint("MissingPermission")
     override fun onCreate() {
@@ -42,7 +48,7 @@ class TrackingService : Service() {
             .build()
 
         var lastLocation: Location? = null
-        val locationCallback = object : LocationCallback() {
+        locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
                     if (lastLocation != null) {
@@ -59,13 +65,19 @@ class TrackingService : Service() {
                 }
             }
         }
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 
         startTimer()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            Log.i("Tracking", "stop")
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
         val notification = createNotification()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -76,12 +88,17 @@ class TrackingService : Service() {
     }
 
     private fun startTimer() {
-        Thread {
+        incrementTimerThread = Thread {
             while (true) {
-                Thread.sleep(1000)
-                TrackingRepository.incrementTimerValue()
+                try {
+                    Thread.sleep(1000)
+                    TrackingRepository.incrementTimerValue()
+                } catch (e: InterruptedException) { // exception thrown by the interrupt() function
+                    break
+                }
             }
-        }.start()
+        }
+        incrementTimerThread.start()
     }
 
     private fun createNotification(): Notification {
@@ -106,5 +123,13 @@ class TrackingService : Service() {
     // not a bound service
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // stop location updates
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        // stop incrementing timer
+        incrementTimerThread.interrupt()
     }
 }

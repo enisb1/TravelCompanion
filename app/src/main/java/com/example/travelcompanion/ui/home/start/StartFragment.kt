@@ -76,8 +76,9 @@ class StartFragment : Fragment() {
     private lateinit var timerTextView: TextView
 
     // stop dialog
-    private lateinit var dialogStopView: View
-    private lateinit var dialogTripTypeSpinner: Spinner
+    private lateinit var stopDialog: AlertDialog
+    private lateinit var tripTypeSpinner: Spinner
+    private lateinit var destinationEditText: EditText
 
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
@@ -103,8 +104,11 @@ class StartFragment : Fragment() {
         val factory = StartViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         viewModel = ViewModelProvider(this, factory)[StartViewModel::class.java]
 
+        inflater = LayoutInflater.from(requireContext())
+
         setLaunchers()
         instantiateViews(view)
+        buildDialogs()
         setListeners()
     }
 
@@ -167,9 +171,53 @@ class StartFragment : Fragment() {
         }
     }
 
-    private fun instantiateViews(view: View) {
-        inflater = LayoutInflater.from(requireContext())
+    private fun buildDialogs() {
+        // --- stop dialog ---
+        val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
+        tripTypeSpinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
+        destinationEditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
 
+        // Configure spinner
+        val types = TripType.entries.map { it.name }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tripTypeSpinner.adapter = adapter
+
+        stopDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogStopView)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val destination = destinationEditText.text.toString()
+                if (destination.isEmpty())
+                    Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
+                else {
+                    lifecycleScope.launch {
+                        val id = withContext(Dispatchers.IO) {
+                            viewModel.saveTrip(Date(), TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
+                                destination, TripState.COMPLETED)
+                        }
+                        notes.forEach {
+                            it.tripId = id
+                            viewModel.saveNote(it)
+                        }
+                        pictures.forEach {
+                            it.tripId = id
+                            viewModel.savePicture(it)
+                        }
+                        //stop foreground tracking service
+                        val stopIntent = Intent(requireContext(), TrackingService::class.java)
+                        stopIntent.action = "ACTION_STOP"
+                        requireContext().startService(stopIntent)
+                        resetToStart()
+                    }
+                }
+            }
+            .setNegativeButton(
+                getString(R.string.cancel)
+            ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+            .create()
+    }
+
+    private fun instantiateViews(view: View) {
         viewPager = requireParentFragment().requireView().findViewById(R.id.home_viewPager)
         trackingLayout = view.findViewById(R.id.trackingLayout)
         trackingTitle = view.findViewById(R.id.trackingTitle)
@@ -178,13 +226,9 @@ class StartFragment : Fragment() {
         newNoteImage = view.findViewById(R.id.newNote)
         newPicImage = view.findViewById(R.id.newPic)
         timerTextView = view.findViewById(R.id.trackingTimer)
-
-        // stop dialog
-        dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
-        dialogTripTypeSpinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
     }
 
-    @SuppressLint("ClickableViewAccessibility", "ImplicitSamInstance")
+    @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
         // enable tab swiping for the views in the layout
         for (view in arrayOf(trackingLayout, trackingTitle, stopButton, newNoteImage, newPicImage)) {
@@ -223,47 +267,7 @@ class StartFragment : Fragment() {
             }
         }
         stopButton.setOnClickListener {
-            if (dialogTripTypeSpinner.adapter == null) {
-                // Configure spinner
-                val types = TripType.entries.map { it.name }
-                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                dialogTripTypeSpinner.adapter = adapter
-            }
-            // show dialog
-            val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
-            AlertDialog.Builder(requireContext())
-                .setView(dialogStopView)
-                .setPositiveButton(getString(R.string.add)) { _, _ ->
-                    val destination = destinationEditText.text.toString()
-                    if (destination.isEmpty())
-                        Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
-                    else {
-                        lifecycleScope.launch {
-                            val id = withContext(Dispatchers.IO) {
-                                viewModel.saveTrip(Date(), TripType.valueOf(dialogTripTypeSpinner.selectedItem.toString()),
-                                    destination, TripState.COMPLETED)
-                            }
-                            notes.forEach {
-                                it.tripId = id
-                                viewModel.saveNote(it)
-                            }
-                            pictures.forEach {
-                                it.tripId = id
-                                viewModel.savePicture(it)
-                            }
-                            requireContext().stopService(
-                                Intent(requireContext(),
-                                TrackingService::class.java)
-                            )
-                            resetToStart()
-                        }
-                    }
-                }
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
-                .show()
+            stopDialog.show()
         }
         newNoteImage.setOnClickListener {
             // show dialog
@@ -301,6 +305,10 @@ class StartFragment : Fragment() {
     private fun resetToStart() {
         trackingLayout.visibility = View.GONE
         startButton.visibility = View.VISIBLE
+        // reset data
+        viewModel.resetTrackingData()
+        tripTypeSpinner.setSelection(0)
+        destinationEditText.setText("")
     }
 
     private fun takePicture() {
@@ -359,15 +367,17 @@ class StartFragment : Fragment() {
             val polyline = map.addPolyline(polylineOptions)
             // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
-                val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
-                    newValue[newValue.size-1].longitude)
-                if (newValue.size == 1)
-                    addStartAndZoom(addedLatLng)    // added locations is start location
-                points.add(addedLatLng)
-                polyline.points = points
-                map.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
-                )
+                if (newValue.isNotEmpty()) {
+                    val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
+                        newValue[newValue.size-1].longitude)
+                    if (newValue.size == 1)
+                        addStartAndZoom(addedLatLng)    // added locations is start location
+                    points.add(addedLatLng)
+                    polyline.points = points
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
+                    )
+                }
             }
             viewModel.timerSeconds.observe(requireActivity()) { newValue ->
                 timerTextView.text = String.format(

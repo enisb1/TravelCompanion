@@ -27,6 +27,10 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
     fun savePicture(picture: Picture) {
         repository.savePicture(picture)
     }
+
+    fun resetTrackingData() {
+        TrackingRepository.resetData()
+    }
 }
 
 class StartViewModelFactory(private val repository: TravelCompanionRepository) : ViewModelProvider.Factory {

@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
 object TrackingRepository {
-    private val _locationList = MutableLiveData<List<Location>>()
+    private val _locationList = MutableLiveData<List<Location>>(emptyList())
     val locationList: LiveData<List<Location>> = _locationList
 
     private val _timerSeconds = MutableLiveData<Long>()
@@ -19,5 +19,10 @@ object TrackingRepository {
 
     fun incrementTimerValue() {
         _timerSeconds.postValue((_timerSeconds.value ?: 0) + 1 )
+    }
+
+    fun resetData() {
+        _locationList.value = emptyList()
+        _timerSeconds.value = 0L
     }
 }
