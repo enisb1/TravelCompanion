@@ -12,9 +12,13 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 
 class PlanFragment : Fragment() {
@@ -83,7 +87,11 @@ class PlanFragment : Fragment() {
         val destination = destinationEditText.text.toString()
 
         if (startDate != null && destination.isNotEmpty()) {
-            viewModel.insertPlan(startDate, type, destination)
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    viewModel.insertPlan(startDate, type, destination)
+                }
+            }
             Toast.makeText(
                 requireContext(),
                 "Plan created successfully",

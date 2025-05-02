@@ -2,24 +2,34 @@ package com.example.travelcompanion.db
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import com.example.travelcompanion.db.notes.Note
+import com.example.travelcompanion.db.notes.NoteDao
+import com.example.travelcompanion.db.pictures.PictureDao
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripDao
 import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 
 class TravelCompanionRepository(app: Application) {
 
     private var tripDao : TripDao
+    private var noteDao: NoteDao
+    private var pictureDao: PictureDao
 
     init {
         val db = TravelCompanionDatabase.getInstance(app)
         tripDao = db.tripDao()
+        noteDao = db.noteDao()
+        pictureDao = db.pictureDao()
     }
 
-    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState) {
+    // -------------------- TRIPS --------------------
+    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState): Long {
         // Convert Date to milliseconds since epoch
         val dateInMillis = startDate.time
         val trip = Trip(
@@ -28,9 +38,8 @@ class TravelCompanionRepository(app: Application) {
             type = type,
             destination = destination,
             state = state)
-        GlobalScope.launch {
-            tripDao.insertTrip(trip)
-        }
+
+        return tripDao.insertTrip(trip)
     }
 
     fun updateTrip(trip: Trip) {
@@ -63,4 +72,10 @@ class TravelCompanionRepository(app: Application) {
         return tripDao.getTripsByDateRange(startDate, endDate)
     }
 
+    // -------------------- NOTES --------------------
+    fun saveNote(note: Note) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            noteDao.insertNote(note)
+        }
+    }
 }

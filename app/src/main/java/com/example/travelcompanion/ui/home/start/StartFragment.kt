@@ -30,7 +30,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -42,11 +41,25 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.travelcompanion.db.TravelCompanionRepository
+import com.example.travelcompanion.db.notes.Note
+import com.example.travelcompanion.db.pictures.Picture
+import com.example.travelcompanion.db.trip.TripState
+import com.example.travelcompanion.db.trip.TripType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.Locale
 
 class StartFragment : Fragment() {
 
-    private val viewModel: StartViewModel by viewModels()
+    private lateinit var viewModel: StartViewModel
 
     private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
     private lateinit var requestPermissionLauncherForNotification: ActivityResultLauncher<String>
@@ -63,10 +76,19 @@ class StartFragment : Fragment() {
     private lateinit var newPicImage: ImageView
     private lateinit var timerTextView: TextView
 
+    // stop dialog
+    private lateinit var dialogStopView: View
+    private lateinit var dialogTripTypeSpinner: Spinner
+
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
     private lateinit var currentPictureFile: File
     private lateinit var currentPictureUri: Uri
+
+    private lateinit var inflater: LayoutInflater
+
+    private val notes: MutableList<Note> = mutableListOf()
+    private val pictures: MutableList<Picture> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -77,6 +99,10 @@ class StartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // instantiate ViewModel
+        val factory = StartViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
+        viewModel = ViewModelProvider(this, factory)[StartViewModel::class.java]
 
         setLaunchers()
         instantiateViews(view)
@@ -101,7 +127,7 @@ class StartFragment : Fragment() {
                 else    // notification permission is also needed
                     Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, R.string.fine_location_permission_denied, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -129,7 +155,8 @@ class StartFragment : Fragment() {
             ActivityResultContracts.StartActivityForResult()
         ) { result: ActivityResult? ->
             if (result!!.resultCode == RESULT_OK) {
-                // TODO: save uri in local database to later access it
+
+                // TODO: save uri (string) in local database to later access it
             } else {
                 // clean up the empty file if no photo was taken
                 if (currentPictureFile.exists()) {
@@ -141,6 +168,8 @@ class StartFragment : Fragment() {
     }
 
     private fun instantiateViews(view: View) {
+        inflater = LayoutInflater.from(requireContext())
+
         viewPager = requireParentFragment().requireView().findViewById(R.id.home_viewPager)
         trackingLayout = view.findViewById(R.id.trackingLayout)
         trackingTitle = view.findViewById(R.id.trackingTitle)
@@ -149,6 +178,10 @@ class StartFragment : Fragment() {
         newNoteImage = view.findViewById(R.id.newNote)
         newPicImage = view.findViewById(R.id.newPic)
         timerTextView = view.findViewById(R.id.trackingTimer)
+
+        // stop dialog
+        dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
+        dialogTripTypeSpinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -163,8 +196,6 @@ class StartFragment : Fragment() {
         startButton.setOnClickListener {
             // check for permission before setting up the map
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 // check if we need to give rationale to the user or not
@@ -191,20 +222,59 @@ class StartFragment : Fragment() {
                 startTracking()
             }
         }
+        stopButton.setOnClickListener {
+            if (dialogTripTypeSpinner.adapter == null) {
+                // Configure spinner
+                val types = TripType.entries.map { it.name }
+                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                dialogTripTypeSpinner.adapter = adapter
+            }
+            // show dialog
+            val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+            AlertDialog.Builder(requireContext())
+                .setView(dialogStopView)
+                .setPositiveButton(getString(R.string.add)) { _, _ ->
+                    val destination = destinationEditText.text.toString()
+                    if (destination.isEmpty())
+                        Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
+                    else {
+                        // TODO: salva la trip e dato il suo id salva anche tutte le note e le pictures
+                        lifecycleScope.launch {
+                            val id = withContext(Dispatchers.IO) {
+                                viewModel.saveTrip(Date(), TripType.valueOf(dialogTripTypeSpinner.selectedItem.toString()),
+                                    destination, TripState.COMPLETED)
+                            }
+                            notes.forEach {
+                                it.tripId = id
+                                viewModel.saveNote(it)
+                            }
+                        }
+                    }
+                }
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+                .show()
+        }
         newNoteImage.setOnClickListener {
             // show dialog
-            val inflater = LayoutInflater.from(requireContext())
             val dialogView = inflater.inflate(R.layout.dialog_add_note, null)
 
             val editTextTitle = dialogView.findViewById<EditText>(R.id.titleEditText)
-            val editTextNote = dialogView.findViewById<EditText>(R.id.contentEditText)
+            val editTextContent = dialogView.findViewById<EditText>(R.id.contentEditText)
 
             AlertDialog.Builder(requireContext())
                 .setView(dialogView)
                 .setPositiveButton(getString(R.string.add)) { _, _ ->
                     val title = editTextTitle.text.toString()
-                    val note = editTextNote.text.toString()
-                    //TODO: save in db
+                    val content = editTextContent.text.toString()
+                    if (title.isEmpty() || content.isEmpty())
+                        Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
+                    else {
+                        notes.add(Note(id = 0, title = title, date = Date().time, content = content))
+                        Toast.makeText(requireContext(), "Note added to trip!", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .setNegativeButton(
                     getString(R.string.cancel)

@@ -23,6 +23,7 @@ import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.PlanViewModel
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
+import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Calendar
 
