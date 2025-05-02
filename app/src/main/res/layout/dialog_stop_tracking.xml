@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="15dp">
 
-    <!-- TODO: set uniform style to dialog titles -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add_note"
+        android:text="Trip info"
         android:textSize="20sp"
         android:layout_gravity="center"
         android:textColor="@color/black"
@@ -21,29 +20,26 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:textStyle="bold"
-        android:text="@string/note_title" />
+        android:text="Trip type" />
 
-    <EditText
-        android:id="@+id/titleEditText"
+    <Spinner
+        android:id="@+id/typeSpinnerStopTracking"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text" />
+        android:layout_height="53dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:textStyle="bold"
-        android:text="@string/note_content" />
+        android:text="Trip destination" />
 
     <EditText
-        android:id="@+id/contentEditText"
-        android:gravity="top|start"
+        android:id="@+id/destinationEditTextStopTracking"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:minLines="4"
-        android:maxLines="8"
-        android:scrollbars="vertical"
-        />
+        android:autofillHints=""
+        android:hint="@string/enter_destination"
+        android:inputType="text" />
 
 </LinearLayout>

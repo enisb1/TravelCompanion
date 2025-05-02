@@ -10,7 +10,7 @@ import androidx.room.Update
 @Dao
 interface TripDao {
     @Insert
-    suspend fun insertTrip(trip: Trip)
+    fun insertTrip(trip: Trip): Long
 
     @Update
     suspend fun updateTrip(trip: Trip)

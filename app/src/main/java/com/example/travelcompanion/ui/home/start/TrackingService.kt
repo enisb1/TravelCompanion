@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.travelcompanion.R
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -21,6 +22,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
+import java.util.Locale
 
 
 class TrackingService : Service() {
@@ -30,7 +32,12 @@ class TrackingService : Service() {
         val NOTIFICATION_ID = 1
         val CHANNEL_ID = "location_tracking_service"
         val CHANNEL_NAME = "Location tracking channel"
+        val ACTION_STOP = "ACTION_STOP"
     }
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var incrementTimerThread: Thread
 
     @SuppressLint("MissingPermission")
     override fun onCreate() {
@@ -41,7 +48,7 @@ class TrackingService : Service() {
             .build()
 
         var lastLocation: Location? = null
-        val locationCallback = object : LocationCallback() {
+        locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
                     if (lastLocation != null) {
@@ -49,8 +56,11 @@ class TrackingService : Service() {
                             LatLng(lastLocation!!.latitude, lastLocation!!.longitude),
                             LatLng(location.latitude, location.longitude))
                         Log.i("Tracking", distance.toString())
-                        if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS)
+                        if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS) {
                             TrackingRepository.addLocation(location)
+                            TrackingRepository.incrementDistance(distance)
+                        }
+
                     }
                     else
                         TrackingRepository.addLocation(location)
@@ -58,11 +68,19 @@ class TrackingService : Service() {
                 }
             }
         }
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+
+        startTimer()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            Log.i("Tracking", "stop")
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
         val notification = createNotification()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -70,6 +88,20 @@ class TrackingService : Service() {
         else
             startForeground(NOTIFICATION_ID, notification)
         return START_STICKY
+    }
+
+    private fun startTimer() {
+        incrementTimerThread = Thread {
+            while (true) {
+                try {
+                    Thread.sleep(1000)
+                    TrackingRepository.incrementTimerValue()
+                } catch (e: InterruptedException) { // exception thrown by the interrupt() function
+                    break
+                }
+            }
+        }
+        incrementTimerThread.start()
     }
 
     private fun createNotification(): Notification {
@@ -82,7 +114,7 @@ class TrackingService : Service() {
             manager.createNotificationChannel(channel)
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setOngoing(true)   //TODO: it's dismissable on API 35, check with lower versions
+            .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.tracking_service_notification_description))
             .setSmallIcon(R.drawable.ic_stop)   //TODO: replace with app's icon
@@ -94,5 +126,13 @@ class TrackingService : Service() {
     // not a bound service
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // stop location updates
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+        // stop incrementing timer
+        incrementTimerThread.interrupt()
     }
 }

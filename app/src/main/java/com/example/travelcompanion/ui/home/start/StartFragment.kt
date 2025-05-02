@@ -30,7 +30,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -42,11 +41,25 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.Spinner
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.example.travelcompanion.db.TravelCompanionRepository
+import com.example.travelcompanion.db.notes.Note
+import com.example.travelcompanion.db.pictures.Picture
+import com.example.travelcompanion.db.trip.TripState
+import com.example.travelcompanion.db.trip.TripType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.Locale
 
 class StartFragment : Fragment() {
 
-    private val viewModel: StartViewModel by viewModels()
+    private lateinit var viewModel: StartViewModel
 
     private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
     private lateinit var requestPermissionLauncherForNotification: ActivityResultLauncher<String>
@@ -63,10 +76,24 @@ class StartFragment : Fragment() {
     private lateinit var newPicImage: ImageView
     private lateinit var timerTextView: TextView
 
+    private lateinit var stopDialog: AlertDialog
+    private lateinit var newNoteDialog: AlertDialog
+
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
     private lateinit var currentPictureFile: File
     private lateinit var currentPictureUri: Uri
+
+    private lateinit var inflater: LayoutInflater
+
+    private val notes: MutableList<Note> = mutableListOf()
+    private val pictures: MutableList<Picture> = mutableListOf()
+
+    private lateinit var startDate: Date
+
+    private var unpackedTripId: Long = -1L
+    private lateinit var unpackedTripType: String
+    private lateinit var unpackedTripDestination: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,9 +105,23 @@ class StartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // instantiate ViewModel
+        val factory = StartViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
+        viewModel = ViewModelProvider(this, factory)[StartViewModel::class.java]
+
+        inflater = LayoutInflater.from(requireContext())
+
         setLaunchers()
         instantiateViews(view)
+        buildDialogs()
         setListeners()
+
+        // unpack received strings (empty if no value was sent)
+        unpackedTripId = arguments?.getLong("plannedTripId") ?: -1L
+        unpackedTripType = arguments?.getString("tripType") ?: ""
+        unpackedTripDestination = arguments?.getString("tripDestination") ?: ""
+        if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
+            startButton.performClick()
     }
 
     private fun enableTabSwiping() {
@@ -98,10 +139,10 @@ class StartFragment : Fragment() {
             if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
                     startTracking()
-                else    // notification permission is also needed
-                    Toast.makeText(activity, "Location permission given", Toast.LENGTH_SHORT).show()
+                else
+                    requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
-                Toast.makeText(activity, R.string.location_permission_denied, Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, R.string.fine_location_permission_denied, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -129,7 +170,9 @@ class StartFragment : Fragment() {
             ActivityResultContracts.StartActivityForResult()
         ) { result: ActivityResult? ->
             if (result!!.resultCode == RESULT_OK) {
-                // TODO: save uri in local database to later access it
+                // add picture to pictures list
+                val picture = Picture(id = 0, timestamp = Date().time, uri = currentPictureUri.toString())
+                pictures.add(picture)
             } else {
                 // clean up the empty file if no photo was taken
                 if (currentPictureFile.exists()) {
@@ -138,6 +181,91 @@ class StartFragment : Fragment() {
                 Toast.makeText(requireContext(), "Photo capture cancelled", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun endTrip(tripType: TripType, tripDestination: String) {
+        lifecycleScope.launch {
+            val id = withContext(Dispatchers.IO) {
+                viewModel.saveTrip(startDate, tripType,
+                    tripDestination, TripState.COMPLETED)
+            }
+            notes.forEach {
+                it.tripId = id
+                viewModel.saveNote(it)
+            }
+            pictures.forEach {
+                it.tripId = id
+                viewModel.savePicture(it)
+            }
+            resetToStart()
+            Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
+            //stop foreground tracking service
+            val stopIntent = Intent(requireContext(), TrackingService::class.java)
+            stopIntent.action = "ACTION_STOP"
+            requireContext().startService(stopIntent)
+        }
+    }
+
+    private fun buildDialogs() {
+        // --- stop dialog ---
+        val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
+        val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
+        val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+
+        // Configure spinner
+        val types = TripType.entries.map { it.name }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tripTypeSpinner.adapter = adapter
+
+        stopDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogStopView)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val destination = destinationEditText.text.toString()
+                if (destination.isEmpty())
+                    Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
+                else {
+                    endTrip(
+                        TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
+                        destination
+                    )
+                }
+            }
+            .setNegativeButton(
+                getString(R.string.cancel)
+            ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+            .setOnDismissListener {
+                tripTypeSpinner.setSelection(0)
+                destinationEditText.setText("")
+            }
+            .create()
+
+        // --- new note dialog ---
+        val dialogNewNoteView = inflater.inflate(R.layout.dialog_add_note, null)
+
+        val editTextTitle = dialogNewNoteView.findViewById<EditText>(R.id.titleEditText)
+        val editTextContent = dialogNewNoteView.findViewById<EditText>(R.id.contentEditText)
+
+        newNoteDialog = AlertDialog.Builder(requireContext())
+            .setView(dialogNewNoteView)
+            .setPositiveButton(getString(R.string.add)) { _, _ ->
+                val title = editTextTitle.text.toString()
+                val content = editTextContent.text.toString()
+                if (title.isEmpty() || content.isEmpty())
+                    Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
+                else {
+                    notes.add(Note(id = 0, title = title, date = Date().time, content = content))
+                    Toast.makeText(requireContext(), "Note added to trip", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(
+                getString(R.string.cancel)
+            ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+            .setOnDismissListener {
+                editTextTitle.setText("")
+                editTextContent.setText("")
+            }
+            .create()
     }
 
     private fun instantiateViews(view: View) {
@@ -163,8 +291,6 @@ class StartFragment : Fragment() {
         startButton.setOnClickListener {
             // check for permission before setting up the map
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
             ) {
                 // check if we need to give rationale to the user or not
@@ -191,25 +317,19 @@ class StartFragment : Fragment() {
                 startTracking()
             }
         }
+        stopButton.setOnClickListener {
+            if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
+                endTrip(TripType.valueOf(unpackedTripType), unpackedTripDestination)
+                unpackedTripId = -1L
+                unpackedTripType = ""
+                unpackedTripDestination = ""
+                // TODO: remove trip through its id
+            }
+            else
+                stopDialog.show()
+        }
         newNoteImage.setOnClickListener {
-            // show dialog
-            val inflater = LayoutInflater.from(requireContext())
-            val dialogView = inflater.inflate(R.layout.dialog_add_note, null)
-
-            val editTextTitle = dialogView.findViewById<EditText>(R.id.titleEditText)
-            val editTextNote = dialogView.findViewById<EditText>(R.id.contentEditText)
-
-            AlertDialog.Builder(requireContext())
-                .setView(dialogView)
-                .setPositiveButton(getString(R.string.add)) { _, _ ->
-                    val title = editTextTitle.text.toString()
-                    val note = editTextNote.text.toString()
-                    //TODO: save in db
-                }
-                .setNegativeButton(
-                    getString(R.string.cancel)
-                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
-                .show()
+            newNoteDialog.show()
         }
         newPicImage.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -218,6 +338,14 @@ class StartFragment : Fragment() {
                 takePicture()
             }
         }
+    }
+
+    private fun resetToStart() {
+        trackingLayout.visibility = View.GONE
+        startButton.visibility = View.VISIBLE
+        // reset data
+        TrackingRepository.resetData()
+        map.clear()
     }
 
     private fun takePicture() {
@@ -276,37 +404,28 @@ class StartFragment : Fragment() {
             val polyline = map.addPolyline(polylineOptions)
             // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
-                val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
-                    newValue[newValue.size-1].longitude)
-                if (newValue.size == 1)
-                    addStartAndZoom(addedLatLng)    // added locations is start location
-                points.add(addedLatLng)
-                polyline.points = points
-                map.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
-                )
+                if (newValue.isNotEmpty()) {
+                    val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
+                        newValue[newValue.size-1].longitude)
+                    if (newValue.size == 1)
+                        addStartAndZoom(addedLatLng)    // added locations is start location
+                    points.add(addedLatLng)
+                    polyline.points = points
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
+                    )
+                }
+            }
+            viewModel.timerSeconds.observe(requireActivity()) { newValue ->
+                timerTextView.text = String.format(
+                    Locale.getDefault(), "%02d:%02d", newValue/60, newValue%60)
             }
             // start tracking
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
-            // start timer
-            startTimer()
+            // set startDate
+            startDate = Date()
         }
     }
-
-    private fun startTimer() {
-        var duration = 0
-        Thread {
-            while (true) {
-                Thread.sleep(1000)
-                duration++
-                requireActivity().runOnUiThread {
-                    timerTextView.text = String.format(
-                        Locale.getDefault(), "%02d:%02d", duration/60, duration%60)
-                }
-            }
-        }.start()
-    }
-
 
     private fun addStartAndZoom(startLatLng: LatLng) {
         map.addMarker(

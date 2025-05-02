@@ -2,6 +2,10 @@ package com.example.travelcompanion.db
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import com.example.travelcompanion.db.notes.Note
+import com.example.travelcompanion.db.notes.NoteDao
+import com.example.travelcompanion.db.pictures.Picture
+import com.example.travelcompanion.db.pictures.PictureDao
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripDao
 import com.example.travelcompanion.db.trip.TripState
@@ -13,24 +17,33 @@ import java.util.Date
 class TravelCompanionRepository(app: Application) {
 
     private var tripDao : TripDao
+    private var noteDao: NoteDao
+    private var pictureDao: PictureDao
 
     init {
         val db = TravelCompanionDatabase.getInstance(app)
         tripDao = db.tripDao()
+        noteDao = db.noteDao()
+        pictureDao = db.pictureDao()
     }
 
-    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState) {
+    // -------------------- TRIPS --------------------
+    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState,
+                   duration: Long = 0, distance: Double = 0.0): Long {
         // Convert Date to milliseconds since epoch
-        val dateInMillis = startDate.time
+        val startInMillis = startDate.time
         val trip = Trip(
             id = 0,
-            start_date = dateInMillis,
+            startTimestamp = startInMillis,
+            endTimestamp = startInMillis + duration * 1000,
             type = type,
             destination = destination,
-            state = state)
-        GlobalScope.launch {
-            tripDao.insertTrip(trip)
-        }
+            state = state,
+            duration = duration,
+            distance = distance
+        )
+
+        return tripDao.insertTrip(trip)
     }
 
     fun updateTrip(trip: Trip) {
@@ -63,4 +76,17 @@ class TravelCompanionRepository(app: Application) {
         return tripDao.getTripsByDateRange(startDate, endDate)
     }
 
+    // -------------------- NOTES --------------------
+    fun saveNote(note: Note) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            noteDao.insertNote(note)
+        }
+    }
+
+    // -------------------- PICTURES --------------------
+    fun savePicture(picture: Picture) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            pictureDao.insertPicture(picture)
+        }
+    }
 }

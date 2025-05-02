@@ -8,13 +8,13 @@ import androidx.room.PrimaryKey
 data class Trip(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "trip_id")
-    var id: Int,
+    var id: Long,
 
     @ColumnInfo(name = "trip_start_date")
-    var start_date: Long,
+    var startTimestamp: Long,
 
     @ColumnInfo(name = "trip_end_date")
-    var end_date: Long = 0,
+    var endTimestamp: Long = 0,
 
     @ColumnInfo(name = "trip_type")
     var type: TripType,
@@ -26,8 +26,8 @@ data class Trip(
     var state: TripState,
 
     @ColumnInfo(name = "trip_duration")
-    var duration: Long = 0, // Duration in seconds
+    var duration: Long = 0L, // Duration in seconds
 
     @ColumnInfo(name = "trip_distance")
-    var distance: Long = 0, // Distance in meters
+    var distance: Double = 0.0, // Distance in meters
 )
