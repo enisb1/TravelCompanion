@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
+import java.util.Locale
 
 
 class TrackingService : Service() {
@@ -60,6 +61,8 @@ class TrackingService : Service() {
         }
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+
+        startTimer()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -72,6 +75,15 @@ class TrackingService : Service() {
         return START_STICKY
     }
 
+    private fun startTimer() {
+        Thread {
+            while (true) {
+                Thread.sleep(1000)
+                TrackingRepository.incrementTimerValue()
+            }
+        }.start()
+    }
+
     private fun createNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -82,7 +94,7 @@ class TrackingService : Service() {
             manager.createNotificationChannel(channel)
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setOngoing(true)   //TODO: it's dismissable on API 35, check with lower versions
+            .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.tracking_service_notification_description))
             .setSmallIcon(R.drawable.ic_stop)   //TODO: replace with app's icon

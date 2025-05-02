@@ -8,9 +8,16 @@ object TrackingRepository {
     private val _locationList = MutableLiveData<List<Location>>()
     val locationList: LiveData<List<Location>> = _locationList
 
+    private val _timerSeconds = MutableLiveData<Long>()
+    val timerSeconds: LiveData<Long> = _timerSeconds
+
     fun addLocation(location: Location) {
         val updatedLocationList = _locationList.value?.toMutableList() ?: mutableListOf()
         updatedLocationList.add(location)
         _locationList.postValue(updatedLocationList)
+    }
+
+    fun incrementTimerValue() {
+        _timerSeconds.postValue((_timerSeconds.value ?: 0) + 1 )
     }
 }

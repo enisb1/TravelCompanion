@@ -41,7 +41,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
@@ -185,7 +184,7 @@ class StartFragment : Fragment() {
         dialogTripTypeSpinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "ImplicitSamInstance")
     private fun setListeners() {
         // enable tab swiping for the views in the layout
         for (view in arrayOf(trackingLayout, trackingTitle, stopButton, newNoteImage, newPicImage)) {
@@ -253,6 +252,11 @@ class StartFragment : Fragment() {
                                 it.tripId = id
                                 viewModel.savePicture(it)
                             }
+                            requireContext().stopService(
+                                Intent(requireContext(),
+                                TrackingService::class.java)
+                            )
+                            resetToStart()
                         }
                     }
                 }
@@ -292,6 +296,11 @@ class StartFragment : Fragment() {
                 takePicture()
             }
         }
+    }
+
+    private fun resetToStart() {
+        trackingLayout.visibility = View.GONE
+        startButton.visibility = View.VISIBLE
     }
 
     private fun takePicture() {
@@ -360,27 +369,14 @@ class StartFragment : Fragment() {
                     CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
                 )
             }
+            viewModel.timerSeconds.observe(requireActivity()) { newValue ->
+                timerTextView.text = String.format(
+                    Locale.getDefault(), "%02d:%02d", newValue/60, newValue%60)
+            }
             // start tracking
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
-            // start timer
-            startTimer()
         }
     }
-
-    private fun startTimer() {
-        var duration = 0
-        Thread {
-            while (true) {
-                Thread.sleep(1000)
-                duration++
-                requireActivity().runOnUiThread {
-                    timerTextView.text = String.format(
-                        Locale.getDefault(), "%02d:%02d", duration/60, duration%60)
-                }
-            }
-        }.start()
-    }
-
 
     private fun addStartAndZoom(startLatLng: LatLng) {
         map.addMarker(
