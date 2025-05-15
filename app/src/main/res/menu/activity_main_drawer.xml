@@ -13,9 +13,9 @@
             android:icon="@drawable/ic_calendar"
             android:title="@string/menu_planned_trips" />
         <item
-            android:id="@+id/nav_history"
+            android:id="@+id/nav_journal"
             android:icon="@drawable/ic_list"
-            android:title="@string/menu_history" />
+            android:title="@string/menu_journal" />
         <item
             android:id="@+id/nav_progress_prediction"
             android:icon="@drawable/ic_chart"

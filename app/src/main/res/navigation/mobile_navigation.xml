@@ -12,10 +12,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/nav_history"
-        android:name="com.example.travelcompanion.ui.history.HistoryFragment"
-        android:label="@string/menu_history"
-        tools:layout="@layout/fragment_history" />
+        android:id="@+id/nav_journal"
+        android:name="com.example.travelcompanion.ui.journal.JournalFragment"
+        android:label="@string/menu_journal"
+        tools:layout="@layout/fragment_journal" />
 
     <fragment
         android:id="@+id/nav_planned_trips"

@@ -44,8 +44,8 @@ class HomeFragment : Fragment() {
         // Attach TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
-                0 -> "Start"
-                1 -> "Plan"
+                0 -> getString(R.string.start)
+                1 -> getString(R.string.plan)
                 else -> null
             }
         }.attach()
