@@ -50,6 +50,10 @@ class TravelCompanionRepository(app: Application) {
         return tripDao.insertTrip(trip)
     }
 
+    fun getLocations(): List<TripLocation> {
+        return tripLocationDao.getLocations()
+    }
+
     fun saveLocations(tripLocations: List<TripLocation>) {
         TravelCompanionDatabase.databaseWriteExecutor.execute {
             for (location in tripLocations) {
@@ -79,7 +83,7 @@ class TravelCompanionRepository(app: Application) {
     }
 
     // Not sure this will work
-    suspend fun getTripById(id: Int): Trip? {
+    fun getTripById(id: Long): Trip? {
         return tripDao.getTripById(id)
     }
 

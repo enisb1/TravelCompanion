@@ -187,7 +187,6 @@ class StartFragment : Fragment() {
             val tripId = withContext(Dispatchers.IO) {
                 viewModel.saveTrip(startDate, tripType,
                     tripDestination, TripState.COMPLETED)
-
             }
             notes.forEach {
                 it.tripId = tripId
@@ -283,7 +282,7 @@ class StartFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
-        // enable tab swiping for the views in the layout
+        // enable tab swiping when clicking outside the map
         for (view in arrayOf(trackingLayout, trackingTitle, stopButton, newNoteImage, newPicImage)) {
             view.setOnTouchListener { _, _ ->
                 enableTabSwiping()
