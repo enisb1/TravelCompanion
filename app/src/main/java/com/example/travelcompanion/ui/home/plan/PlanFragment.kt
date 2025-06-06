@@ -28,7 +28,7 @@ class PlanFragment : Fragment() {
     private lateinit var destinationEditText: EditText
     private lateinit var saveButton: Button
 
-    private lateinit var viewModel: PlanViewModel
+    private lateinit var viewModel: TripViewModel
     private var selectedDate: Calendar? = null
 
     override fun onCreateView(
@@ -73,7 +73,7 @@ class PlanFragment : Fragment() {
         }
 
         val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
-        viewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
+        viewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
         // Manage save button
         saveButton.setOnClickListener {

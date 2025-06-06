@@ -8,9 +8,9 @@ import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
 import java.util.Date
 
-class PlanViewModel(private val repository: TravelCompanionRepository) : ViewModel() {
+class TripViewModel(private val repository: TravelCompanionRepository) : ViewModel() {
     val plans = repository.getTripsByState(TripState.PLANNED)
-
+    val completedTrips = repository.getTripsByState(TripState.COMPLETED)
 
     fun insertPlan(startDate: Date, type: TripType, destination: String) {
         repository.insertTrip(
@@ -33,9 +33,19 @@ class PlanViewModel(private val repository: TravelCompanionRepository) : ViewMod
 
 class PlanViewModelFactory(private val repository: TravelCompanionRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(PlanViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(TripViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return PlanViewModel(repository) as T
+            return TripViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class CompletedTripViewModelFactory(private val repository: TravelCompanionRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TripViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TripViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
