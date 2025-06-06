@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -52,7 +53,9 @@ class MapFragment : Fragment() {
     private lateinit var map: GoogleMap
 
     private lateinit var titleTxtView: TextView
-    private lateinit var constraintLayout: ConstraintLayout
+    private lateinit var parentConstraintLayout: ConstraintLayout
+    private lateinit var mapFrameLayout: FrameLayout
+    private lateinit var noTripsLayout: ConstraintLayout
 
     private lateinit var viewPager: ViewPager2  // parent fragment viewPager
 
@@ -73,20 +76,37 @@ class MapFragment : Fragment() {
         instantiateViews(view)
         setListeners()
 
-        drawMap()
-
-        viewPager = requireParentFragment().requireView().findViewById(R.id.journal_viewPager)
+        lifecycleScope.launch {
+            val locations = withContext(Dispatchers.IO) {
+                viewModel.getLocations()
+            }
+            val locationsPerTrip: List<List<TripLocation>> = locations
+                .groupBy { it.tripId }
+                .values
+                .map { it.sortedBy { location -> location.timestamp } }
+            if (locationsPerTrip.isNotEmpty()) {
+                drawMap(locationsPerTrip)
+            }
+            else {
+                titleTxtView.visibility = View.GONE
+                mapFrameLayout.visibility = View.GONE
+                noTripsLayout.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun instantiateViews(view: View) {
         titleTxtView = view.findViewById(R.id.journal_map_title)
-        constraintLayout = view.findViewById(R.id.journal_map_constraint_layout)
+        parentConstraintLayout = view.findViewById(R.id.journal_map_constraint_layout)
+        mapFrameLayout = view.findViewById(R.id.journal_map_frame)
+        noTripsLayout = view.findViewById(R.id.no_trips_layout)
+        viewPager = requireParentFragment().requireView().findViewById(R.id.journal_viewPager)
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
         // enable tab swiping when clicking outside the map
-        for (view in arrayOf(titleTxtView, constraintLayout)) {
+        for (view in arrayOf(titleTxtView, parentConstraintLayout)) {
             view.setOnTouchListener { _, _ ->
                 enableTabSwiping()
                 false
@@ -95,7 +115,7 @@ class MapFragment : Fragment() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun drawMap() {
+    private fun drawMap(locationsPerTrip: List<List<TripLocation>>) {
         val mapFragment: SupportMapFragment =
             childFragmentManager.findFragmentById(R.id.journal_map_container) as SupportMapFragment
         mapFragment.getMapAsync {googleMap ->
@@ -112,18 +132,7 @@ class MapFragment : Fragment() {
                     else -> false
                 }
             }
-
-            // TODO: display trips on the map with different random colors
-            // TODO: show a label on each trip marker
-
             lifecycleScope.launch {
-                val locations = withContext(Dispatchers.IO) {
-                    viewModel.getLocations()
-                }
-                val locationsPerTrip: List<List<TripLocation>> = locations
-                    .groupBy { it.tripId }
-                    .values
-                    .map { it.sortedBy { location -> location.timestamp } }
                 // show trips on map
                 for (locationList in locationsPerTrip) {
                     val tripDestination = withContext(Dispatchers.IO) {
