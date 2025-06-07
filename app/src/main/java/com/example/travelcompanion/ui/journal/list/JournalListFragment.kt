@@ -1,11 +1,15 @@
 package com.example.travelcompanion.ui.journal.list
 
+import android.app.AlertDialog
+import android.icu.text.SimpleDateFormat
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -63,7 +67,30 @@ class JournalListFragment : Fragment() {
     }
 
     private fun showTripDialog(trip: Trip) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_trip_details, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
 
+        val tvDestination = dialogView.findViewById<TextView>(R.id.tvTripDetailDestination)
+        tvDestination.setText(trip.destination)
+
+        val tvType = dialogView.findViewById<TextView>(R.id.tvTripDetailType)
+        tvType.setText(trip.type.toString())
+
+        val tvStart = dialogView.findViewById<TextView>(R.id.tvTripDetailStart)
+        tvStart.setText(SimpleDateFormat("d/M/yyyy").format(trip.startTimestamp))
+
+        val tvEnd = dialogView.findViewById<TextView>(R.id.tvTripDetailEnd)
+        tvEnd.setText(SimpleDateFormat("d/M/yyyy").format(trip.endTimestamp))
+
+        val tvDistance = dialogView.findViewById<TextView>(R.id.tvTripDetailDistance)
+        tvDistance.setText(trip.distance.toString())
+
+        val tvDuration = dialogView.findViewById<TextView>(R.id.tvTripDetailDuration)
+        tvDuration.setText(trip.duration.toString())
+
+        dialog.show()
     }
 
     private fun displayJournalList(){
