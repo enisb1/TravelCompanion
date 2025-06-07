@@ -27,6 +27,7 @@ class JournalListFragment : Fragment() {
     private lateinit var spinnerTripType: Spinner
     private lateinit var journalListRecyclerView : RecyclerView
     private lateinit var journalListAdapter: JournalListRecyclerViewAdapter
+    private lateinit var noTripsLayout: View
 
     companion object {
         fun newInstance() = JournalListFragment()
@@ -53,38 +54,73 @@ class JournalListFragment : Fragment() {
 
         journalListRecyclerView = view.findViewById(R.id.rvJournalList)
         spinnerTripType = view.findViewById(R.id.spinnerJournalListTripType)
+        noTripsLayout = view.findViewById(R.id.noTripsLayout)
 
 
-        val factory = CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
+        val factory =
+            CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
         // Initialize the spinner to filter results based on trip type
-        val tripTypes = listOf(all_trips_label) + com.example.travelcompanion.db.trip.TripType.values().map { it.name }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tripTypes)
+        val tripTypes =
+            listOf(all_trips_label) + com.example.travelcompanion.db.trip.TripType.values()
+                .map { it.name }
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tripTypes)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerTripType.adapter = adapter
 
         initRecyclerView()
 
         spinnerTripType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                filterTrips(tripTypes[position])
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                updateListAndVisibility()
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-
+        tripViewModel.completedTrips.observe(viewLifecycleOwner) {
+            updateListAndVisibility()
+        }
     }
 
-    private fun filterTrips(selectedType: String) {
-        tripViewModel.completedTrips.observe(viewLifecycleOwner) { trips ->
-            val filtered = if (selectedType == Companion.all_trips_label) {
-                trips
+    private fun updateListAndVisibility() {
+        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val selectedType = spinnerTripType.selectedItem?.toString()
+        val filtered = getFilteredTrips(trips, selectedType)
+        val tvNoTripsMessage = noTripsLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
+
+        if (filtered.isEmpty()) {
+            journalListRecyclerView.visibility = View.GONE
+            noTripsLayout.visibility = View.VISIBLE
+
+            if (selectedType != null && selectedType != Companion.all_trips_label) {
+                tvNoTripsMessage.text = getString(
+                    R.string.looks_like_you_have_not_completed_any_type_trips_yet,
+                    selectedType
+                )
             } else {
-                trips.filter { it.type.name == selectedType }
+                tvNoTripsMessage.setText(R.string.looks_like_you_have_not_completed_any_trips_yet)
             }
+        } else {
+            journalListRecyclerView.visibility = View.VISIBLE
+            noTripsLayout.visibility = View.GONE
             journalListAdapter.setList(filtered)
             journalListAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun getFilteredTrips(trips: List<Trip>, selectedType: String?): List<Trip> {
+        return if (selectedType == null || selectedType == Companion.all_trips_label) {
+            trips
+        } else {
+            trips.filter { it.type.name == selectedType }
         }
     }
 
