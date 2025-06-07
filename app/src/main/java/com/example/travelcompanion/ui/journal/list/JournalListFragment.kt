@@ -8,7 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,11 +24,13 @@ import com.example.travelcompanion.ui.home.plan.TripViewModel
 
 class JournalListFragment : Fragment() {
     private lateinit var tripViewModel: TripViewModel
+    private lateinit var spinnerTripType: Spinner
     private lateinit var journalListRecyclerView : RecyclerView
     private lateinit var journalListAdapter: JournalListRecyclerViewAdapter
 
     companion object {
         fun newInstance() = JournalListFragment()
+        val all_trips_label = "All"
     }
 
     private val viewModel: JournalListViewModel by viewModels()
@@ -47,13 +52,40 @@ class JournalListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         journalListRecyclerView = view.findViewById(R.id.rvJournalList)
+        spinnerTripType = view.findViewById(R.id.spinnerJournalListTripType)
+
 
         val factory = CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
+        // Initialize the spinner to filter results based on trip type
+        val tripTypes = listOf(all_trips_label) + com.example.travelcompanion.db.trip.TripType.values().map { it.name }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tripTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerTripType.adapter = adapter
+
         initRecyclerView()
 
+        spinnerTripType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                filterTrips(tripTypes[position])
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
+
+    }
+
+    private fun filterTrips(selectedType: String) {
+        tripViewModel.completedTrips.observe(viewLifecycleOwner) { trips ->
+            val filtered = if (selectedType == Companion.all_trips_label) {
+                trips
+            } else {
+                trips.filter { it.type.name == selectedType }
+            }
+            journalListAdapter.setList(filtered)
+            journalListAdapter.notifyDataSetChanged()
+        }
     }
 
     private fun initRecyclerView() {
