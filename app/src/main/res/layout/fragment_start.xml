@@ -8,93 +8,93 @@
     android:background="@color/background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/trackingLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingVertical="10dp"
-        android:visibility="gone"
-        android:id="@+id/trackingLayout">
+        android:visibility="gone">
 
         <!-- TODO: put textSize in a size files -->
         <TextView
             android:id="@+id/trackingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
             android:text="@string/start_fragment_title"
             android:textSize="30sp"
-            android:fontFamily="sans-serif-medium"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/trackingTimer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
             android:text="00:00"
-            app:layout_constraintTop_toBottomOf="@id/trackingTitle"
+            android:textSize="18sp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/trackingTitle" />
 
         <!-- TODO: put timer under the title -->
 
         <FrameLayout
+            android:id="@+id/mapFrame"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:id="@+id/mapFrame"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            app:layout_constraintTop_toBottomOf="@id/trackingTimer"
             app:layout_constraintBottom_toTopOf="@id/stopButton"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/trackingTimer">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapContainer"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <View
+                android:id="@+id/mapTouchInterceptor"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/mapTouchInterceptor"
-                android:background="@android:color/transparent"/>
+                android:background="@android:color/transparent" />
         </FrameLayout>
 
         <ImageView
             android:id="@+id/newNote"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginEnd="15dp"
             android:contentDescription="@string/set_new_note"
             android:src="@drawable/notes_primary_color"
-            app:layout_constraintRight_toLeftOf="@id/stopButton"
-            app:layout_constraintTop_toBottomOf="@id/mapFrame"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="15dp" />
+            app:layout_constraintRight_toLeftOf="@id/stopButton"
+            app:layout_constraintTop_toBottomOf="@id/mapFrame" />
 
         <ImageButton
             android:id="@+id/stopButton"
             android:layout_width="80dp"
             android:layout_height="80dp"
+            android:background="@drawable/border_white"
             android:contentDescription="@string/stop_tracking_trip"
+            android:scaleType="centerInside"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:background="@drawable/border_white"
-            android:scaleType="centerInside" />
+            app:layout_constraintRight_toRightOf="parent" />
 
         <ImageView
             android:id="@+id/newPic"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginStart="15dp"
             android:contentDescription="@string/take_a_photo"
             android:src="@drawable/camera_primary_color"
-            app:layout_constraintLeft_toRightOf="@id/stopButton"
-            app:layout_constraintTop_toBottomOf="@id/mapFrame"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="15dp" />
+            app:layout_constraintLeft_toRightOf="@id/stopButton"
+            app:layout_constraintTop_toBottomOf="@id/mapFrame" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

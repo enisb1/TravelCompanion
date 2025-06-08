@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.trip.Trip
-import com.example.travelcompanion.ui.home.plan.PlanViewModel
+import com.example.travelcompanion.ui.home.plan.TripViewModel
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
@@ -30,7 +29,7 @@ import java.util.Calendar
 
 class PlannedTripsFragment : Fragment() {
 
-    private lateinit var planViewModel: PlanViewModel
+    private lateinit var tripViewModel: TripViewModel
     private lateinit var planRecyclerView : RecyclerView
     private lateinit var planAdapter : PlanRecyclerViewAdapter
     private lateinit var plusButton: FloatingActionButton
@@ -54,7 +53,7 @@ class PlannedTripsFragment : Fragment() {
 
 
         val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
-        planViewModel = ViewModelProvider(this, factory)[PlanViewModel::class.java]
+        tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
         initRecyclerView()
 
@@ -86,6 +85,9 @@ class PlannedTripsFragment : Fragment() {
             .setView(dialogView)
             .create()
 
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDetailTitle)
+        tvTitle.text = trip.title
+
         val etDestination = dialogView.findViewById<EditText>(R.id.etDetailDestination)
         etDestination.setText(trip.destination)
 
@@ -109,6 +111,8 @@ class PlannedTripsFragment : Fragment() {
                 },
                 year, month, day
             )
+
+
             datePickerDialog.show()
         }
 
@@ -144,23 +148,27 @@ class PlannedTripsFragment : Fragment() {
                 else -> trip.type // Default to the current type if something goes wrong
             }
 
-            planViewModel.updatePlan(trip)
+            tripViewModel.updatePlan(trip)
             Toast.makeText(requireContext(), "Trip updated", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
-            planViewModel.deletePlan(trip)
+            tripViewModel.deletePlan(trip)
             Toast.makeText(requireContext(), "Trip deleted", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }
 
+        // Remove background in dialog
+        dialogView.setBackgroundResource(android.R.color.transparent)
+
+
         dialog.show()
     }
 
     private fun displayPlanList(){
-        planViewModel.plans.observe(viewLifecycleOwner, {
+        tripViewModel.plans.observe(viewLifecycleOwner, {
             planAdapter.setList(it)
             planAdapter.notifyDataSetChanged()
         })

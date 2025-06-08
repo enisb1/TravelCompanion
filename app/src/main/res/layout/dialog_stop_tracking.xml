@@ -5,6 +5,7 @@
     android:orientation="vertical"
     android:padding="15dp">
 
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,6 +15,22 @@
         android:textColor="@color/black"
         android:fontFamily="sans-serif-medium"
         android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:text="Trip title" />
+
+    <EditText
+        android:id="@+id/titleEditTextStopTracking"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="Enter title"
+        android:inputType="text" />
+
 
     <TextView
         android:layout_width="wrap_content"
