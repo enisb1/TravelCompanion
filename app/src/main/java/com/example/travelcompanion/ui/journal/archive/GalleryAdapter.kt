@@ -1,5 +1,6 @@
 package com.example.travelcompanion.ui.journal.archive
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.pictures.Picture
 
-class GalleryAdapter(private val imageUris: List<Picture>):
+class GalleryAdapter(private val pictures: List<Picture>, private val onPictureClick: (Picture) -> Unit):
     RecyclerView.Adapter<GalleryAdapter.GalleryViewHolder>() {
 
     inner class GalleryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,18 +24,23 @@ class GalleryAdapter(private val imageUris: List<Picture>):
     }
 
     override fun getItemCount(): Int {
-        return imageUris.size
+        return pictures.size
     }
 
     override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
-        val uri = imageUris[position].uri
-        holder.imageView.setImageURI(uri.toUri())
+        val picture = pictures[position]
+        val uri: Uri = picture.uri.toUri()
+        holder.imageView.setImageURI(uri)
 
         // set itemView to square size
         holder.itemView.post {  // wait until the view is laid out
             val width = holder.itemView.measuredWidth
             holder.imageView.layoutParams.height = width
             holder.imageView.requestLayout()
+        }
+
+        holder.imageView.setOnClickListener {
+            onPictureClick(picture)
         }
     }
 
