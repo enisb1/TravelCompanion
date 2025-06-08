@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.journal.archive.ArchiveFragment">
+    tools:context=".ui.journal.archive.ArchiveFragment"
+    android:background="@color/background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -45,6 +46,14 @@
             app:layout_constraintRight_toRightOf="@id/archive_button_group"
             app:dialogTitle="@string/select_trip"
             app:closeText="@string/cancel"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/gallery_recView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/trip_selection_spinner"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

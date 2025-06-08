@@ -37,4 +37,5 @@
     <string name="notes">Notes</string>
     <string name="pictures">Pictures</string>
     <string name="select_trip">Select trip</string>
+    <string name="all">All</string>
 </resources>

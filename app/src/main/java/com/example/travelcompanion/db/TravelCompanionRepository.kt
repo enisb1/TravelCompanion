@@ -74,12 +74,16 @@ class TravelCompanionRepository(app: Application) {
         }
     }
 
-    fun getAllTrips(): LiveData<List<Trip>> {
+    fun getAllTrips(): List<Trip> {
         return tripDao.getAllTrips()
     }
 
     fun getTripsByState(state: TripState): LiveData<List<Trip>> {
         return tripDao.getTripsByState(state)
+    }
+
+    fun getTripsListByState(state: TripState): List<Trip> {
+        return tripDao.getTripsListByState(state)
     }
 
     // Not sure this will work
@@ -104,5 +108,13 @@ class TravelCompanionRepository(app: Application) {
         TravelCompanionDatabase.databaseWriteExecutor.execute {
             pictureDao.insertPicture(picture)
         }
+    }
+
+    fun getAllPictures(): List<Picture> {
+        return pictureDao.getAllPictures()
+    }
+
+    fun getPicturesByTripId(tripId: Long): List<Picture> {
+        return pictureDao.getPicturesByTripId(tripId)
     }
 }
