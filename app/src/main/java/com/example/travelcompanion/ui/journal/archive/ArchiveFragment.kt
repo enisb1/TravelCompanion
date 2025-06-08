@@ -1,7 +1,9 @@
 package com.example.travelcompanion.ui.journal.archive
 
 import android.app.AlertDialog
+import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,8 +22,10 @@ import pl.utkala.searchablespinner.SearchableSpinner
 import pl.utkala.searchablespinner.StringHintArrayAdapter
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.travelcompanion.db.pictures.Picture
+import com.google.android.material.button.MaterialButton
 import pl.utkala.searchablespinner.OnSearchableItemClick
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,14 +34,18 @@ import java.util.Locale
 class ArchiveFragment : Fragment() {
 
     companion object {
-        const val SHOW_ALL_PICTURES_CODE = 0L
+        const val SHOW_ALL_DATA_CODE = 0L
     }
 
     private lateinit var viewModel: ArchiveViewModel
 
+    private lateinit var picturesButton: MaterialButton
+    private lateinit var notesButton: MaterialButton
     private lateinit var tripSelectionSpinner: SearchableSpinner
-    private lateinit var completedTrips: List<Trip>
     private lateinit var galleryRecView: RecyclerView
+    private lateinit var notesRecView: RecyclerView
+
+    private lateinit var completedTrips: List<Trip>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,8 +71,9 @@ class ArchiveFragment : Fragment() {
             val tripsDestinations: List<String> = completedTrips.map { it.destination }
             setTripsToSpinner(tripsDestinations)
             // select 'All'
-            tripSelectionSpinner.setSelection(1)
-            updateGallery(SHOW_ALL_PICTURES_CODE)
+            tripSelectionSpinner.setSelection(viewModel.spinnerSelection)
+            showGalleryOrNotes()
+            updateGalleryOrNotes()
         }
     }
 
@@ -73,6 +82,10 @@ class ArchiveFragment : Fragment() {
         tripSelectionSpinner.showHint = true
         galleryRecView = view.findViewById(R.id.gallery_recView)
         galleryRecView.layoutManager = GridLayoutManager(requireContext(), 3)
+        notesRecView = view.findViewById(R.id.notes_recView)
+        notesRecView.layoutManager = LinearLayoutManager(requireContext())
+        picturesButton = view.findViewById(R.id.pictures_button)
+        notesButton = view.findViewById(R.id.notes_button)
     }
 
     private fun updateGallery(tripId: Long) {
@@ -96,21 +109,79 @@ class ArchiveFragment : Fragment() {
         }
     }
 
+    private fun updateNotes(tripId: Long) {
+        lifecycleScope.launch {
+            val adapter: NotesAdapter?
+            if (tripId > 0) {
+                val notesOfTrip = withContext(Dispatchers.IO) {
+                    viewModel.getNotesByTripId(tripId)
+                }
+                adapter = NotesAdapter(notesOfTrip.sortedBy { it.date })
+            }
+            else {  // tripId = 0 -> show all
+                val allNotes = withContext(Dispatchers.IO) {
+                    viewModel.getAllNotes()
+                }
+                adapter = NotesAdapter(allNotes.sortedBy { it.date })
+            }
+            notesRecView.adapter = adapter
+            notesRecView.addItemDecoration(VerticalSpaceItemDecoration(20))
+        }
+    }
+
+    class VerticalSpaceItemDecoration(private val spaceHeight: Int) : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
+        ) {
+            outRect.bottom = spaceHeight
+        }
+    }
+
     private fun setListeners() {
         tripSelectionSpinner.onSearchableItemClick= object: OnSearchableItemClick<Any?> {
             override fun onSearchableItemClicked(item:Any?,position:Int){
                 if(position>0){
                     tripSelectionSpinner.setSelection(position)
-                    if (item.toString() == getString(R.string.all)) {
-                        // show all pictures
-                        updateGallery(SHOW_ALL_PICTURES_CODE)
-                    }
-                    else {  // show for specific position
-                        // usa position-2 because position starts from 1 and first 1 is "All"
-                        updateGallery(completedTrips[position-2].id)
-                    }
+                    viewModel.spinnerSelection = position
+                    updateGalleryOrNotes()
                 }
             }
+        }
+        picturesButton.setOnClickListener {
+            showGalleryOrNotes()
+            updateGalleryOrNotes()
+        }
+        notesButton.setOnClickListener {
+            showGalleryOrNotes()
+            updateGalleryOrNotes()
+        }
+    }
+
+    private fun showGalleryOrNotes() {
+        if (picturesButton.isChecked) {
+            galleryRecView.visibility = View.VISIBLE
+            notesRecView.visibility = View.GONE
+        }
+        else {
+            galleryRecView.visibility = View.GONE
+            notesRecView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateGalleryOrNotes() {
+        if (viewModel.spinnerSelection == 1) {
+            // show all pictures
+            if (picturesButton.isChecked)
+                updateGallery(SHOW_ALL_DATA_CODE)
+            else
+                updateNotes(SHOW_ALL_DATA_CODE)
+        }
+        else {  // show for specific position
+            // usa position-2 because position starts from 1 and first 1 is "All"
+            if (picturesButton.isChecked)
+                updateGallery(completedTrips[viewModel.spinnerSelection-2].id)
+            else
+                updateNotes(completedTrips[viewModel.spinnerSelection-2].id)
         }
     }
 

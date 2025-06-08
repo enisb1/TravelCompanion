@@ -19,7 +19,7 @@ class GalleryAdapter(private val pictures: List<Picture>, private val onPictureC
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GalleryViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.recview_item_gallery, parent, false)
+            .inflate(R.layout.recview_item_archive_pictures, parent, false)
         return GalleryViewHolder(view)
     }
 

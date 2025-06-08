@@ -103,6 +103,14 @@ class TravelCompanionRepository(app: Application) {
         }
     }
 
+    fun getAllNotes(): List<Note> {
+        return noteDao.getAllNotes()
+    }
+
+    fun getNotesByTripId(tripId: Long): List<Note> {
+        return noteDao.getNotesByTripId(tripId)
+    }
+
     // -------------------- PICTURES --------------------
     fun savePicture(picture: Picture) {
         TravelCompanionDatabase.databaseWriteExecutor.execute {
