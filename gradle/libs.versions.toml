@@ -19,6 +19,7 @@ playServicesLocation = "21.3.0"
 androidMapsUtils = "3.10.0"
 roomCommonJvm = "2.7.1"
 roomRuntimeAndroid = "2.7.1"
+searchableSpinner = "1.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,7 +40,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 android-maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version.ref = "androidMapsUtils" }
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
-
+searchablespinner = { module = "com.github.DonMat:searchablespinner", version.ref = "searchableSpinner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

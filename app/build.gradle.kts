@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.android.maps.utils)
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.runtime.android)
+    implementation(libs.searchablespinner)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

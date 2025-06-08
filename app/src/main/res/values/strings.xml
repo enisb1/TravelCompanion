@@ -34,4 +34,11 @@
     <string name="plan">Plan</string>
     <string name="looks_like_you_have_not_completed_any_trips_yet">Looks like you have not completed any trips yet!</string>
     <string name="looks_like_you_have_not_completed_any_type_trips_yet">Looks like you have not completed any %1$s trips yet!</string>
+    <string name="check_out_your_completed_trips_on_the_map">CHECK OUT YOUR COMPLETED TRIPS ON THE MAP!</string>
+    <string name="looks_like_you_have_not_completed_any_trips_yet">Looks like you have not completed any trips yet!</string>
+    <string name="notes">Notes</string>
+    <string name="pictures">Pictures</string>
+    <string name="select_trip">Select trip</string>
+    <string name="all">All</string>
+    <string name="close">Close</string>
 </resources>

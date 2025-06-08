@@ -41,7 +41,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
@@ -185,18 +184,20 @@ class StartFragment : Fragment() {
 
     private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
         lifecycleScope.launch {
-            val id = withContext(Dispatchers.IO) {
-                viewModel.saveTrip(title, startDate, tripType,
+            val tripId = withContext(Dispatchers.IO) {
+                viewModel.saveTrip(startDate, tripType,
                     tripDestination, TripState.COMPLETED)
             }
             notes.forEach {
-                it.tripId = id
+                it.tripId = tripId
                 viewModel.saveNote(it)
             }
             pictures.forEach {
-                it.tripId = id
+                it.tripId = tripId
                 viewModel.savePicture(it)
             }
+            viewModel.saveLocations(tripId)
+
             resetToStart()
             Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
             //stop foreground tracking service
@@ -286,7 +287,7 @@ class StartFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setListeners() {
-        // enable tab swiping for the views in the layout
+        // enable tab swiping when clicking outside the map
         for (view in arrayOf(trackingLayout, trackingTitle, stopButton, newNoteImage, newPicImage)) {
             view.setOnTouchListener { _, _ ->
                 enableTabSwiping()
@@ -414,7 +415,7 @@ class StartFragment : Fragment() {
                     val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
                         newValue[newValue.size-1].longitude)
                     if (newValue.size == 1)
-                        addStartAndZoom(addedLatLng)    // added locations is start location
+                        addStartAndZoom(addedLatLng)    // added location is start location
                     points.add(addedLatLng)
                     polyline.points = points
                     map.animateCamera(

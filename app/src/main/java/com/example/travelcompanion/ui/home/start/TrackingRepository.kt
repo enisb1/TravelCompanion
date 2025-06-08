@@ -1,12 +1,12 @@
 package com.example.travelcompanion.ui.home.start
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.travelcompanion.db.locations.TripLocation
 
 object TrackingRepository {
-    private val _locationList = MutableLiveData<List<Location>>(emptyList())
-    val locationList: LiveData<List<Location>> = _locationList
+    private val _locationList = MutableLiveData<List<TripLocation>>(emptyList())
+    val locationList: LiveData<List<TripLocation>> = _locationList
 
     private val _timerSeconds = MutableLiveData<Long>()
     val timerSeconds: LiveData<Long> = _timerSeconds
@@ -15,9 +15,9 @@ object TrackingRepository {
     val currentDistance: Double
         get() = distance
 
-    fun addLocation(location: Location) {
+    fun addLocation(tripLocation: TripLocation) {
         val updatedLocationList = _locationList.value?.toMutableList() ?: mutableListOf()
-        updatedLocationList.add(location)
+        updatedLocationList.add(tripLocation)
         _locationList.postValue(updatedLocationList)
     }
 
