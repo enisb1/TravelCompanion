@@ -185,7 +185,7 @@ class StartFragment : Fragment() {
     private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
         lifecycleScope.launch {
             val tripId = withContext(Dispatchers.IO) {
-                viewModel.saveTrip(startDate, tripType,
+                viewModel.saveTrip(title, startDate, tripType,
                     tripDestination, TripState.COMPLETED)
             }
             notes.forEach {
