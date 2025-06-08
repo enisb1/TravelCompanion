@@ -35,6 +35,17 @@
                 android:layout_height="wrap_content"
                 android:text="@string/notes"/>
         </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <pl.utkala.searchablespinner.SearchableSpinner
+            android:id="@+id/trip_selection_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/archive_button_group"
+            app:layout_constraintLeft_toLeftOf="@id/archive_button_group"
+            app:layout_constraintRight_toRightOf="@id/archive_button_group"
+            app:dialogTitle="@string/select_trip"
+            app:closeText="@string/cancel"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

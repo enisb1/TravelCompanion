@@ -36,4 +36,5 @@
     <string name="looks_like_you_have_not_completed_any_trips_yet">Looks like you have not completed any trips yet!</string>
     <string name="notes">Notes</string>
     <string name="pictures">Pictures</string>
+    <string name="select_trip">Select trip</string>
 </resources>
