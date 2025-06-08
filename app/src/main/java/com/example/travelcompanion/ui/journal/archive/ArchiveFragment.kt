@@ -125,15 +125,6 @@ class ArchiveFragment : Fragment() {
                 adapter = NotesAdapter(allNotes.sortedBy { it.date })
             }
             notesRecView.adapter = adapter
-            notesRecView.addItemDecoration(VerticalSpaceItemDecoration(20))
-        }
-    }
-
-    class VerticalSpaceItemDecoration(private val spaceHeight: Int) : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-        ) {
-            outRect.bottom = spaceHeight
         }
     }
 
