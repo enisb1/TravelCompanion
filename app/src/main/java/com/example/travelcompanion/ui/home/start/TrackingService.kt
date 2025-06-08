@@ -14,6 +14,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.travelcompanion.R
+import com.example.travelcompanion.db.locations.TripLocation
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -22,7 +23,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.SphericalUtil
-import java.util.Locale
+import java.util.Date
 
 
 class TrackingService : Service() {
@@ -47,24 +48,30 @@ class TrackingService : Service() {
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
 
-        var lastLocation: Location? = null
+        var previousLocation: Location? = null
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
-                    if (lastLocation != null) {
+                    val tripLocation = TripLocation(
+                        id = 0,
+                        latitude = location.latitude,
+                        longitude = location.longitude,
+                        timestamp = Date().time
+                    )
+                    if (previousLocation != null) { // check distance from previous location if possible
                         val distance = SphericalUtil.computeDistanceBetween(
-                            LatLng(lastLocation!!.latitude, lastLocation!!.longitude),
+                            LatLng(previousLocation!!.latitude, previousLocation!!.longitude),
                             LatLng(location.latitude, location.longitude))
                         Log.i("Tracking", distance.toString())
                         if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS) {
-                            TrackingRepository.addLocation(location)
+                            TrackingRepository.addLocation(tripLocation)
                             TrackingRepository.incrementDistance(distance)
                         }
 
                     }
                     else
-                        TrackingRepository.addLocation(location)
-                    lastLocation = location
+                        TrackingRepository.addLocation(tripLocation)
+                    previousLocation = location
                 }
             }
         }
