@@ -28,12 +28,13 @@ class TravelCompanionRepository(app: Application) {
     }
 
     // -------------------- TRIPS --------------------
-    fun insertTrip(startDate: Date, type: TripType, destination: String, state: TripState,
+    fun insertTrip(title: String, startDate: Date, type: TripType, destination: String, state: TripState,
                    duration: Long = 0, distance: Double = 0.0): Long {
         // Convert Date to milliseconds since epoch
         val startInMillis = startDate.time
         val trip = Trip(
             id = 0,
+            title = title,
             startTimestamp = startInMillis,
             endTimestamp = startInMillis + duration * 1000,
             type = type,

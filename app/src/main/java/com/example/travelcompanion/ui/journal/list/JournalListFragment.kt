@@ -140,6 +140,9 @@ class JournalListFragment : Fragment() {
             .setView(dialogView)
             .create()
 
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvTripDetailTitle)
+        tvTitle.setText(trip.title)
+
         val tvDestination = dialogView.findViewById<TextView>(R.id.tvTripDetailDestination)
         tvDestination.setText(trip.destination)
 

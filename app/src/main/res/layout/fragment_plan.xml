@@ -1,28 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardView2"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="18dp"
-    app:cardCornerRadius="18dp"
-    app:cardElevation="8dp"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="22dp">
+        android:padding="22dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/titleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#EEEEEE" />
 
         <Button
             android:id="@+id/pickDateButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pick_start_date"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_marginTop="4dp"
             android:drawableStart="@drawable/outline_calendar_month_24"
             android:drawablePadding="8dp"
-            android:layout_marginTop="4dp" />
+            android:text="@string/pick_start_date" />
 
         <View
             android:layout_width="match_parent"
@@ -33,8 +55,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="24dp"
@@ -45,8 +67,8 @@
                 android:id="@+id/typeSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp" />
+                android:layout_marginStart="12dp"
+                android:layout_weight="1" />
         </LinearLayout>
 
         <View
@@ -56,27 +78,28 @@
             android:background="#EEEEEE" />
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_destination"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:hint="@string/enter_destination">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/destinationEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
                 android:drawableStart="@drawable/outline_add_location_24"
-                android:drawablePadding="8dp" />
+                android:drawablePadding="8dp"
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/saveButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_marginTop="18dp" />
+            android:layout_marginTop="18dp"
+            android:text="@string/save" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

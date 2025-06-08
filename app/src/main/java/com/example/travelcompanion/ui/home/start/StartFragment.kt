@@ -183,10 +183,10 @@ class StartFragment : Fragment() {
         }
     }
 
-    private fun endTrip(tripType: TripType, tripDestination: String) {
+    private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
         lifecycleScope.launch {
             val id = withContext(Dispatchers.IO) {
-                viewModel.saveTrip(startDate, tripType,
+                viewModel.saveTrip(title, startDate, tripType,
                     tripDestination, TripState.COMPLETED)
             }
             notes.forEach {
@@ -226,6 +226,11 @@ class StartFragment : Fragment() {
                     Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
                 else {
                     endTrip(
+                        title = if (unpackedTripId != -1L) {
+                            unpackedTripId.toString()  // use the existing trip id
+                        } else {
+                            "Trip on ${Date().toLocaleString()}"  // generate a new title
+                        },
                         TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
                         destination
                     )
@@ -319,7 +324,8 @@ class StartFragment : Fragment() {
         }
         stopButton.setOnClickListener {
             if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
-                endTrip(TripType.valueOf(unpackedTripType), unpackedTripDestination)
+                endTrip(
+                    title = unpackedTripId.toString(), TripType.valueOf(unpackedTripType), unpackedTripDestination)
                 unpackedTripId = -1L
                 unpackedTripType = ""
                 unpackedTripDestination = ""

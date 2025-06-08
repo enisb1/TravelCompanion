@@ -7,6 +7,7 @@ import com.example.travelcompanion.db.trip.Trip
 
 class PlanViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
     fun bind(trip: Trip){
+        val titleTextView = view.findViewById<TextView>(R.id.tvTitle)
         val dateTextView = view.findViewById<TextView>(R.id.tvDate)
         val typeTextView = view.findViewById<TextView>(R.id.tvType)
         val destinationTextView = view.findViewById<TextView>(R.id.tvDestination)
@@ -15,6 +16,7 @@ class PlanViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         dateTextView.text = SimpleDateFormat("dd/MM/yyyy").format(java.util.Date(trip.startTimestamp))
         typeTextView.text = trip.type.name
         destinationTextView.text = trip.destination
+        titleTextView.text = trip.title
 
     }
 }

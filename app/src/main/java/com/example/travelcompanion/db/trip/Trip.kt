@@ -19,6 +19,9 @@ data class Trip(
     @ColumnInfo(name = "trip_type")
     var type: TripType,
 
+    @ColumnInfo(name = "trip_title")
+    var title: String,
+
     @ColumnInfo(name = "trip_destination")
     var destination: String,
 

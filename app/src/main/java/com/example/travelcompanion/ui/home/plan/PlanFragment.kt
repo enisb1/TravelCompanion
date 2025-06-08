@@ -23,6 +23,7 @@ import java.util.Calendar
 
 class PlanFragment : Fragment() {
 
+    private lateinit var titleEditText: EditText
     private lateinit var pickDateButton: Button
     private lateinit var typeSpinner: Spinner
     private lateinit var destinationEditText: EditText
@@ -41,6 +42,7 @@ class PlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        titleEditText = view.findViewById(R.id.titleEditText)
         pickDateButton = view.findViewById(R.id.pickDateButton)
         typeSpinner = view.findViewById(R.id.typeSpinner)
         destinationEditText = view.findViewById(R.id.destinationEditText)
@@ -82,6 +84,7 @@ class PlanFragment : Fragment() {
     }
 
     private fun savePlanData() {
+        val title = titleEditText.text.toString()
         val startDate = selectedDate?.time
         val type = TripType.valueOf(typeSpinner.selectedItem.toString())
         val destination = destinationEditText.text.toString()
@@ -89,7 +92,7 @@ class PlanFragment : Fragment() {
         if (startDate != null && destination.isNotEmpty()) {
             lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
-                    viewModel.insertPlan(startDate, type, destination)
+                    viewModel.insertPlan(title, startDate, type, destination)
                 }
             }
             Toast.makeText(
@@ -111,6 +114,7 @@ class PlanFragment : Fragment() {
         selectedDate = null
         pickDateButton.text = resources.getText(R.string.pick_start_date)
         typeSpinner.setSelection(0)
+        titleEditText.text.clear()
         destinationEditText.text.clear()
     }
 }

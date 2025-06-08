@@ -85,6 +85,9 @@ class PlannedTripsFragment : Fragment() {
             .setView(dialogView)
             .create()
 
+        val tvTitle = dialogView.findViewById<TextView>(R.id.tvDetailTitle)
+        tvTitle.text = trip.title
+
         val etDestination = dialogView.findViewById<EditText>(R.id.etDetailDestination)
         etDestination.setText(trip.destination)
 
