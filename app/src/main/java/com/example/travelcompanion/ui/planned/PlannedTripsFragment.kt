@@ -108,6 +108,8 @@ class PlannedTripsFragment : Fragment() {
                 },
                 year, month, day
             )
+
+
             datePickerDialog.show()
         }
 
@@ -154,6 +156,10 @@ class PlannedTripsFragment : Fragment() {
             dialog.dismiss()
             displayPlanList()
         }
+
+        // Remove background in dialog
+        dialogView.setBackgroundResource(android.R.color.transparent)
+
 
         dialog.show()
     }

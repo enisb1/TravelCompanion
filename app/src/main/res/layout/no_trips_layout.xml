@@ -25,6 +25,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
+        android:padding="12dp"
         android:text="@string/looks_like_you_have_not_completed_any_trips_yet"
         android:textSize="15sp"
         android:textStyle="bold"

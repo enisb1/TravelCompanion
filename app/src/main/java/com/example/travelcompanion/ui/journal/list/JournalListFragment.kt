@@ -158,6 +158,9 @@ class JournalListFragment : Fragment() {
         val tvDuration = dialogView.findViewById<TextView>(R.id.tvTripDetailDuration)
         tvDuration.setText(trip.duration.toString())
 
+        // Remove background in dialog
+        dialogView.setBackgroundResource(android.R.color.transparent)
+
         dialog.show()
     }
 
