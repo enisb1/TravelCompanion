@@ -10,9 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/trackingLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingVertical="10dp"
-        android:visibility="gone">
+        android:layout_height="match_parent">
 
         <!-- TODO: put textSize in a size files -->
         <TextView
@@ -21,11 +19,12 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:text="@string/start_fragment_title"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:textStyle="bold"
+            android:layout_marginTop="20dp"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/guideline_vertical_center"/>
 
         <TextView
             android:id="@+id/trackingTimer"
@@ -33,20 +32,25 @@
             android:layout_height="wrap_content"
             android:text="00:00"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/trackingTitle"
+            app:layout_constraintRight_toRightOf="@id/trackingTitle"
             app:layout_constraintTop_toBottomOf="@id/trackingTitle" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.3" />
 
         <FrameLayout
             android:id="@+id/mapFrame"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toTopOf="@id/stopButton"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/trackingTimer">
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guideline_vertical_center">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapContainer"
@@ -68,9 +72,9 @@
             android:layout_marginEnd="15dp"
             android:contentDescription="@string/set_new_note"
             android:src="@drawable/notes_primary_color"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/stopButton"
             app:layout_constraintRight_toLeftOf="@id/stopButton"
-            app:layout_constraintTop_toBottomOf="@id/mapFrame" />
+            app:layout_constraintTop_toTopOf="@id/stopButton" />
 
         <ImageButton
             android:id="@+id/stopButton"
@@ -79,9 +83,10 @@
             android:background="@drawable/border_white"
             android:contentDescription="@string/stop_tracking_trip"
             android:scaleType="centerInside"
+            app:layout_constraintTop_toBottomOf="@id/trackingTimer"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toLeftOf="@id/guideline_vertical_center" />
 
         <ImageView
             android:id="@+id/newPic"
@@ -90,9 +95,9 @@
             android:layout_marginStart="15dp"
             android:contentDescription="@string/take_a_photo"
             android:src="@drawable/camera_primary_color"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/stopButton"
             app:layout_constraintLeft_toRightOf="@id/stopButton"
-            app:layout_constraintTop_toBottomOf="@id/mapFrame" />
+            app:layout_constraintTop_toTopOf="@id/stopButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -101,6 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/start"/>
+        android:text="@string/start"
+        android:visibility="gone"/>
 
 </FrameLayout>

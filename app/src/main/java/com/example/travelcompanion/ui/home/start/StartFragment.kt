@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
@@ -85,11 +86,6 @@ class StartFragment : Fragment() {
 
     private lateinit var inflater: LayoutInflater
 
-    private val notes: MutableList<Note> = mutableListOf()
-    private val pictures: MutableList<Picture> = mutableListOf()
-
-    private lateinit var startDate: Date
-
     private var unpackedTripId: Long = -1L
     private lateinit var unpackedTripType: String
     private lateinit var unpackedTripDestination: String
@@ -115,6 +111,20 @@ class StartFragment : Fragment() {
         buildDialogs()
         setListeners()
 
+        Log.i("points", viewModel.locationsList.value.toString())
+
+        viewModel.isTripStarted.observe(viewLifecycleOwner) { started ->
+            if (started) {
+                startButton.visibility = View.GONE
+                trackingLayout.visibility = View.VISIBLE
+                startTracking()
+            }
+            else {
+                startButton.visibility = View.VISIBLE
+                trackingLayout.visibility = View.GONE
+            }
+        }
+
         // unpack received strings (empty if no value was sent)
         unpackedTripId = arguments?.getLong("plannedTripId") ?: -1L
         unpackedTripType = arguments?.getString("tripType") ?: ""
@@ -137,7 +147,7 @@ class StartFragment : Fragment() {
         ) { granted ->
             if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-                    startTracking()
+                    viewModel.startTrip()
                 else
                     requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
@@ -149,7 +159,7 @@ class StartFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                startTracking()
+                viewModel.startTrip()
             } else {
                 Toast.makeText(activity, "Notification permission is required", Toast.LENGTH_SHORT).show()
             }
@@ -171,7 +181,7 @@ class StartFragment : Fragment() {
             if (result!!.resultCode == RESULT_OK) {
                 // add picture to pictures list
                 val picture = Picture(id = 0, timestamp = Date().time, uri = currentPictureUri.toString())
-                pictures.add(picture)
+                viewModel.pictures.add(picture)
             } else {
                 // clean up the empty file if no photo was taken
                 if (currentPictureFile.exists()) {
@@ -185,14 +195,14 @@ class StartFragment : Fragment() {
     private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
         lifecycleScope.launch {
             val tripId = withContext(Dispatchers.IO) {
-                viewModel.saveTrip(title, startDate, tripType,
+                viewModel.saveTrip(title, viewModel.start, tripType,
                     tripDestination, TripState.COMPLETED)
             }
-            notes.forEach {
+            viewModel.notes.forEach {
                 it.tripId = tripId
                 viewModel.saveNote(it)
             }
-            pictures.forEach {
+            viewModel.pictures.forEach {
                 it.tripId = tripId
                 viewModel.savePicture(it)
             }
@@ -260,7 +270,7 @@ class StartFragment : Fragment() {
                 if (title.isEmpty() || content.isEmpty())
                     Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
                 else {
-                    notes.add(Note(id = 0, title = title, date = Date().time, content = content))
+                    viewModel.notes.add(Note(id = 0, title = title, date = Date().time, content = content))
                     Toast.makeText(requireContext(), "Note added to trip", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -320,7 +330,7 @@ class StartFragment : Fragment() {
                 requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             else {
-                startTracking()
+                viewModel.startTrip()
             }
         }
         stopButton.setOnClickListener {
@@ -348,13 +358,9 @@ class StartFragment : Fragment() {
     }
 
     private fun resetToStart() {
-        trackingLayout.visibility = View.GONE
-        startButton.visibility = View.VISIBLE
-        // reset data
-        TrackingRepository.resetData()
+        viewModel.stopTrip()
+        viewModel.resetTrackingData()
         map.clear()
-        notes.clear()
-        pictures.clear()
     }
 
     private fun takePicture() {
@@ -400,16 +406,11 @@ class StartFragment : Fragment() {
                     else -> false
                 }
             }
-            // show start position on map
-            // show/hide map and start button
-            startButton.visibility = View.GONE
-            trackingLayout.visibility = View.VISIBLE
             // draw polyline
             val polylineOptions = PolylineOptions().apply {
                 color(Color.GREEN)
                 width(20f)
             }
-            val points = mutableListOf<LatLng>()
             val polyline = map.addPolyline(polylineOptions)
             // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
@@ -418,8 +419,7 @@ class StartFragment : Fragment() {
                         newValue[newValue.size-1].longitude)
                     if (newValue.size == 1)
                         addStartAndZoom(addedLatLng)    // added location is start location
-                    points.add(addedLatLng)
-                    polyline.points = points
+                    polyline.points = newValue.map { LatLng(it.latitude, it.longitude) }
                     map.animateCamera(
                         CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
                     )
@@ -432,7 +432,7 @@ class StartFragment : Fragment() {
             // start tracking
             requireContext().startService(Intent(requireContext(), TrackingService::class.java))
             // set startDate
-            startDate = Date()
+            viewModel.setStart()
         }
     }
 
