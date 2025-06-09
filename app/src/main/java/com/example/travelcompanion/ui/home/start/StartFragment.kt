@@ -59,6 +59,10 @@ import java.util.Locale
 
 class StartFragment : Fragment() {
 
+    companion object {
+        val NO_UNPACKED_TRIP_CODE = -1L
+    }
+
     private lateinit var viewModel: StartViewModel
 
     private lateinit var requestPermissionLauncherForLocation: ActivityResultLauncher<String>
@@ -75,7 +79,6 @@ class StartFragment : Fragment() {
     private lateinit var newNoteImage: ImageView
     private lateinit var newPicImage: ImageView
     private lateinit var timerTextView: TextView
-    private lateinit var distanceTextView: TextView
 
     private lateinit var stopDialog: AlertDialog
     private lateinit var newNoteDialog: AlertDialog
@@ -87,9 +90,11 @@ class StartFragment : Fragment() {
 
     private lateinit var inflater: LayoutInflater
 
-    private var unpackedTripId: Long = -1L
+    private var unpackedTripId: Long = NO_UNPACKED_TRIP_CODE
     private lateinit var unpackedTripType: String
     private lateinit var unpackedTripDestination: String
+
+    private var startMarkerAdded: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -127,10 +132,10 @@ class StartFragment : Fragment() {
         }
 
         // unpack received strings (empty if no value was sent)
-        unpackedTripId = arguments?.getLong("plannedTripId") ?: -1L
+        unpackedTripId = arguments?.getLong("plannedTripId") ?: NO_UNPACKED_TRIP_CODE
         unpackedTripType = arguments?.getString("tripType") ?: ""
         unpackedTripDestination = arguments?.getString("tripDestination") ?: ""
-        if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
+        if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
             startButton.performClick()
     }
 
@@ -221,8 +226,8 @@ class StartFragment : Fragment() {
     private fun buildDialogs() {
         // --- stop dialog ---
         val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
-        distanceTextView = dialogStopView.findViewById(R.id.distanceTextViewStopTracking)
         val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
+        val titleEditText: EditText = dialogStopView.findViewById(R.id.titleEditTextStopTracking)
         val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
 
         // Configure spinner
@@ -235,16 +240,14 @@ class StartFragment : Fragment() {
             .setView(dialogStopView)
             .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val destination = destinationEditText.text.toString()
-                if (destination.isEmpty())
+                val titleInput = titleEditText.text.toString()
+                if (titleInput.isEmpty())
+                    Toast.makeText(requireContext(), "Title is needed", Toast.LENGTH_SHORT).show()
+                else if (destination.isEmpty())
                     Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
                 else {
-                    val titleInput = dialogStopView.findViewById<EditText>(R.id.titleEditTextStopTracking).text
                     endTrip(
-                        title = if (titleInput.isNotEmpty()) {
-                            titleInput.toString()
-                        } else {
-                            "Trip on $startDate"
-                        },
+                        title = titleInput,
                         TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
                         destination
                     )
@@ -255,6 +258,7 @@ class StartFragment : Fragment() {
             ) { dialog: DialogInterface, _ -> dialog.dismiss() }
             .setOnDismissListener {
                 tripTypeSpinner.setSelection(0)
+                titleEditText.setText("")
                 destinationEditText.setText("")
             }
             .create()
@@ -337,12 +341,10 @@ class StartFragment : Fragment() {
             }
         }
         stopButton.setOnClickListener {
-            val distance = TrackingRepository.currentDistance
-            distanceTextView.text = "Distance: %.01f m".format(distance)
-            if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
+            if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
                 endTrip(
                     title = unpackedTripId.toString(), TripType.valueOf(unpackedTripType), unpackedTripDestination)
-                unpackedTripId = -1L
+                unpackedTripId = NO_UNPACKED_TRIP_CODE
                 unpackedTripType = ""
                 unpackedTripDestination = ""
                 // TODO: remove trip through its id
@@ -420,14 +422,16 @@ class StartFragment : Fragment() {
             // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
                 if (newValue.isNotEmpty()) {
-                    val addedLatLng = LatLng(newValue[newValue.size-1].latitude,
-                        newValue[newValue.size-1].longitude)
-                    if (newValue.size == 1)
-                        addStartAndZoom(addedLatLng)    // added location is start location
+                    if (!startMarkerAdded) {
+                        val startLatLng = LatLng(newValue[0].latitude,
+                            newValue[0].longitude)
+                        addStart(startLatLng)
+                        startMarkerAdded = true
+                    }
                     polyline.points = newValue.map { LatLng(it.latitude, it.longitude) }
-                    map.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
-                    )
+                    val lastAddedLatLng = LatLng(newValue[newValue.size-1].latitude,
+                        newValue[newValue.size-1].longitude)
+                    zoomLatLng(lastAddedLatLng)
                 }
             }
             viewModel.timerSeconds.observe(requireActivity()) { newValue ->
@@ -440,6 +444,23 @@ class StartFragment : Fragment() {
             viewModel.setStart()
         }
     }
+
+    private fun addStart(startLatLng: LatLng) {
+        map.addMarker(
+            MarkerOptions()
+                .position(startLatLng)
+                .title("Start")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+        )
+    }
+
+    private fun zoomLatLng(zoomLatLng: LatLng) {
+        map.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(zoomLatLng, 17f)
+        )
+    }
+
+
 
     private fun addStartAndZoom(startLatLng: LatLng) {
         map.addMarker(

@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
+import com.example.travelcompanion.ui.home.start.StartFragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -33,7 +34,7 @@ class HomeFragment : Fragment() {
 
         viewPager.adapter = HomePagerAdapter(
             this,
-            arguments?.getLong("plannedTripId") ?: -1L,
+            arguments?.getLong("plannedTripId") ?: StartFragment.NO_UNPACKED_TRIP_CODE,
             arguments?.getString("tripType") ?: "",
             arguments?.getString("tripDestination") ?: ""
         )
