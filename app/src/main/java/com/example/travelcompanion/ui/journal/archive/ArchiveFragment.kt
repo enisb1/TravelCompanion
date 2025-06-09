@@ -1,9 +1,7 @@
 package com.example.travelcompanion.ui.journal.archive
 
 import android.app.AlertDialog
-import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -68,9 +66,8 @@ class ArchiveFragment : Fragment() {
             completedTrips = withContext(Dispatchers.IO) {
                 viewModel.getCompletedTrips()
             }
-            val tripsDestinations: List<String> = completedTrips.map { it.destination }
-            setTripsToSpinner(tripsDestinations)
-            // select 'All'
+            val tripTitles: List<String> = completedTrips.map { it.title }
+            setTripsToSpinner(tripTitles)
             tripSelectionSpinner.setSelection(viewModel.spinnerSelection)
             showGalleryOrNotes()
             updateGalleryOrNotes()
@@ -116,13 +113,21 @@ class ArchiveFragment : Fragment() {
                 val notesOfTrip = withContext(Dispatchers.IO) {
                     viewModel.getNotesByTripId(tripId)
                 }
-                adapter = NotesAdapter(notesOfTrip.sortedBy { it.date })
+                adapter = NotesAdapter(
+                    notesOfTrip.sortedBy { it.date },
+                    completedTrips.associate { it.id to it.title },
+                    completedTrips.associate { it.id to it.destination }
+                )
             }
             else {  // tripId = 0 -> show all
                 val allNotes = withContext(Dispatchers.IO) {
                     viewModel.getAllNotes()
                 }
-                adapter = NotesAdapter(allNotes.sortedBy { it.date })
+                adapter = NotesAdapter(
+                    allNotes.sortedBy { it.date },
+                    completedTrips.associate { it.id to it.title },
+                    completedTrips.associate { it.id to it.destination }
+                )
             }
             notesRecView.adapter = adapter
         }
@@ -176,8 +181,8 @@ class ArchiveFragment : Fragment() {
         }
     }
 
-    private fun setTripsToSpinner(destinations: List<String>) {
-        val tripsToDisplay = listOf(getString(R.string.all)) + destinations
+    private fun setTripsToSpinner(titles: List<String>) {
+        val tripsToDisplay = listOf(getString(R.string.all)) + titles
         tripSelectionSpinner.adapter= StringHintArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
