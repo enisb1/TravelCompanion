@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.io.File
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
@@ -110,10 +111,13 @@ class StartFragment : Fragment() {
         buildDialogs()
         setListeners()
 
+        Log.i("points", viewModel.locationsList.value.toString())
+
         viewModel.isTripStarted.observe(viewLifecycleOwner) { started ->
             if (started) {
                 startButton.visibility = View.GONE
                 trackingLayout.visibility = View.VISIBLE
+                startTracking()
             }
             else {
                 startButton.visibility = View.VISIBLE
@@ -143,7 +147,7 @@ class StartFragment : Fragment() {
         ) { granted ->
             if (granted) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
-                    startTracking()
+                    viewModel.startTrip()
                 else
                     requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
@@ -155,7 +159,7 @@ class StartFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                startTracking()
+                viewModel.startTrip()
             } else {
                 Toast.makeText(activity, "Notification permission is required", Toast.LENGTH_SHORT).show()
             }
@@ -326,7 +330,7 @@ class StartFragment : Fragment() {
                 requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
             else {
-                startTracking()
+                viewModel.startTrip()
             }
         }
         stopButton.setOnClickListener {
@@ -355,7 +359,6 @@ class StartFragment : Fragment() {
 
     private fun resetToStart() {
         viewModel.stopTrip()
-        // reset data
         viewModel.resetTrackingData()
         map.clear()
     }
@@ -403,15 +406,11 @@ class StartFragment : Fragment() {
                     else -> false
                 }
             }
-            // show start position on map
-            // show/hide map and start button
-            viewModel.startTrip()
             // draw polyline
             val polylineOptions = PolylineOptions().apply {
                 color(Color.GREEN)
                 width(20f)
             }
-            val points = mutableListOf<LatLng>()
             val polyline = map.addPolyline(polylineOptions)
             // observe changes in ViewModel
             viewModel.locationsList.observe(requireActivity()) { newValue ->
@@ -420,8 +419,7 @@ class StartFragment : Fragment() {
                         newValue[newValue.size-1].longitude)
                     if (newValue.size == 1)
                         addStartAndZoom(addedLatLng)    // added location is start location
-                    points.add(addedLatLng)
-                    polyline.points = points
+                    polyline.points = newValue.map { LatLng(it.latitude, it.longitude) }
                     map.animateCamera(
                         CameraUpdateFactory.newLatLngZoom(addedLatLng, 17f)
                     )
