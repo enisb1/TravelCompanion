@@ -43,7 +43,7 @@ class TravelCompanionRepository(app: Application) {
             destination = destination,
             state = state,
             duration = duration,
-            distance = distance
+            distance = Math.round(distance * 10) / 10.0
         )
 
         return tripDao.insertTrip(trip)

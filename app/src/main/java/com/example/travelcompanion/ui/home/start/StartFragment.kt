@@ -75,6 +75,7 @@ class StartFragment : Fragment() {
     private lateinit var newNoteImage: ImageView
     private lateinit var newPicImage: ImageView
     private lateinit var timerTextView: TextView
+    private lateinit var distanceTextView: TextView
 
     private lateinit var stopDialog: AlertDialog
     private lateinit var newNoteDialog: AlertDialog
@@ -220,6 +221,7 @@ class StartFragment : Fragment() {
     private fun buildDialogs() {
         // --- stop dialog ---
         val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
+        distanceTextView = dialogStopView.findViewById(R.id.distanceTextViewStopTracking)
         val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
         val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
 
@@ -236,11 +238,12 @@ class StartFragment : Fragment() {
                 if (destination.isEmpty())
                     Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
                 else {
+                    val titleInput = dialogStopView.findViewById<EditText>(R.id.titleEditTextStopTracking).text
                     endTrip(
-                        title = if (unpackedTripId != -1L) {
-                            unpackedTripId.toString()  // use the existing trip id
+                        title = if (titleInput.isNotEmpty()) {
+                            titleInput.toString()
                         } else {
-                            "Trip on ${Date().toLocaleString()}"  // generate a new title
+                            "Trip on $startDate"
                         },
                         TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
                         destination
@@ -334,6 +337,8 @@ class StartFragment : Fragment() {
             }
         }
         stopButton.setOnClickListener {
+            val distance = TrackingRepository.currentDistance
+            distanceTextView.text = "Distance: %.01f m".format(distance)
             if (unpackedTripId != -1L && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
                 endTrip(
                     title = unpackedTripId.toString(), TripType.valueOf(unpackedTripType), unpackedTripDestination)

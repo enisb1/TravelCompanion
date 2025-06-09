@@ -33,21 +33,8 @@
             android:autofillHints=""
             android:hint="Enter title"
             android:inputType="text" />
-
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textStyle="bold"
-            android:text="Trip type" />
-
-        <Spinner
-            android:id="@+id/typeSpinnerStopTracking"
-            android:layout_width="match_parent"
-            android:layout_height="53dp" />
-
-        <TextView
+      
+      <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -62,6 +49,25 @@
             android:hint="@string/enter_destination"
             android:inputType="text" />
 
+    <TextView
+        android:id="@+id/distanceTextViewStopTracking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Distance: 0.0 m"
+        android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:text="Trip type" />
+
+        <Spinner
+            android:id="@+id/typeSpinnerStopTracking"
+            android:layout_width="match_parent"
+            android:layout_height="53dp" />
     </LinearLayout>
 
 </ScrollView>
