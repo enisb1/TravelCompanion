@@ -218,7 +218,7 @@ class StartFragment : Fragment() {
             Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
             //stop foreground tracking service
             val stopIntent = Intent(requireContext(), TrackingService::class.java)
-            stopIntent.action = "ACTION_STOP"
+            stopIntent.action = TrackingService.ACTION_STOP
             requireContext().startService(stopIntent)
         }
     }
@@ -347,6 +347,7 @@ class StartFragment : Fragment() {
                 unpackedTripId = NO_UNPACKED_TRIP_CODE
                 unpackedTripType = ""
                 unpackedTripDestination = ""
+                arguments?.clear()
                 // TODO: remove trip through its id
             }
             else
@@ -368,6 +369,7 @@ class StartFragment : Fragment() {
         viewModel.stopTrip()
         viewModel.resetTrackingData()
         map.clear()
+        startMarkerAdded = false
     }
 
     private fun takePicture() {
