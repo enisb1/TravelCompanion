@@ -15,7 +15,7 @@ class TripViewModel(private val repository: TravelCompanionRepository) : ViewMod
     fun insertPlan(title: String, startDate: Date, type: TripType, destination: String) {
         repository.insertTrip(
             title = title,
-            startDate = startDate,
+            start = startDate.time,
             type = type,
             destination = destination,
             state = TripState.PLANNED

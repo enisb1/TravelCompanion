@@ -1,7 +1,7 @@
 package com.example.travelcompanion.ui.home.start
 
-import android.location.Location
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.db.TravelCompanionRepository
@@ -16,11 +16,32 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
     val locationsList: LiveData<List<TripLocation>> = TrackingRepository.locationList
     val timerSeconds: LiveData<Long> = TrackingRepository.timerSeconds
 
-    fun saveTrip(title: String, startDate: Date, type: TripType, destination: String, state: TripState
+    val notes: MutableList<Note> = mutableListOf()
+    val pictures: MutableList<Picture> = mutableListOf()
+
+    var start: Long = 0L
+        private set
+
+    fun setStart() {
+        start = Date().time
+    }
+
+    private val _isTripStarted = MutableLiveData(false)
+    val isTripStarted: LiveData<Boolean> = _isTripStarted
+
+    fun startTrip() {
+        _isTripStarted.value = true
+    }
+
+    fun stopTrip() {
+        _isTripStarted.value = false
+    }
+
+    fun saveTrip(title: String, start: Long, type: TripType, destination: String, state: TripState
     ): Long {
         val tripId = repository.insertTrip(
             title = title,
-            startDate,
+            start,
             type,
             destination,
             state,
@@ -45,6 +66,8 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
     }
 
     fun resetTrackingData() {
+        notes.clear()
+        pictures.clear()
         TrackingRepository.resetData()
     }
 }
