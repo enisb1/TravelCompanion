@@ -116,13 +116,21 @@ class ArchiveFragment : Fragment() {
                 val notesOfTrip = withContext(Dispatchers.IO) {
                     viewModel.getNotesByTripId(tripId)
                 }
-                adapter = NotesAdapter(notesOfTrip.sortedBy { it.date })
+                adapter = NotesAdapter(
+                    notesOfTrip.sortedBy { it.date },
+                    completedTrips.associate { it.id to it.title },
+                    completedTrips.associate { it.id to it.destination }
+                )
             }
             else {  // tripId = 0 -> show all
                 val allNotes = withContext(Dispatchers.IO) {
                     viewModel.getAllNotes()
                 }
-                adapter = NotesAdapter(allNotes.sortedBy { it.date })
+                adapter = NotesAdapter(
+                    allNotes.sortedBy { it.date },
+                    completedTrips.associate { it.id to it.title },
+                    completedTrips.associate { it.id to it.destination }
+                )
             }
             notesRecView.adapter = adapter
         }

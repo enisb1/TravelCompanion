@@ -353,6 +353,8 @@ class StartFragment : Fragment() {
         // reset data
         TrackingRepository.resetData()
         map.clear()
+        notes.clear()
+        pictures.clear()
     }
 
     private fun takePicture() {
