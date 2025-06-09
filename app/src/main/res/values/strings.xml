@@ -41,4 +41,6 @@
     <string name="all">All</string>
     <string name="close">Close</string>
     <string name="complete_trip">Complete trip</string>
+    <string name="analysis">Analysis</string>
+    <string name="prediction">Prediction</string>
 </resources>

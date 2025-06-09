@@ -1,4 +1,4 @@
-package com.example.travelcompanion.ui.prediction
+package com.example.travelcompanion.ui.analysis_prediction
 
 import androidx.lifecycle.ViewModel
 
