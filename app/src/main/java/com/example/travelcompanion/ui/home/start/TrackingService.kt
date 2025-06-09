@@ -29,7 +29,7 @@ import java.util.Date
 class TrackingService : Service() {
 
     companion object {
-        const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 50   // meters
+        const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 1   // meters
         val NOTIFICATION_ID = 1
         val CHANNEL_ID = "location_tracking_service"
         val CHANNEL_NAME = "Location tracking channel"

@@ -36,6 +36,27 @@
             android:layout_marginVertical="12dp"
             android:background="#EEEEEE" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/enter_destination">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/destinationEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/outline_add_location_24"
+                android:drawablePadding="8dp"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#EEEEEE" />
+
         <Button
             android:id="@+id/pickDateButton"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -70,27 +91,6 @@
                 android:layout_marginStart="12dp"
                 android:layout_weight="1" />
         </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="12dp"
-            android:background="#EEEEEE" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/enter_destination">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/destinationEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableStart="@drawable/outline_add_location_24"
-                android:drawablePadding="8dp"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/saveButton"
