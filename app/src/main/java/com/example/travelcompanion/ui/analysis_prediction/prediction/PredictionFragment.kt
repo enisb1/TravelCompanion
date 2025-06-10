@@ -8,19 +8,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
-import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.CompletedTripViewModelFactory
 import com.example.travelcompanion.ui.home.plan.TripViewModel
-import com.example.travelcompanion.ui.journal.list.JournalListViewModel
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+
 
 class PredictionFragment : Fragment() {
     private lateinit var tvSummary: TextView
     private lateinit var tvForecast: TextView
     private lateinit var tvRecommendations: TextView
     private lateinit var tripViewModel: TripViewModel
+    private lateinit var lineChart: LineChart
 
     companion object {
         fun newInstance() = PredictionFragment()
@@ -51,15 +55,16 @@ class PredictionFragment : Fragment() {
         tvSummary = view.findViewById(R.id.tvPredictionSummary)
         tvForecast = view.findViewById(R.id.tvPredictionForecast)
         tvRecommendations = view.findViewById(R.id.tvPredictionRecommend)
+        lineChart = view.findViewById(R.id.lineChart)
 
         tripViewModel.completedTrips.observe(viewLifecycleOwner) {
-            updatePredictions()
+            updateViews()
+            updateChart()
         }
     }
 
-    private fun updatePredictions() {
+    private fun updateViews() {
         val trips = tripViewModel.completedTrips.value ?: emptyList()
-        val summary = PredictionUtils.analyzeTrips(trips)
         val grouped = PredictionUtils.groupTripsByMonth(trips)
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
         val recommendations = PredictionUtils.generateRecommendations(trips)
@@ -69,5 +74,36 @@ class PredictionFragment : Fragment() {
         tvForecast.text = "Predicted Trips Next Month: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
+    }
+
+    private fun updateChart() {
+        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val grouped = PredictionUtils.groupTripsByMonth(trips) // List<Pair<Int, Int>>
+
+        val entries = grouped.mapIndexed { index, pair ->
+            Entry(index.toFloat(), pair.second.toFloat())
+        }
+
+        val dataSet = LineDataSet(entries, "Monthly trips")
+        dataSet.setDrawValues(false)
+        dataSet.setDrawCircles(true)
+
+        val lineData = LineData(dataSet)
+        lineChart.data = lineData
+
+        // X axis labels ("MM/yyyy")
+        val months = grouped.map { monthIndexToString(it.first) }
+        lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(months)
+        lineChart.xAxis.granularity = 1f
+        lineChart.xAxis.labelRotationAngle = -45f
+
+        lineChart.invalidate()
+    }
+
+    // Convert monthIndex to "MM/yyyy"
+    private fun monthIndexToString(monthIndex: Int): String {
+        val year = monthIndex / 12
+        val month = (monthIndex % 12) + 1
+        return "%02d/%d".format(month, year)
     }
 }
