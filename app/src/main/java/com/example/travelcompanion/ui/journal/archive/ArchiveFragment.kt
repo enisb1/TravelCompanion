@@ -224,11 +224,15 @@ class ArchiveFragment : Fragment() {
         val seconds = ms / 1000
         val minutes = seconds / 60
         val hours = minutes / 60
+        val days = hours / 24
+        val months = days / 30  // Approximation: 30 days = 1 month
 
         return when {
-            hours > 0 -> "$hours h ${minutes % 60} min"
-            minutes > 0 -> "$minutes min ${seconds % 60} sec"
-            else -> "$seconds sec"
+            months > 0 -> "$months months ${days % 30} days"
+            days > 0 -> "$days days ${hours % 24} hours"
+            hours > 0 -> "$hours hours ${minutes % 60} minutes"
+            minutes > 0 -> "$minutes minutes ${seconds % 60} seconds"
+            else -> "$seconds seconds"
         }
     }
 

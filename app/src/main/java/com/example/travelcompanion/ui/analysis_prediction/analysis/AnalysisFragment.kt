@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -24,7 +25,6 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,13 +32,10 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 
 class AnalysisFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = AnalysisFragment()
-    }
 
     private lateinit var viewModel: AnalysisViewModel
 
@@ -47,6 +44,8 @@ class AnalysisFragment : Fragment() {
     private lateinit var rootLayout: ConstraintLayout
     private lateinit var barChart: BarChart
     private lateinit var topDestinationsListView: ListView
+    private lateinit var totalDistanceTxtView: TextView
+    private lateinit var travelFrequencyTxtView: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -123,6 +122,14 @@ class AnalysisFragment : Fragment() {
             )
             topDestinationsListView.adapter = adapter
 
+            // total distance
+            val totalDistance = getTotalDistance(completedTrips)
+            // TODO: check if metres is the correct measure unit and if sum is correct
+            totalDistanceTxtView.text = totalDistance.toString() + " " + getString(R.string.kilometres)
+
+            // travel frequency
+            val travelFrequency = formatDuration(estimateTravelFrequency(completedTrips))
+            travelFrequencyTxtView.text = travelFrequency
         }
     }
 
@@ -131,6 +138,8 @@ class AnalysisFragment : Fragment() {
         rootLayout = view.findViewById(R.id.analysis_root_layout)
         topDestinationsListView = view.findViewById(R.id.top_destinations_listView)
         viewPager = requireParentFragment().requireView().findViewById(R.id.analysis_prediction_viewPager)
+        totalDistanceTxtView = view.findViewById(R.id.total_distance)
+        travelFrequencyTxtView = view.findViewById(R.id.travel_frequency)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -230,5 +239,42 @@ class AnalysisFragment : Fragment() {
             .entries
             .sortedByDescending { it.value }
             .take(5)
+    }
+
+    // in kilometres
+    private fun getTotalDistance(trips: List<Trip>): Double {
+        val totalMeters = trips.sumOf { it.distance }
+        val totalKilometers = totalMeters / 1000.0
+        return String.format( Locale.getDefault(),"%.3f", totalKilometers).toDouble()
+    }
+
+    private fun estimateTravelFrequency(trips: List<Trip>): Long {
+        if (trips.size < 2) return 0L // Not enough data
+
+        val sortedTrips = trips.sortedBy { it.startTimestamp }
+        val timeBetweenSuccessiveTrips = mutableListOf<Long>()
+
+        for (i in 1 until sortedTrips.size) {
+            val durationBetween = sortedTrips[i].startTimestamp - sortedTrips[i-1].endTimestamp
+            timeBetweenSuccessiveTrips.add(durationBetween)
+        }
+
+        return timeBetweenSuccessiveTrips.average().roundToLong() // Average days between trips
+    }
+
+    private fun formatDuration(ms: Long): String {
+        val seconds = ms / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+        val months = days / 30  // Approximation: 30 days = 1 month
+
+        return when {
+            months > 0 -> "$months months ${days % 30} days"
+            days > 0 -> "$days days ${hours % 24} hours"
+            hours > 0 -> "$hours hours ${minutes % 60} minutes"
+            minutes > 0 -> "$minutes minutes ${seconds % 60} seconds"
+            else -> "$seconds seconds"
+        }
     }
 }
