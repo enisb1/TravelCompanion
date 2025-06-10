@@ -96,6 +96,7 @@ class PredictionFragment : Fragment() {
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(months)
         lineChart.xAxis.granularity = 1f
         lineChart.xAxis.labelRotationAngle = -45f
+        lineChart.setExtraTopOffset(24f)
 
         lineChart.invalidate()
     }

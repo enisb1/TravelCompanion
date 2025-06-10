@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -71,6 +72,14 @@ class JournalListFragment : Fragment() {
         spinnerTripType.adapter = adapter
 
         initRecyclerView()
+
+        val fabPopulateDb = view.findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>(R.id.fabPopulateDb)
+        fabPopulateDb.setOnClickListener {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                DatabaseSeeder.seed(TravelCompanionRepository(app = requireActivity().application))
+                Toast.makeText(this.context, "Database seeded with sample trips", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         spinnerTripType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
