@@ -84,22 +84,32 @@ object PredictionUtils {
         val distinctPlaces = trips.map { it.destination }.toSet()
         val longTrips = trips.count { it.distance > 100_000 }
 
+        val predicted = predictNextMonthTripCount(byMonth)
+
         if (avgTrips < 2) {
-            messages.add("Try planning at least 2 trips per month to build a habit.")
+            messages.add("Try to go on at least 2 trips per month to build a good habit!")
         } else {
-            messages.add("Great travel consistency! Keep it up.")
+            messages.add("Great consistency! You are averaging $avgTrips trips per month.")
         }
 
         if (distinctPlaces.size < 3) {
-            messages.add("Consider exploring new destinations.")
+            messages.add("Consider exploring new destinations to diversify your travel experiences!")
         }
 
         if (longTrips > 0) {
-            messages.add("You're taking some long-distance trips. Amazing!")
+            messages.add("You are going on long trips. Keep it up!")
+        }
+        else {
+            messages.add("Consider planning a long trip to explore further destinations!")
         }
 
-        val predicted = predictNextMonthTripCount(byMonth)
-        messages.add("Based on trends, aim for ~$predicted trips next month.")
+        // If predicted trips are below average, suggest new travel ideas
+        if (predicted < avgTrips) {
+            messages.add("A decline in travel activity is forecast. Here are some ideas for new trips: visit a nearby city, explore a natural park, or plan a weekend getaway!")
+            messages.add("Try to increase the frequency of your trips to keep your motivation high.")
+        } else {
+            messages.add("Based on trends, aim for ~$predicted trips next month.")
+        }
 
         return messages
     }
