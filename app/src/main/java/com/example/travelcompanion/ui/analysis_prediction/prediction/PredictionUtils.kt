@@ -85,12 +85,4 @@ object PredictionUtils {
 
         return messages
     }
-
-    fun movingAverage(values: List<Int>, window: Int): List<Double> {
-        return values.windowed(window) { it.average() }
-    }
-
-
-
-
 }
