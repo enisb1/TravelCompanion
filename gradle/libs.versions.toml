@@ -20,6 +20,7 @@ androidMapsUtils = "3.10.0"
 roomCommonJvm = "2.7.1"
 roomRuntimeAndroid = "2.7.1"
 searchableSpinner = "1.1.0"
+mpandroidchart = "3.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ android-maps-utils = { group = "com.google.maps.android", name = "android-maps-u
 androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
 searchablespinner = { module = "com.github.DonMat:searchablespinner", version.ref = "searchableSpinner" }
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
