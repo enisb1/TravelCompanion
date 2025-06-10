@@ -3,6 +3,7 @@
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:padding="16dp">
 
     <LinearLayout
@@ -25,48 +26,55 @@
             android:id="@+id/tvPredictionSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingBottom="12dp" />
+            android:paddingBottom="12dp"
+            android:textSize="16sp" />
 
         <!-- Forecast -->
         <TextView
             android:id="@+id/tvPredictionForecastLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingTop="8dp"
             android:text="Forecast"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPredictionForecast"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingBottom="12dp" />
+            android:paddingBottom="12dp"
+            android:textSize="16sp" />
 
         <!-- Recommendations -->
         <TextView
             android:id="@+id/tvPredictionRecommendLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingTop="8dp"
             android:text="Recommendations"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPredictionRecommend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingBottom="24dp" />
+            android:paddingBottom="24dp"
+            android:textSize="16sp" />
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tvPredictionVariance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:textSize="16sp" />
 
     </LinearLayout>
 </ScrollView>

@@ -74,24 +74,38 @@ class PredictionFragment : Fragment() {
         tvForecast.text = "Predicted Trips Next Month: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
+
+        val variance = PredictionUtils.monthlyVariance(trips)
     }
 
     private fun updateChart() {
         val trips = tripViewModel.completedTrips.value ?: emptyList()
-        val grouped = PredictionUtils.groupTripsByMonth(trips) // List<Pair<Int, Int>>
+        val grouped = PredictionUtils.groupTripsByMonth(trips)
 
         val entries = grouped.mapIndexed { index, pair ->
             Entry(index.toFloat(), pair.second.toFloat())
         }
 
+        // Moving average (window size of 3 months)
+        val movingAvg = PredictionUtils.movingAverage(grouped.map { it.second }, 3)
+        val movingAvgEntries = movingAvg.mapIndexed { index, value ->
+            Entry((index + 2).toFloat(), value.toFloat())
+        }
+
         val dataSet = LineDataSet(entries, "Monthly trips")
+        dataSet.color = android.graphics.Color.BLUE
         dataSet.setDrawValues(false)
         dataSet.setDrawCircles(true)
 
-        val lineData = LineData(dataSet)
+        val movingAvgSet = LineDataSet(movingAvgEntries, "Moving Average (3 months)")
+        movingAvgSet.color = android.graphics.Color.RED
+        movingAvgSet.setDrawCircles(false)
+        movingAvgSet.setDrawValues(false)
+        movingAvgSet.lineWidth = 2f
+
+        val lineData = LineData(dataSet, movingAvgSet)
         lineChart.data = lineData
 
-        // X axis labels ("MM/yyyy")
         val months = grouped.map { monthIndexToString(it.first) }
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(months)
         lineChart.xAxis.granularity = 1f

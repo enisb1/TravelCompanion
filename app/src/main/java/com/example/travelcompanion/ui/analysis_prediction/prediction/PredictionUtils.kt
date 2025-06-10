@@ -8,7 +8,8 @@ data class TripSummary(
     val totalTrips: Int,
     val avgDistance: Double,
     val avgDuration: Double,
-    val topDestination: String
+    val topDestination: String,
+    val monthlyVariance: Double
 )
 
 object PredictionUtils {
@@ -21,7 +22,9 @@ object PredictionUtils {
         val topDest = trips.groupBy { it.destination }
             .maxByOrNull { it.value.size }?.key ?: "None"
 
-        return TripSummary(totalTrips, avgDistance, avgDuration, topDest)
+        val monthlyVar = monthlyVariance(trips)
+
+        return TripSummary(totalTrips, avgDistance, avgDuration, topDest, monthlyVar)
     }
 
     fun groupTripsByMonth(trips: List<Trip>): List<Pair<Int, Int>> {
@@ -91,10 +94,18 @@ object PredictionUtils {
         return "Total Trips: ${summary.totalTrips}, " +
                 "Avg Distance: ${summary.avgDistance} km, " +
                 "Avg Duration: ${summary.avgDuration} hours, " +
-                "Top Destination: ${summary.topDestination}"
+                "Top Destination: ${summary.topDestination}, " +
+                "Monthly Variance: ${summary.monthlyVariance}"
     }
 
     fun movingAverage(values: List<Int>, window: Int): List<Double> {
         return values.windowed(window) { it.average() }
+    }
+
+    fun monthlyVariance(trips: List<Trip>): Double {
+        val grouped = groupTripsByMonth(trips)
+        val counts = grouped.map { it.second }
+        val avg = counts.average()
+        return counts.map { (it - avg) * (it - avg) }.average()
     }
 }
