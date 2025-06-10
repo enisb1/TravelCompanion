@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.analysis_prediction.analysis.AnalysisFragment"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:id="@+id/analysis_root_layout">
 
     <TextView
         android:id="@+id/distances_covered_title"

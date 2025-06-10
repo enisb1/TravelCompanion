@@ -1,33 +1,35 @@
 package com.example.travelcompanion.ui.analysis_prediction.analysis
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.Trip
-import com.example.travelcompanion.ui.home.start.StartViewModel
-import com.example.travelcompanion.ui.home.start.StartViewModelFactory
-import com.example.travelcompanion.ui.journal.archive.ArchiveViewModel
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 
 class AnalysisFragment : Fragment() {
@@ -38,6 +40,9 @@ class AnalysisFragment : Fragment() {
 
     private lateinit var viewModel: AnalysisViewModel
 
+    private lateinit var viewPager: ViewPager2  // parent fragment viewPager
+
+    private lateinit var rootLayout: ConstraintLayout
     private lateinit var barChart: BarChart
 
     override fun onCreateView(
@@ -47,6 +52,7 @@ class AnalysisFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_analysis, container, false)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -54,38 +60,115 @@ class AnalysisFragment : Fragment() {
         val factory = AnalysisViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         viewModel = ViewModelProvider(this, factory)[AnalysisViewModel::class.java]
 
-        barChart = view.findViewById(R.id.distances_barChart)
+        initializeViews(view)
+        setListeners()
+
         lifecycleScope.launch {
             val completedTrips = withContext(Dispatchers.IO) {
                 viewModel.getCompletedTrips()
             }
             val distancesPerMonth: Map<String, Float> = getDistancesPerMonth(completedTrips)
-            setUpBarChart(distancesPerMonth)
-            showBarChart(distancesPerMonth)
+            val labels = distancesPerMonth.keys.toList() // ["Feb", "Mar", "Apr"]
+
+// Create entries with proper x-values (index-based)
+            val entries = distancesPerMonth.values.mapIndexed { index, value ->
+                BarEntry(index.toFloat(), value)
+            }
+
+            val dataSet = BarDataSet(entries, "Distances")
+            dataSet.valueTextSize = 10f
+            dataSet.setColor(ContextCompat.getColor(requireContext(), R.color.primary))
+            val barData = BarData(dataSet)
+            barChart.data = barData
+
+// Configure X axis
+            val xAxis = barChart.xAxis
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.setDrawGridLines(false)
+            xAxis.granularity = 1f
+            xAxis.textSize = 10f
+            xAxis.isGranularityEnabled = true
+            xAxis.setLabelCount(labels.size)
+            xAxis.setCenterAxisLabels(false) // Very important if not using grouped bars
+// Formatter
+            xAxis.valueFormatter = object : ValueFormatter() {
+                override fun getAxisLabel(value: Float, axis: AxisBase): String {
+                    val index = value.roundToInt()
+                    return if (index in labels.indices) labels[index] else ""
+                }
+            }
+
+            barChart.axisRight.setDrawLabels(false)
+            barChart.setDrawGridBackground(false)
+            barChart.legend.isEnabled = false
+            barChart.setVisibleXRangeMaximum(5f)
+            barChart.description.isEnabled = false
+            barChart.invalidate()
         }
     }
 
+    private fun initializeViews(view: View) {
+        barChart = view.findViewById(R.id.distances_barChart)
+        rootLayout = view.findViewById(R.id.analysis_root_layout)
+        viewPager = requireParentFragment().requireView().findViewById(R.id.analysis_prediction_viewPager)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setListeners() {
+        barChart.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    disableTabSwiping()
+                    false
+                }
+                else -> false
+            }
+        }
+        rootLayout.setOnTouchListener { _, _ ->
+            enableTabSwiping()
+            false
+        }
+    }
+
+    private fun disableTabSwiping() {
+        viewPager.isUserInputEnabled = false
+    }
+
+    private fun enableTabSwiping() {
+        viewPager.isUserInputEnabled = true
+    }
+
+    //TODO: CENTER LABELS UNDER THE BARS
     private fun setUpBarChart(distancesPerMonth: Map<String, Float>) {
+        val labels = distancesPerMonth.keys.toList()
         barChart.axisRight.setDrawLabels(false)
         barChart.setDrawGridBackground(false)
         barChart.legend.isEnabled = false
         barChart.description.isEnabled = false
-        barChart.xAxis.textSize = 13f
-        barChart.xAxis.setCenterAxisLabels(true)
+        Log.i("rere", distancesPerMonth.toString())
+
+        val xAxis = barChart.xAxis
+        xAxis.textSize = 10f
         barChart.extraBottomOffset = 4f
-        barChart.xAxis.setLabelCount(distancesPerMonth.size, true)
-        barChart.xAxis.valueFormatter = IndexAxisValueFormatter(distancesPerMonth.keys)
-        barChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setLabelCount(distancesPerMonth.size, true)
+        val formatter: ValueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase): String {
+                val index = value.toInt()
+                Log.i("rere", index.toString())
+                return if (index >= 0 && index < labels.size) labels[index] else ""
+            }
+        }
+        xAxis.granularity = 1f // minimum axis-step (interval) is 1
+        xAxis.isGranularityEnabled = true
+        xAxis.valueFormatter = formatter
+        Log.i("labels", distancesPerMonth.keys.toString())
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
     }
 
     private fun showBarChart(distancesPerMonth: Map<String, Float>) {
-        val entries: MutableList<BarEntry> = mutableListOf()
         val title = "Title"
-        var x = 0.0F
-
-        for (distance in distancesPerMonth.values) {
-            val barEntry = BarEntry(x++, distance)
-            entries.add(barEntry)
+        val entries = distancesPerMonth.entries.mapIndexed { index, entry ->
+            BarEntry(index.toFloat(), entry.value)
         }
 
         val barDataSet = BarDataSet(entries, title)
@@ -95,6 +178,7 @@ class AnalysisFragment : Fragment() {
         val data = BarData(barDataSet)
         barChart.setData(data)
         barChart.invalidate()
+        //barChart.setVisibleXRangeMaximum(5f)
     }
     
     // TODO: put in separate calculating class
