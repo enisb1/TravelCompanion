@@ -17,6 +17,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import kotlin.math.pow
 
 
 class PredictionFragment : Fragment() {
@@ -25,6 +26,9 @@ class PredictionFragment : Fragment() {
     private lateinit var tvRecommendations: TextView
     private lateinit var tripViewModel: TripViewModel
     private lateinit var lineChart: LineChart
+    private lateinit var lineChartDistance: LineChart
+    private lateinit var tvDistanceForecast: TextView
+
 
     companion object {
         fun newInstance() = PredictionFragment()
@@ -56,10 +60,14 @@ class PredictionFragment : Fragment() {
         tvForecast = view.findViewById(R.id.tvPredictionForecast)
         tvRecommendations = view.findViewById(R.id.tvPredictionRecommend)
         lineChart = view.findViewById(R.id.lineChart)
+        lineChartDistance = view.findViewById(R.id.lineChartDistance)
+        tvDistanceForecast = view.findViewById(R.id.tvPredictionDistanceForecast)
+
 
         tripViewModel.completedTrips.observe(viewLifecycleOwner) {
             updateViews()
             updateChart()
+            updateDistanceChartAndForecast()
         }
     }
 
@@ -120,5 +128,63 @@ class PredictionFragment : Fragment() {
         val year = monthIndex / 12
         val month = (monthIndex % 12) + 1
         return "%02d/%d".format(month, year)
+    }
+
+    private fun updateDistanceChartAndForecast() {
+        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val grouped = PredictionUtils.totalDistanceByMonth(trips)
+
+        val entries = grouped.mapIndexed { index, pair ->
+            Entry(index.toFloat(), pair.second.toFloat())
+        }
+
+        val movingAvg = PredictionUtils.movingAverage(grouped.map { it.second.toInt() }, 3)
+        val movingAvgEntries = movingAvg.mapIndexed { index, value ->
+            Entry((index + 2).toFloat(), value.toFloat())
+        }
+
+        val dataSet = LineDataSet(entries, "Monthly distance (m)")
+        dataSet.color = android.graphics.Color.GREEN
+        dataSet.setDrawValues(false)
+        dataSet.setDrawCircles(true)
+
+        val movingAvgSet = LineDataSet(movingAvgEntries, "Average monthly distance (m)")
+        movingAvgSet.color = android.graphics.Color.MAGENTA
+        movingAvgSet.setDrawCircles(false)
+        movingAvgSet.setDrawValues(false)
+        movingAvgSet.lineWidth = 2f
+
+        val lineData = LineData(dataSet, movingAvgSet)
+        lineChartDistance.data = lineData
+
+        val months = grouped.map { monthIndexToString(it.first) }
+        lineChartDistance.xAxis.valueFormatter = IndexAxisValueFormatter(months)
+        lineChartDistance.xAxis.granularity = 1f
+        lineChartDistance.xAxis.labelRotationAngle = -45f
+        lineChartDistance.setExtraTopOffset(24f)
+
+        lineChartDistance.invalidate()
+
+        val predictedDistance = predictNextMonthDistance(grouped)
+        tvDistanceForecast.text = "Predicted distance for next month: %.1f m".format(predictedDistance)
+    }
+
+    private fun predictNextMonthDistance(monthlyData: List<Pair<Int, Double>>): Double {
+        if (monthlyData.size < 2) return monthlyData.lastOrNull()?.second ?: 0.0
+
+        val x = monthlyData.map { it.first.toDouble() }
+        val y = monthlyData.map { it.second }
+        val n = x.size
+
+        val sumX = x.sum()
+        val sumY = y.sum()
+        val sumXY = x.zip(y).sumOf { it.first * it.second }
+        val sumX2 = x.sumOf { it * it }
+
+        val slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX.pow(2))
+        val intercept = (sumY - slope * sumX) / n
+
+        val nextMonth = x.maxOrNull()?.plus(1) ?: 0.0
+        return (slope * nextMonth + intercept).coerceAtLeast(0.0)
     }
 }

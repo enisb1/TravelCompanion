@@ -42,6 +42,21 @@ object PredictionUtils {
         return monthly.toSortedMap().entries.map { it.key to it.value }
     }
 
+    fun totalDistanceByMonth(trips: List<Trip>): List<Pair<Int, Double>> {
+        val monthly = mutableMapOf<Int, Double>() // Key: monthIndex, Value: total distance
+
+        trips.forEach {
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = it.startTimestamp
+            val month = cal.get(Calendar.MONTH)
+            val year = cal.get(Calendar.YEAR)
+            val monthIndex = year * 12 + month
+            monthly[monthIndex] = monthly.getOrDefault(monthIndex, 0.0) + it.distance
+        }
+
+        return monthly.toSortedMap().entries.map { it.key to it.value }
+    }
+
     fun predictNextMonthTripCount(monthlyData: List<Pair<Int, Int>>): Int {
         if (monthlyData.size < 2) return monthlyData.lastOrNull()?.second ?: 0
 
