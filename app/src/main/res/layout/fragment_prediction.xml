@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
-            android:text="Completed Trips Summary"
+            android:text="Summary of completed trips"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -29,22 +29,19 @@
             android:paddingBottom="12dp"
             android:textSize="16sp" />
 
-        <!-- Forecast -->
-        <TextView
-            android:id="@+id/tvPredictionForecastLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:text="Forecast"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvPredictionForecast"
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:textSize="16sp" />
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Forecast -->
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="12dp" />
 
         <!-- Recommendations -->
         <TextView
@@ -63,24 +60,57 @@
             android:paddingBottom="24dp"
             android:textSize="16sp" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Chart: Number of trips -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trend for Number of Trips"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp" />
+
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:id="@+id/tvPredictionForecast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:textSize="16sp"
+            android:textColor="@color/primary"/>
+
+        <!-- Chart: Monthly distance -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trend for Monthly Distance"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp" />
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChartDistance"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginBottom="8dp" />
 
         <TextView
             android:id="@+id/tvPredictionDistanceForecast"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColor="@color/primary" />
 
     </LinearLayout>
 </ScrollView>
