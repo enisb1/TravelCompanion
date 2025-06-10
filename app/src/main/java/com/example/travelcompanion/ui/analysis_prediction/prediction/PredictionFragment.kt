@@ -79,7 +79,7 @@ class PredictionFragment : Fragment() {
 
         tvSummary.text = PredictionUtils.getTripSummary(trips)
 
-        tvForecast.text = "Predicted Trips Next Month: $predictedCount"
+        tvForecast.text = "Predicted number of trips for next month: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
 
