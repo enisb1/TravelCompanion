@@ -73,7 +73,7 @@ class TravelCompanionRepository(app: Application) {
         }
     }
 
-    fun getAllTrips(): List<Trip> {
+    fun getAllTrips(): LiveData<List<Trip>> {
         return tripDao.getAllTrips()
     }
 
