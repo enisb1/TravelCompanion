@@ -30,4 +30,29 @@
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="20dp"/>
 
+    <TextView
+        android:id="@+id/top_destinations_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintTop_toBottomOf="@id/distances_barChart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:text="Top destinations:"/>
+
+    <ListView
+        android:id="@+id/top_destinations_listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        app:layout_constraintTop_toBottomOf="@id/top_destinations_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

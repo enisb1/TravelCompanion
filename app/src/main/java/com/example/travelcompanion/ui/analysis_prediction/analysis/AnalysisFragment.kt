@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ListView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -44,6 +46,7 @@ class AnalysisFragment : Fragment() {
 
     private lateinit var rootLayout: ConstraintLayout
     private lateinit var barChart: BarChart
+    private lateinit var topDestinationsListView: ListView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,13 +106,30 @@ class AnalysisFragment : Fragment() {
             barChart.legend.isEnabled = false
             barChart.setVisibleXRangeMaximum(5f)
             barChart.description.isEnabled = false
+            barChart.isDoubleTapToZoomEnabled = false
+            barChart.setPinchZoom(false)
             barChart.invalidate()
+
+            // top destinations
+            val topDestinations = getTopDestinations(completedTrips)
+            val destinationStrings: List<String> = topDestinations.mapIndexed { index, entry ->
+                "#${index+1}: ${entry.key} (${entry.value} trips)"
+            }
+            val adapter = ArrayAdapter(
+                requireContext(),
+                R.layout.destinations_list_item, // your custom layout
+                R.id.destination,        // the TextView inside that layout
+                destinationStrings
+            )
+            topDestinationsListView.adapter = adapter
+
         }
     }
 
     private fun initializeViews(view: View) {
         barChart = view.findViewById(R.id.distances_barChart)
         rootLayout = view.findViewById(R.id.analysis_root_layout)
+        topDestinationsListView = view.findViewById(R.id.top_destinations_listView)
         viewPager = requireParentFragment().requireView().findViewById(R.id.analysis_prediction_viewPager)
     }
 
@@ -125,6 +145,10 @@ class AnalysisFragment : Fragment() {
             }
         }
         rootLayout.setOnTouchListener { _, _ ->
+            enableTabSwiping()
+            false
+        }
+        topDestinationsListView.setOnTouchListener { _, _ ->
             enableTabSwiping()
             false
         }
@@ -197,5 +221,14 @@ class AnalysisFragment : Fragment() {
                 distancesPerMonth[monthYear] = trip.distance.toFloat()
         }
         return distancesPerMonth
+    }
+
+    private fun getTopDestinations(trips: List<Trip>): List<Map.Entry<String, Int>> {
+        return trips
+            .groupingBy { it.destination }
+            .eachCount()
+            .entries
+            .sortedByDescending { it.value }
+            .take(5)
     }
 }
