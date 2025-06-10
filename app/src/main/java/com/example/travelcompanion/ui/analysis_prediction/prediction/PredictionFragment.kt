@@ -64,10 +64,7 @@ class PredictionFragment : Fragment() {
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
         val recommendations = PredictionUtils.generateRecommendations(trips)
 
-        tvSummary.text = "Total Trips: ${summary.totalTrips}, " +
-                "Avg Distance: ${summary.avgDistance} km, " +
-                "Avg Duration: ${summary.avgDuration} mins, " +
-                "Top Destination: ${summary.topDestination}"
+        tvSummary.text = PredictionUtils.getTripSummary(trips)
 
         tvForecast.text = "Predicted Trips Next Month: $predictedCount"
 

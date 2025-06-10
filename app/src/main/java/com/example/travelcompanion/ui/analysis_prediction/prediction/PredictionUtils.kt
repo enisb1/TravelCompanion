@@ -85,4 +85,16 @@ object PredictionUtils {
 
         return messages
     }
+
+    fun getTripSummary(trips: List<Trip>): String {
+        val summary = analyzeTrips(trips)
+        return "Total Trips: ${summary.totalTrips}, " +
+                "Avg Distance: ${summary.avgDistance} km, " +
+                "Avg Duration: ${summary.avgDuration} hours, " +
+                "Top Destination: ${summary.topDestination}"
+    }
+
+    fun movingAverage(values: List<Int>, window: Int): List<Double> {
+        return values.windowed(window) { it.average() }
+    }
 }
