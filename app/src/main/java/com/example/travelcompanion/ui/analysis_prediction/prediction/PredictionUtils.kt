@@ -76,11 +76,35 @@ object PredictionUtils {
         return (slope * nextMonth + intercept).toInt().coerceAtLeast(0)
     }
 
+    private fun predictNextMonthDistance(monthlyData: List<Pair<Int, Double>>): Double {
+        if (monthlyData.size < 2) return monthlyData.lastOrNull()?.second ?: 0.0
+
+        val x = monthlyData.map { it.first.toDouble() }
+        val y = monthlyData.map { it.second }
+        val n = x.size
+
+        val sumX = x.sum()
+        val sumY = y.sum()
+        val sumXY = x.zip(y).sumOf { it.first * it.second }
+        val sumX2 = x.sumOf { it * it }
+
+        val slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX.pow(2))
+        val intercept = (sumY - slope * sumX) / n
+
+        val nextMonth = x.maxOrNull()?.plus(1) ?: 0.0
+        return (slope * nextMonth + intercept).coerceAtLeast(0.0)
+    }
+
+    fun predictNextMonthDistanceText(monthlyData: List<Pair<Int, Double>>): String {
+        val predictedDistance = predictNextMonthDistance(monthlyData)
+        return "Predicted distance for next month: ${Math.round(predictedDistance * 10) / 10.0} m. Current average is ${Math.round(monthlyData.map { it.second }.average() * 10) / 10.0} m."
+    }
+
     fun generateRecommendations(trips: List<Trip>): List<String> {
         val messages = mutableListOf<String>()
 
         val byMonth = groupTripsByMonth(trips)
-        val avgTrips = byMonth.map { it.second }.average()
+        val avgTrips = Math.round(byMonth.map { it.second }.average() * 10) / 10.0
         val distinctPlaces = trips.map { it.destination }.toSet()
         val longTrips = trips.count { it.distance > 100_000 }
 
@@ -108,19 +132,14 @@ object PredictionUtils {
             messages.add("A decline in travel activity is forecast. Here are some ideas for new trips: visit a nearby city, explore a natural park, or plan a weekend getaway!")
             messages.add("Try to increase the frequency of your trips to keep your motivation high.")
         } else {
-            messages.add("Based on trends, aim for ~$predicted trips next month.")
+            messages.add("Based on trends, aim for ~$predicted trips next month. Current average is $avgTrips trips per month.")
         }
 
         return messages
     }
 
-    fun getTripSummary(trips: List<Trip>): String {
-        val summary = analyzeTrips(trips)
-        return "Total Trips: ${summary.totalTrips}, " +
-                "Avg Distance: ${summary.avgDistance} km, " +
-                "Avg Duration: ${summary.avgDuration} hours, " +
-                "Top Destination: ${summary.topDestination}, " +
-                "Monthly Variance: ${summary.monthlyVariance}"
+    fun getTripSummary(trips: List<Trip>): TripSummary {
+        return analyzeTrips(trips)
     }
 
     fun movingAverage(values: List<Int>, window: Int): List<Double> {

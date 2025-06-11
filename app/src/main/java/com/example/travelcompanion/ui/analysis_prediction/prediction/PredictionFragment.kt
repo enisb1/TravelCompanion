@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
+import com.example.travelcompanion.ui.analysis_prediction.prediction.PredictionUtils.predictNextMonthDistanceText
 import com.example.travelcompanion.ui.home.plan.CompletedTripViewModelFactory
 import com.example.travelcompanion.ui.home.plan.TripViewModel
 import com.github.mikephil.charting.charts.LineChart
@@ -21,7 +22,12 @@ import kotlin.math.pow
 
 
 class PredictionFragment : Fragment() {
-    private lateinit var tvSummary: TextView
+    private lateinit var tvTotalTrips : TextView
+    private lateinit var tvAvgDistance : TextView
+    private lateinit var tvAvgDuration : TextView
+    private lateinit var tvTopDestination : TextView
+    private lateinit var tvMonthlyVariance : TextView
+
     private lateinit var tvForecast: TextView
     private lateinit var tvRecommendations: TextView
     private lateinit var tripViewModel: TripViewModel
@@ -56,7 +62,11 @@ class PredictionFragment : Fragment() {
             CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
-        tvSummary = view.findViewById(R.id.tvPredictionSummary)
+        tvTotalTrips = view.findViewById(R.id.tvTotalTrips)
+        tvAvgDistance = view.findViewById(R.id.tvAvgDistance)
+        tvAvgDuration = view.findViewById(R.id.tvAvgDuration)
+        tvTopDestination = view.findViewById(R.id.tvTopDestination)
+        tvMonthlyVariance = view.findViewById(R.id.tvMonthlyVariance)
         tvForecast = view.findViewById(R.id.tvPredictionForecast)
         tvRecommendations = view.findViewById(R.id.tvPredictionRecommend)
         lineChart = view.findViewById(R.id.lineChart)
@@ -77,13 +87,16 @@ class PredictionFragment : Fragment() {
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
         val recommendations = PredictionUtils.generateRecommendations(trips)
 
-        tvSummary.text = PredictionUtils.getTripSummary(trips)
+        val summary = PredictionUtils.getTripSummary(trips)
+        tvTotalTrips.text = "Total Trips: ${summary.totalTrips}"
+        tvAvgDistance.text = "Avg Distance: %.1f m".format(summary.avgDistance)
+        tvAvgDuration.text = "Avg Duration: %.1f s".format(summary.avgDuration)
+        tvTopDestination.text = "Top Destination: ${summary.topDestination}"
+        tvMonthlyVariance.text = "Monthly Variance: %.1f".format(summary.monthlyVariance)
 
         tvForecast.text = "Predicted number of trips for next month: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
-
-        val variance = PredictionUtils.monthlyVariance(trips)
     }
 
     private fun updateChart() {
@@ -167,26 +180,9 @@ class PredictionFragment : Fragment() {
 
         lineChartDistance.invalidate()
 
-        val predictedDistance = predictNextMonthDistance(grouped)
-        tvDistanceForecast.text = "Predicted distance for next month: %.1f m".format(predictedDistance)
+        val predictedDistanceText = predictNextMonthDistanceText(grouped)
+        tvDistanceForecast.text = predictedDistanceText
     }
 
-    private fun predictNextMonthDistance(monthlyData: List<Pair<Int, Double>>): Double {
-        if (monthlyData.size < 2) return monthlyData.lastOrNull()?.second ?: 0.0
 
-        val x = monthlyData.map { it.first.toDouble() }
-        val y = monthlyData.map { it.second }
-        val n = x.size
-
-        val sumX = x.sum()
-        val sumY = y.sum()
-        val sumXY = x.zip(y).sumOf { it.first * it.second }
-        val sumX2 = x.sumOf { it * it }
-
-        val slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX.pow(2))
-        val intercept = (sumY - slope * sumX) / n
-
-        val nextMonth = x.maxOrNull()?.plus(1) ?: 0.0
-        return (slope * nextMonth + intercept).coerceAtLeast(0.0)
-    }
 }

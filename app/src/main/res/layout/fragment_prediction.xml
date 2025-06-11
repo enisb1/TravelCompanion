@@ -23,11 +23,44 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvPredictionSummary"
+            android:id="@+id/tvTotalTrips"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
-            android:textSize="16sp" />
+            android:text="Total Trips:"
+            android:textSize="16sp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvAvgDistance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Avg Distance:"
+            android:textSize="16sp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvAvgDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Avg Duration:"
+            android:textSize="16sp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvTopDestination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Top Destination:"
+            android:textSize="16sp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvMonthlyVariance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Monthly Variance:"
+            android:textSize="16sp"
+            android:paddingBottom="12dp" />
 
         <View
             android:layout_width="match_parent"
