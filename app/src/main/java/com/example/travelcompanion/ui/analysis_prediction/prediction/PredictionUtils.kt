@@ -97,7 +97,7 @@ object PredictionUtils {
 
     fun predictNextMonthDistanceText(monthlyData: List<Pair<Int, Double>>): String {
         val predictedDistance = predictNextMonthDistance(monthlyData)
-        return "Predicted distance: ${Math.round(predictedDistance * 10) / 10.0} m."
+        return "Predicted distance: ${Math.round(predictedDistance * 10) / 10.0} m"
     }
 
     fun generateRecommendations(trips: List<Trip>): List<String> {

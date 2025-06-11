@@ -2,14 +2,12 @@ package com.example.travelcompanion.ui.analysis_prediction.analysis
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +35,8 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 
 class AnalysisFragment : Fragment() {
@@ -253,7 +253,7 @@ class AnalysisFragment : Fragment() {
     private fun getTotalDistance(trips: List<Trip>): Double {
         val totalMeters = trips.sumOf { it.distance }
         val totalKilometers = totalMeters / 1000.0
-        return String.format( Locale.getDefault(),"%.3f", totalKilometers).toDouble()
+        return BigDecimal(totalKilometers).setScale(3, RoundingMode.HALF_DOWN).toDouble()
     }
 
     private fun estimateTravelFrequency(trips: List<Trip>): Long {
