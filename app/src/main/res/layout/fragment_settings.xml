@@ -42,5 +42,13 @@
             android:layout_height="wrap_content"
             android:text="Save" />
 
+        <NumberPicker
+            android:id="@+id/np_inactivity_days"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minValue="1"
+            android:maxValue="30"
+            android:value="3" />
+
     </LinearLayout>
 </FrameLayout>
