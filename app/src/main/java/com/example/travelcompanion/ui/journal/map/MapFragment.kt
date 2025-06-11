@@ -99,7 +99,7 @@ class MapFragment : Fragment() {
         titleTxtView = view.findViewById(R.id.journal_map_title)
         parentConstraintLayout = view.findViewById(R.id.journal_map_constraint_layout)
         mapFrameLayout = view.findViewById(R.id.journal_map_frame)
-        noTripsLayout = view.findViewById(R.id.no_trips_layout)
+        noTripsLayout = view.findViewById(R.id.no_trips_layout_map)
         viewPager = requireParentFragment().requireView().findViewById(R.id.journal_viewPager)
     }
 

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.travelcompanion.R
@@ -22,6 +23,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.travelcompanion.db.notes.Note
 import com.example.travelcompanion.db.pictures.Picture
 import com.google.android.material.button.MaterialButton
 import pl.utkala.searchablespinner.OnSearchableItemClick
@@ -42,6 +44,7 @@ class ArchiveFragment : Fragment() {
     private lateinit var tripSelectionSpinner: SearchableSpinner
     private lateinit var galleryRecView: RecyclerView
     private lateinit var notesRecView: RecyclerView
+    private lateinit var noResourceLayout: ConstraintLayout
 
     private lateinit var completedTrips: List<Trip>
 
@@ -83,17 +86,20 @@ class ArchiveFragment : Fragment() {
         notesRecView.layoutManager = LinearLayoutManager(requireContext())
         picturesButton = view.findViewById(R.id.pictures_button)
         notesButton = view.findViewById(R.id.notes_button)
+        noResourceLayout = view.findViewById(R.id.no_trips_layout_archive)
     }
 
     private fun updateGallery(tripId: Long) {
         lifecycleScope.launch {
             val adapter: GalleryAdapter?
+            val pictures: List<Picture>
             if (tripId > 0) {   // show pictures of given trip
                 val picturesOfTrip = withContext(Dispatchers.IO) {
                     viewModel.getPicturesByTripId(tripId)
                 }
                 adapter = GalleryAdapter(picturesOfTrip.sortedBy { it.timestamp })
                     { pic -> showPictureInfoDialog(pic) }
+                pictures = picturesOfTrip
             }
             else {  // tripId = 0 -> show all
                 val allPictures = withContext(Dispatchers.IO) {
@@ -101,14 +107,30 @@ class ArchiveFragment : Fragment() {
                 }
                 adapter = GalleryAdapter(allPictures.sortedBy { it.timestamp })
                     { pic -> showPictureInfoDialog(pic) }
+                pictures = allPictures
             }
+            if (pictures.isEmpty())
+                showNoPicturesLayout()
             galleryRecView.adapter = adapter
         }
+    }
+
+    private fun showNoPicturesLayout() {
+        noResourceLayout.visibility = View.VISIBLE
+        val noPicturesMessage = noResourceLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
+        noPicturesMessage.text = "It looks like no pictures have been taken!"
+    }
+
+    private fun showNoNotesLayout() {
+        noResourceLayout.visibility = View.VISIBLE
+        val noNotesMessage = noResourceLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
+        noNotesMessage.text = "It looks like no notes have been written!"
     }
 
     private fun updateNotes(tripId: Long) {
         lifecycleScope.launch {
             val adapter: NotesAdapter?
+            val notes: List<Note>
             if (tripId > 0) {
                 val notesOfTrip = withContext(Dispatchers.IO) {
                     viewModel.getNotesByTripId(tripId)
@@ -118,6 +140,7 @@ class ArchiveFragment : Fragment() {
                     completedTrips.associate { it.id to it.title },
                     completedTrips.associate { it.id to it.destination }
                 )
+                notes = notesOfTrip
             }
             else {  // tripId = 0 -> show all
                 val allNotes = withContext(Dispatchers.IO) {
@@ -128,7 +151,10 @@ class ArchiveFragment : Fragment() {
                     completedTrips.associate { it.id to it.title },
                     completedTrips.associate { it.id to it.destination }
                 )
+                notes = allNotes
             }
+            if (notes.isEmpty())
+                showNoNotesLayout()
             notesRecView.adapter = adapter
         }
     }
@@ -224,11 +250,15 @@ class ArchiveFragment : Fragment() {
         val seconds = ms / 1000
         val minutes = seconds / 60
         val hours = minutes / 60
+        val days = hours / 24
+        val months = days / 30  // Approximation: 30 days = 1 month
 
         return when {
-            hours > 0 -> "$hours h ${minutes % 60} min"
-            minutes > 0 -> "$minutes min ${seconds % 60} sec"
-            else -> "$seconds sec"
+            months > 0 -> "$months months ${days % 30} days"
+            days > 0 -> "$days days ${hours % 24} hours"
+            hours > 0 -> "$hours hours ${minutes % 60} minutes"
+            minutes > 0 -> "$minutes minutes ${seconds % 60} seconds"
+            else -> "$seconds seconds"
         }
     }
 
