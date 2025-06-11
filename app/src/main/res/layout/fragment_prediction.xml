@@ -17,6 +17,8 @@ android:layout_height="match_parent">
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical">
 
         <!--
@@ -118,32 +120,34 @@ android:layout_height="match_parent">
             android:id="@+id/tvPredictionRecommendLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:paddingTop="8dp"
             android:text="Recommendations"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvPredictionRecommend"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:paddingBottom="24dp"
             android:textSize="16sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#DDDDDD"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:background="#DDDDDD" />
 
         <!-- Chart: Number of trips -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Trend for Number of Trips"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
@@ -156,17 +160,17 @@ android:layout_height="match_parent">
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
-            android:textSize="16sp"
-            android:textColor="@color/primary"/>
+            android:textColor="@color/primary"
+            android:textSize="16sp" />
 
         <!-- Chart: Monthly distance -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Trend for Monthly Distance"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp" />
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChartDistance"
@@ -178,9 +182,10 @@ android:layout_height="match_parent">
             android:id="@+id/tvPredictionDistanceForecast"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="26dp"
             android:paddingBottom="12dp"
-            android:textSize="16sp"
-            android:textColor="@color/primary" />
+            android:textColor="@color/primary"
+            android:textSize="16sp" />
 
     </LinearLayout>
 

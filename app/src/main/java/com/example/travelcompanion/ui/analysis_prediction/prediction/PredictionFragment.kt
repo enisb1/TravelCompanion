@@ -180,7 +180,7 @@ class PredictionFragment : Fragment() {
         tvMonthlyVariance.text = "Monthly Variance: %.1f".format(summary.monthlyVariance)
          */
 
-        tvForecast.text = "Predicted number of trips for next month: $predictedCount"
+        tvForecast.text = "Predicted number of trips: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
 
