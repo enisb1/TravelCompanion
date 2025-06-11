@@ -19,7 +19,7 @@ interface TripDao {
     suspend fun deleteTrip(trip: Trip)
 
     @Query("SELECT * FROM trip_table")
-    fun getAllTrips(): List<Trip>
+    fun getAllTrips(): LiveData<List<Trip>>
 
     @Query("SELECT * FROM trip_table WHERE trip_state = :state")
     fun getTripsByState(state: TripState): LiveData<List<Trip>>

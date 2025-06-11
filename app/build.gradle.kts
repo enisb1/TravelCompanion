@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.runtime.android)
     implementation(libs.searchablespinner)
+    implementation(libs.philjay.mpandroidchart)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
