@@ -206,7 +206,7 @@ class AnalysisFragment : Fragment() {
         barChart.invalidate()
     }
     
-    // TODO: put in separate calculating class
+    // TODO: put in separate calculating class together with other calculating functions
     // given a  list of trips, it returns a map that maps months to total distances
     private fun getDistancesPerMonth(trips: List<Trip>): Pair<List<String>, List<Float>> {
         val distancesPerMonth: MutableMap<String, Float> = mutableMapOf()
@@ -238,7 +238,7 @@ class AnalysisFragment : Fragment() {
 
     private fun showTopDestinations(topDestinations: List<Map. Entry<String, Int>>) {
         val destinationStrings: List<String> = topDestinations.mapIndexed { index, entry ->
-            "#${index+1}: ${entry.key} (${entry.value} trips)"
+            "#${index+1}: ${entry.key} (${entry.value} ${if (entry.value == 1) "trip" else "trips"})"
         }
         val adapter = ArrayAdapter(
             requireContext(),

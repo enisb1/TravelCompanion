@@ -13,7 +13,7 @@
         android:id="@+id/journal_map_constraint_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/no_trips_layout"
+            android:id="@+id/no_trips_layout_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -21,27 +21,15 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="gone">
-            <ImageView
-                android:id="@+id/trekking_imageview"
-                android:layout_width="160dp"
-                android:layout_height="160dp"
-                android:src="@drawable/trekking"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
+            <include
+                android:id="@+id/noTripsLayout"
+                layout="@layout/no_trips_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/looks_like_you_have_not_completed_any_trips_yet"
-                android:textSize="15sp"
-                android:gravity="center"
-                android:fontFamily="sans-serif-medium"
-                android:textStyle="bold"
-                android:layout_marginTop="10dp"
-                app:layout_constraintTop_toBottomOf="@id/trekking_imageview"
-                app:layout_constraintLeft_toLeftOf="@id/trekking_imageview"
-                app:layout_constraintRight_toRightOf="@id/trekking_imageview"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
