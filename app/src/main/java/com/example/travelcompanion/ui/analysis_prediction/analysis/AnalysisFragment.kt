@@ -7,8 +7,10 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -26,10 +28,12 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.kview.FullLengthListView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
@@ -43,9 +47,10 @@ class AnalysisFragment : Fragment() {
 
     private lateinit var rootLayout: ConstraintLayout
     private lateinit var barChart: BarChart
-    private lateinit var topDestinationsListView: ListView
+    private lateinit var topDestinationsListView: FullLengthListView
     private lateinit var totalDistanceTxtView: TextView
     private lateinit var travelFrequencyTxtView: TextView
+    private lateinit var yearSpinner: Spinner
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,58 +74,38 @@ class AnalysisFragment : Fragment() {
             val completedTrips = withContext(Dispatchers.IO) {
                 viewModel.getCompletedTrips()
             }
-            val distancesPerMonth: Map<String, Float> = getDistancesPerMonth(completedTrips)
-            val labels = distancesPerMonth.keys.toList() // ["Feb", "Mar", "Apr"]
 
-// Create entries with proper x-values (index-based)
-            val entries = distancesPerMonth.values.mapIndexed { index, value ->
-                BarEntry(index.toFloat(), value)
-            }
-
-            val dataSet = BarDataSet(entries, "Distances")
-            dataSet.valueTextSize = 10f
-            dataSet.setColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            val barData = BarData(dataSet)
-            barChart.data = barData
-
-// Configure X axis
-            val xAxis = barChart.xAxis
-            xAxis.position = XAxis.XAxisPosition.BOTTOM
-            xAxis.setDrawGridLines(false)
-            xAxis.granularity = 1f
-            xAxis.textSize = 10f
-            xAxis.isGranularityEnabled = true
-            xAxis.setLabelCount(labels.size)
-            xAxis.setCenterAxisLabels(false) // Very important if not using grouped bars
-// Formatter
-            xAxis.valueFormatter = object : ValueFormatter() {
-                override fun getAxisLabel(value: Float, axis: AxisBase): String {
-                    val index = value.roundToInt()
-                    return if (index in labels.indices) labels[index] else ""
+            //  bar chart
+            setUpYearsSpinner(completedTrips)
+            yearSpinner.setSelection(viewModel.spinnerSelection.value ?: 0)
+            yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    viewModel.spinnerSelection.value = position
                 }
+                override fun onNothingSelected(parent: AdapterView<*>) {}
             }
 
-            barChart.axisRight.setDrawLabels(false)
-            barChart.setDrawGridBackground(false)
-            barChart.legend.isEnabled = false
-            barChart.setVisibleXRangeMaximum(5f)
-            barChart.description.isEnabled = false
-            barChart.isDoubleTapToZoomEnabled = false
-            barChart.setPinchZoom(false)
-            barChart.invalidate()
+            viewModel.spinnerSelection.observe(viewLifecycleOwner) {
+                val (labels, values) = if (yearSpinner.selectedItemPosition > 0) {
+                    val calendar = Calendar.getInstance()
+                    getDistancesPerMonth(completedTrips.filter {
+                        calendar.timeInMillis = it.startTimestamp
+                        calendar.get(Calendar.YEAR).toString() == yearSpinner.selectedItem })
+                } else {
+                    getDistancesPerMonth(completedTrips)
+                }
+
+                setDataToBarChart(values)
+                setXLabelsToBarChart(labels)
+                barChart.invalidate()
+            }
+
+            configureBarChartXAxis()
+            configureBarChart()
 
             // top destinations
             val topDestinations = getTopDestinations(completedTrips)
-            val destinationStrings: List<String> = topDestinations.mapIndexed { index, entry ->
-                "#${index+1}: ${entry.key} (${entry.value} trips)"
-            }
-            val adapter = ArrayAdapter(
-                requireContext(),
-                R.layout.destinations_list_item, // your custom layout
-                R.id.destination,        // the TextView inside that layout
-                destinationStrings
-            )
-            topDestinationsListView.adapter = adapter
+            showTopDestinations(topDestinations)
 
             // total distance
             val totalDistance = getTotalDistance(completedTrips)
@@ -140,6 +125,7 @@ class AnalysisFragment : Fragment() {
         viewPager = requireParentFragment().requireView().findViewById(R.id.analysis_prediction_viewPager)
         totalDistanceTxtView = view.findViewById(R.id.total_distance)
         travelFrequencyTxtView = view.findViewById(R.id.travel_frequency)
+        yearSpinner = view.findViewById(R.id.year_spinner)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -171,52 +157,60 @@ class AnalysisFragment : Fragment() {
         viewPager.isUserInputEnabled = true
     }
 
-    //TODO: CENTER LABELS UNDER THE BARS
-    private fun setUpBarChart(distancesPerMonth: Map<String, Float>) {
-        val labels = distancesPerMonth.keys.toList()
+    private fun setUpYearsSpinner(completedTrips: List<Trip>) {
+        val years = listOf(getString(R.string.all)) + getYearsOfTrips(completedTrips)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        yearSpinner.adapter = adapter
+    }
+
+    private fun setDataToBarChart(distancesPerMonth: List<Float>) {
+        val entries = distancesPerMonth.mapIndexed { index, value ->
+            BarEntry(index.toFloat(), value)
+        }
+
+        val dataSet = BarDataSet(entries, "Distances")
+        dataSet.valueTextSize = 10f
+        dataSet.setColor(ContextCompat.getColor(requireContext(), R.color.primary))
+        val barData = BarData(dataSet)
+        barChart.data = barData
+    }
+
+    private fun configureBarChartXAxis() {
+        val xAxis = barChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.granularity = 1f
+        xAxis.textSize = 10f
+        xAxis.isGranularityEnabled = true
+        xAxis.setCenterAxisLabels(false) // Very important if not using grouped bars
+    }
+
+    private fun setXLabelsToBarChart(labels: List<String>) {
+        val xAxis: XAxis = barChart.xAxis
+        xAxis.setLabelCount(labels.size)
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getAxisLabel(value: Float, axis: AxisBase): String {
+                val index = value.roundToInt()
+                return if (index in labels.indices) labels[index] else ""
+            }
+        }
+    }
+
+    private fun configureBarChart() {
         barChart.axisRight.setDrawLabels(false)
         barChart.setDrawGridBackground(false)
         barChart.legend.isEnabled = false
+        barChart.setVisibleXRangeMaximum(5f)
         barChart.description.isEnabled = false
-        Log.i("rere", distancesPerMonth.toString())
-
-        val xAxis = barChart.xAxis
-        xAxis.textSize = 10f
-        barChart.extraBottomOffset = 4f
-        xAxis.setLabelCount(distancesPerMonth.size, true)
-        val formatter: ValueFormatter = object : ValueFormatter() {
-            override fun getAxisLabel(value: Float, axis: AxisBase): String {
-                val index = value.toInt()
-                Log.i("rere", index.toString())
-                return if (index >= 0 && index < labels.size) labels[index] else ""
-            }
-        }
-        xAxis.granularity = 1f // minimum axis-step (interval) is 1
-        xAxis.isGranularityEnabled = true
-        xAxis.valueFormatter = formatter
-        Log.i("labels", distancesPerMonth.keys.toString())
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-    }
-
-    private fun showBarChart(distancesPerMonth: Map<String, Float>) {
-        val title = "Title"
-        val entries = distancesPerMonth.entries.mapIndexed { index, entry ->
-            BarEntry(index.toFloat(), entry.value)
-        }
-
-        val barDataSet = BarDataSet(entries, title)
-        barDataSet.valueTextSize = 10f
-        barDataSet.setColor(ContextCompat.getColor(requireContext(), R.color.primary))
-
-        val data = BarData(barDataSet)
-        barChart.setData(data)
+        barChart.isDoubleTapToZoomEnabled = false
+        barChart.setPinchZoom(false)
         barChart.invalidate()
-        //barChart.setVisibleXRangeMaximum(5f)
     }
     
     // TODO: put in separate calculating class
     // given a  list of trips, it returns a map that maps months to total distances
-    private fun getDistancesPerMonth(trips: List<Trip>): Map<String, Float> {
+    private fun getDistancesPerMonth(trips: List<Trip>): Pair<List<String>, List<Float>> {
         val distancesPerMonth: MutableMap<String, Float> = mutableMapOf()
         val sortedTrips = trips.sortedBy { it.startTimestamp }
         var sum = 0.0F
@@ -229,7 +223,10 @@ class AnalysisFragment : Fragment() {
             else
                 distancesPerMonth[monthYear] = trip.distance.toFloat()
         }
-        return distancesPerMonth
+        val months = distancesPerMonth.keys.toList()
+        val distances = distancesPerMonth.values.toList()
+
+        return Pair(months, distances)
     }
 
     private fun getTopDestinations(trips: List<Trip>): List<Map.Entry<String, Int>> {
@@ -239,6 +236,19 @@ class AnalysisFragment : Fragment() {
             .entries
             .sortedByDescending { it.value }
             .take(5)
+    }
+
+    private fun showTopDestinations(topDestinations: List<Map. Entry<String, Int>>) {
+        val destinationStrings: List<String> = topDestinations.mapIndexed { index, entry ->
+            "#${index+1}: ${entry.key} (${entry.value} trips)"
+        }
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.destinations_list_item, // your custom layout
+            R.id.destination,        // the TextView inside that layout
+            destinationStrings
+        )
+        topDestinationsListView.adapter = adapter
     }
 
     // in kilometres
@@ -276,5 +286,13 @@ class AnalysisFragment : Fragment() {
             minutes > 0 -> "$minutes minutes ${seconds % 60} seconds"
             else -> "$seconds seconds"
         }
+    }
+
+    private fun getYearsOfTrips(trips: List<Trip>): List<String> {
+        val calendar = Calendar.getInstance()
+        return trips.map {
+            calendar.timeInMillis = it.startTimestamp
+            calendar.get(Calendar.YEAR).toString()
+        }.toSet().toList().sortedDescending()  // Sort in descending order
     }
 }
