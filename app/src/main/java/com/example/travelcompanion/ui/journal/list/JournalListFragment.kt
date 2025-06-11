@@ -32,7 +32,7 @@ class JournalListFragment : Fragment() {
 
     companion object {
         fun newInstance() = JournalListFragment()
-        val all_trips_label = "All"
+        val all_trips_label = "All" // TODO: change to R.string value
     }
 
     private val viewModel: JournalListViewModel by viewModels()

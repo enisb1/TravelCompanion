@@ -43,4 +43,5 @@
     <string name="complete_trip">Complete trip</string>
     <string name="analysis">Analysis</string>
     <string name="prediction">Prediction</string>
+    <string name="kilometres">kilometres</string>
 </resources>
