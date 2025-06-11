@@ -2,6 +2,7 @@ package com.example.travelcompanion.ui.settings
 
 import android.content.Context
 import android.os.Bundle
+import android.text.InputType
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,9 @@ class SettingsFragment : Fragment() {
         val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
         val btnSave = view.findViewById<Button>(R.id.btnSaveGoals)
         val numberPicker = view.findViewById<NumberPicker>(R.id.np_inactivity_days)
+        numberPicker.minValue = 1
+        numberPicker.maxValue = 30
+        var selectedInactivityDays = numberPicker.value
         val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
 
 
@@ -42,6 +46,14 @@ class SettingsFragment : Fragment() {
         etDistance.setText(
             prefs.getInt("monthlyDistanceGoal", 0).takeIf { it > 0 }?.toString() ?: ""
         )
+        val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val savedInactivityDays = settingsPrefs.getInt("inactivity_days", 3)
+        numberPicker.value = savedInactivityDays
+        selectedInactivityDays = savedInactivityDays
+
+        numberPicker.setOnValueChangedListener { _, _, newVal ->
+            selectedInactivityDays = newVal
+        }
 
         btnSave.setOnClickListener {
             val tripsGoal = etTrips.text.toString().toIntOrNull() ?: 0
@@ -50,12 +62,11 @@ class SettingsFragment : Fragment() {
                 putInt("monthlyTripsGoal", tripsGoal)
                     .putInt("monthlyDistanceGoal", distanceGoal)
             }
-            Toast.makeText(requireContext(), "Objectives set!", Toast.LENGTH_SHORT).show()
-        }
 
-        numberPicker.setOnValueChangedListener { _, _, newVal ->
-            val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
-            prefs.edit().putInt("inactivity_days", newVal).apply()
+            val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+            settingsPrefs.edit { putInt("inactivity_days", selectedInactivityDays) }
+
+            Toast.makeText(requireContext(), "Saved new settings!", Toast.LENGTH_SHORT).show()
         }
 
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
