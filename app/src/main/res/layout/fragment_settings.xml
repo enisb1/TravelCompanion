@@ -3,11 +3,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".ui.settings.SettingsFragment">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Settings fragment" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Objective for number of monthly trips" />
+
+        <EditText
+            android:id="@+id/etMonthlyTripsGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Number of trips"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Objective for monthly distance (m)" />
+
+        <EditText
+            android:id="@+id/etMonthlyDistanceGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Distance in meters"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/btnSaveGoals"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save" />
+
+    </LinearLayout>
 </FrameLayout>

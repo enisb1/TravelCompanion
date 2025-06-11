@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
@@ -21,17 +22,18 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.example.travelcompanion.ui.analysis_prediction.CustomMarkerView
-import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class PredictionFragment : Fragment() {
+    /*
     private lateinit var tvTotalTrips : TextView
     private lateinit var tvAvgDistance : TextView
     private lateinit var tvAvgDuration : TextView
     private lateinit var tvTopDestination : TextView
     private lateinit var tvMonthlyVariance : TextView
+    */
 
     private lateinit var tvForecast: TextView
     private lateinit var tvRecommendations: TextView
@@ -40,8 +42,11 @@ class PredictionFragment : Fragment() {
     private lateinit var lineChartDistance: LineChart
     private lateinit var tvDistanceForecast: TextView
     private lateinit var fabFilterYear: FloatingActionButton
+    private lateinit var fabObjectiveWarning: FloatingActionButton
     private var yearOptions: List<String> = emptyList()
     private var selectedYear: Int? = null
+    private var lastPredictedCount: Int = 0
+    private var lastPredictedDistance: Double = 0.0
 
 
     companion object {
@@ -70,11 +75,13 @@ class PredictionFragment : Fragment() {
             CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
 
+        /*
         tvTotalTrips = view.findViewById(R.id.tvTotalTrips)
         tvAvgDistance = view.findViewById(R.id.tvAvgDistance)
         tvAvgDuration = view.findViewById(R.id.tvAvgDuration)
         tvTopDestination = view.findViewById(R.id.tvTopDestination)
         tvMonthlyVariance = view.findViewById(R.id.tvMonthlyVariance)
+         */
         tvForecast = view.findViewById(R.id.tvPredictionForecast)
         tvRecommendations = view.findViewById(R.id.tvPredictionRecommend)
         lineChart = view.findViewById(R.id.lineChart)
@@ -102,6 +109,20 @@ class PredictionFragment : Fragment() {
 
         fabFilterYear.setOnClickListener {
             showYearFilterDialog()
+        }
+
+        fabObjectiveWarning = view.findViewById(R.id.fabObjectiveWarning)
+        fabObjectiveWarning.setOnClickListener {
+            val prefs = requireContext().getSharedPreferences("goals", 0)
+            val tripsGoal = prefs.getInt("monthlyTripsGoal", 0)
+            val distanceGoal = prefs.getInt("monthlyDistanceGoal", 0)
+            val tripsText = "Predicted trips: $lastPredictedCount / Goal: $tripsGoal"
+            val distanceText = "Predicted distance: ${"%.0f".format(lastPredictedDistance)} m / Goal: $distanceGoal m"
+            AlertDialog.Builder(requireContext())
+                .setTitle("You're struggling to meet your goals!")
+                .setMessage("$tripsText\n$distanceText")
+                .setPositiveButton("OK", null)
+                .show()
         }
     }
 
@@ -136,7 +157,7 @@ class PredictionFragment : Fragment() {
                 updateViews()
                 updateChart()
                 updateDistanceChartAndForecast()
-                showSnackbar(if (selectedYear == null) "Filter: All" else "Filter by year: $selectedYear")
+                Toast.makeText(this.context, if (selectedYear == null) "Filter: All" else "Filter by year: $selectedYear", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
@@ -147,18 +168,29 @@ class PredictionFragment : Fragment() {
         val trips = filterTripsByYear(tripViewModel.completedTrips.value ?: emptyList())
         val grouped = PredictionUtils.groupTripsByMonth(trips)
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
+        lastPredictedCount = predictedCount
         val recommendations = PredictionUtils.generateRecommendations(trips)
 
+        /*
         val summary = PredictionUtils.getTripSummary(trips)
         tvTotalTrips.text = "Total Trips: ${summary.totalTrips}"
         tvAvgDistance.text = "Avg Distance: %.1f m".format(summary.avgDistance)
         tvAvgDuration.text = "Avg Duration: %.1f s".format(summary.avgDuration)
         tvTopDestination.text = "Top Destination: ${summary.topDestination}"
         tvMonthlyVariance.text = "Monthly Variance: %.1f".format(summary.monthlyVariance)
+         */
 
         tvForecast.text = "Predicted number of trips for next month: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
+
+        val predictedDistance = PredictionUtils.predictNextMonthDistance(
+            PredictionUtils.totalDistanceByMonth(trips)
+        )
+        lastPredictedDistance = predictedDistance
+
+        checkObjectives(predictedCount, predictedDistance)
+
     }
 
     private fun updateChart() {
@@ -168,6 +200,10 @@ class PredictionFragment : Fragment() {
         val entries = grouped.mapIndexed { index, pair ->
             Entry(index.toFloat(), pair.second.toFloat())
         }
+
+        val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
+        val nextMonthIndex = grouped.size
+        val predictedEntry = Entry(nextMonthIndex.toFloat(), predictedCount.toFloat())
 
         // Moving average (window size of 3 months)
         val movingAvg = PredictionUtils.adaptiveMovingAverage(grouped.map { it.second }, 3)
@@ -186,11 +222,21 @@ class PredictionFragment : Fragment() {
         movingAvgSet.setDrawValues(false)
         movingAvgSet.lineWidth = 2f
 
-        val lineData = LineData(dataSet, movingAvgSet)
-        lineChart.data = lineData
-        lineChart.getDescription().setEnabled(false);
+        // DataSet for prediction
+        val predictionSet = LineDataSet(listOf(predictedEntry), "Prediction")
+        predictionSet.color = android.graphics.Color.GREEN
+        predictionSet.setDrawCircles(true)
+        predictionSet.setDrawValues(true)
+        predictionSet.circleRadius = 7f
+        predictionSet.setCircleColor(android.graphics.Color.GREEN)
+        predictionSet.lineWidth = 0f // No line for prediction
 
-        val months = grouped.map { monthIndexToString(it.first) }
+        val lineData = LineData(dataSet, movingAvgSet, predictionSet)
+        lineChart.data = lineData
+        lineChart.description.isEnabled = false
+
+        val months = grouped.map { monthIndexToString(it.first) } +
+                listOf("Next") // Label for the prediction
         lineChart.xAxis.valueFormatter = IndexAxisValueFormatter(months)
         lineChart.xAxis.granularity = 1f
         lineChart.xAxis.labelRotationAngle = -45f
@@ -214,6 +260,10 @@ class PredictionFragment : Fragment() {
             Entry(index.toFloat(), pair.second.toFloat())
         }
 
+        val predictedDistance = PredictionUtils.predictNextMonthDistance(grouped)
+        val nextMonthIndex = grouped.size
+        val predictedEntry = Entry(nextMonthIndex.toFloat(), predictedDistance.toFloat())
+
         val movingAvg = PredictionUtils.adaptiveMovingAverage(grouped.map { it.second.toInt() }, 3)
         val movingAvgEntries = movingAvg.mapIndexed { index, value ->
             Entry(index.toFloat(), value)
@@ -230,11 +280,21 @@ class PredictionFragment : Fragment() {
         movingAvgSet.setDrawValues(false)
         movingAvgSet.lineWidth = 2f
 
-        val lineData = LineData(dataSet, movingAvgSet)
-        lineChartDistance.data = lineData
-        lineChartDistance.getDescription().setEnabled(false);
+        // DataSet for prediction
+        val predictionSet = LineDataSet(listOf(predictedEntry), "Prediction")
+        predictionSet.color = android.graphics.Color.GREEN
+        predictionSet.setDrawCircles(true)
+        predictionSet.setDrawValues(true)
+        predictionSet.circleRadius = 7f
+        predictionSet.setCircleColor(android.graphics.Color.GREEN)
+        predictionSet.lineWidth = 0f // No line for prediction
 
-        val months = grouped.map { monthIndexToString(it.first) }
+        val lineData = LineData(dataSet, movingAvgSet, predictionSet)
+        lineChartDistance.data = lineData
+        lineChartDistance.description.isEnabled = false
+
+        val months = grouped.map { monthIndexToString(it.first) } +
+                listOf("Next")
         lineChartDistance.xAxis.valueFormatter = IndexAxisValueFormatter(months)
         lineChartDistance.xAxis.granularity = 1f
         lineChartDistance.xAxis.labelRotationAngle = -45f
@@ -246,10 +306,14 @@ class PredictionFragment : Fragment() {
         tvDistanceForecast.text = predictedDistanceText
     }
 
-    private fun showSnackbar(message: String) {
-        view?.let {
-            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
-        }
+    private fun checkObjectives(predictedTrips: Int, predictedDistance: Double) {
+        val prefs = requireContext().getSharedPreferences("goals", 0)
+        val tripsGoal = prefs.getInt("monthlyTripsGoal", 0)
+        val distanceGoal = prefs.getInt("monthlyDistanceGoal", 0)
+        val show = (tripsGoal > 0 && predictedTrips < tripsGoal) ||
+                (distanceGoal > 0 && predictedDistance < distanceGoal)
+        fabObjectiveWarning.visibility = if (show) View.VISIBLE else View.GONE
     }
+
 
 }

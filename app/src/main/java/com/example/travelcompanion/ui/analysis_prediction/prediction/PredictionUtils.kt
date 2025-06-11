@@ -76,7 +76,7 @@ object PredictionUtils {
         return (slope * nextMonth + intercept).toInt().coerceAtLeast(0)
     }
 
-    private fun predictNextMonthDistance(monthlyData: List<Pair<Int, Double>>): Double {
+    fun predictNextMonthDistance(monthlyData: List<Pair<Int, Double>>): Double {
         if (monthlyData.size < 2) return monthlyData.lastOrNull()?.second ?: 0.0
 
         val x = monthlyData.map { it.first.toDouble() }
