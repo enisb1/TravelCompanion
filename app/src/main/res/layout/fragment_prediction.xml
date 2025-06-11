@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+
+<ScrollView
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,54 +20,90 @@
         android:orientation="vertical">
 
         <!-- Trip Summary -->
-        <TextView
-            android:id="@+id/tvPredictionSummaryLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:text="Summary of completed trips"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvTotalTrips"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total Trips:"
-            android:textSize="16sp"
-            android:paddingBottom="4dp" />
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
 
-        <TextView
-            android:id="@+id/tvAvgDistance"
+            <TextView
+                android:id="@+id/tvTotalTrips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Total Trips:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Avg Distance:"
-            android:textSize="16sp"
-            android:paddingBottom="4dp" />
+            android:layout_marginBottom="8dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
 
-        <TextView
-            android:id="@+id/tvAvgDuration"
+            <TextView
+                android:id="@+id/tvAvgDistance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Avg Distance:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Avg Duration:"
-            android:textSize="16sp"
-            android:paddingBottom="4dp" />
+            android:layout_marginBottom="8dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
 
-        <TextView
-            android:id="@+id/tvTopDestination"
+            <TextView
+                android:id="@+id/tvAvgDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Avg Duration:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Top Destination:"
-            android:textSize="16sp"
-            android:paddingBottom="4dp" />
+            android:layout_marginBottom="8dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
 
-        <TextView
-            android:id="@+id/tvMonthlyVariance"
+            <TextView
+                android:id="@+id/tvTopDestination"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Top Destination:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Monthly Variance:"
-            android:textSize="16sp"
-            android:paddingBottom="12dp" />
+            android:layout_marginBottom="8dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="8dp">
+
+            <TextView
+                android:id="@+id/tvMonthlyVariance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="Monthly Variance:"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
 
         <View
             android:layout_width="match_parent"
@@ -146,4 +189,16 @@
             android:textColor="@color/primary" />
 
     </LinearLayout>
+
 </ScrollView>
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fabFilterYear"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end|bottom"
+    android:layout_margin="24dp"
+    android:src="@drawable/outline_filter_alt_24"
+    android:contentDescription="Filter by year"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

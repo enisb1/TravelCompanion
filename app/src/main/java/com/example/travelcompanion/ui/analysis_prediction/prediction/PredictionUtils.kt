@@ -146,6 +146,14 @@ object PredictionUtils {
         return values.windowed(window) { it.average() }
     }
 
+    fun adaptiveMovingAverage(values: List<Int>, window: Int): List<Float> {
+        return values.indices.map { i ->
+            val start = maxOf(0, i - window + 1)
+            val sublist = values.subList(start, i + 1)
+            sublist.average().toFloat()
+        }
+    }
+
     fun monthlyVariance(trips: List<Trip>): Double {
         val grouped = groupTripsByMonth(trips)
         val counts = grouped.map { it.second }

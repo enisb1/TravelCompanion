@@ -1,5 +1,6 @@
 package com.example.travelcompanion.ui.analysis_prediction.prediction
 
+import android.app.AlertDialog
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,6 +11,7 @@ import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
+import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.analysis_prediction.prediction.PredictionUtils.predictNextMonthDistanceText
 import com.example.travelcompanion.ui.home.plan.CompletedTripViewModelFactory
 import com.example.travelcompanion.ui.home.plan.TripViewModel
@@ -18,7 +20,10 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import kotlin.math.pow
+import com.example.travelcompanion.ui.analysis_prediction.CustomMarkerView
+import com.google.android.material.snackbar.Snackbar
+import java.util.Calendar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class PredictionFragment : Fragment() {
@@ -34,6 +39,9 @@ class PredictionFragment : Fragment() {
     private lateinit var lineChart: LineChart
     private lateinit var lineChartDistance: LineChart
     private lateinit var tvDistanceForecast: TextView
+    private lateinit var fabFilterYear: FloatingActionButton
+    private var yearOptions: List<String> = emptyList()
+    private var selectedYear: Int? = null
 
 
     companion object {
@@ -73,16 +81,70 @@ class PredictionFragment : Fragment() {
         lineChartDistance = view.findViewById(R.id.lineChartDistance)
         tvDistanceForecast = view.findViewById(R.id.tvPredictionDistanceForecast)
 
+        lineChart.setTouchEnabled(true)
+        lineChart.setPinchZoom(true)
+        lineChart.setScaleEnabled(true)
+        lineChart.setMarker(CustomMarkerView(requireContext(), R.layout.marker_view))
+
+        lineChartDistance.setTouchEnabled(true)
+        lineChartDistance.setPinchZoom(true)
+        lineChartDistance.setScaleEnabled(true)
+        lineChartDistance.setMarker(CustomMarkerView(requireContext(), R.layout.marker_view))
+
+        fabFilterYear = view.findViewById(R.id.fabFilterYear)
 
         tripViewModel.completedTrips.observe(viewLifecycleOwner) {
+            setupYearFilter()
             updateViews()
             updateChart()
             updateDistanceChartAndForecast()
         }
+
+        fabFilterYear.setOnClickListener {
+            showYearFilterDialog()
+        }
+    }
+
+    private fun setupYearFilter() {
+        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val years = trips.map {
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = it.startTimestamp
+            cal.get(Calendar.YEAR)
+        }.distinct().sorted()
+        yearOptions = listOf("All") + years.map { it.toString() }
+        if (selectedYear == null) selectedYear = null // default "All"
+    }
+
+    private fun filterTripsByYear(trips: List<Trip>): List<Trip> {
+        return selectedYear?.let { year ->
+            trips.filter {
+                val cal = Calendar.getInstance()
+                cal.timeInMillis = it.startTimestamp
+                cal.get(Calendar.YEAR) == year
+            }
+        } ?: trips
+    }
+
+    private fun showYearFilterDialog() {
+        val checkedItem = yearOptions.indexOf(selectedYear?.toString() ?: "All")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Filter by year")
+            .setSingleChoiceItems(yearOptions.toTypedArray(), checkedItem) { dialog, which ->
+                val selected = yearOptions[which]
+                selectedYear = selected.toIntOrNull()
+                updateViews()
+                updateChart()
+                updateDistanceChartAndForecast()
+                showSnackbar(if (selectedYear == null) "Filter: All" else "Filter by year: $selectedYear")
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun updateViews() {
-        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val trips = filterTripsByYear(tripViewModel.completedTrips.value ?: emptyList())
         val grouped = PredictionUtils.groupTripsByMonth(trips)
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
         val recommendations = PredictionUtils.generateRecommendations(trips)
@@ -100,7 +162,7 @@ class PredictionFragment : Fragment() {
     }
 
     private fun updateChart() {
-        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val trips = filterTripsByYear(tripViewModel.completedTrips.value ?: emptyList())
         val grouped = PredictionUtils.groupTripsByMonth(trips)
 
         val entries = grouped.mapIndexed { index, pair ->
@@ -108,9 +170,9 @@ class PredictionFragment : Fragment() {
         }
 
         // Moving average (window size of 3 months)
-        val movingAvg = PredictionUtils.movingAverage(grouped.map { it.second }, 3)
+        val movingAvg = PredictionUtils.adaptiveMovingAverage(grouped.map { it.second }, 3)
         val movingAvgEntries = movingAvg.mapIndexed { index, value ->
-            Entry((index + 2).toFloat(), value.toFloat())
+            Entry(index.toFloat(), value)
         }
 
         val dataSet = LineDataSet(entries, "Monthly trips")
@@ -145,25 +207,25 @@ class PredictionFragment : Fragment() {
     }
 
     private fun updateDistanceChartAndForecast() {
-        val trips = tripViewModel.completedTrips.value ?: emptyList()
+        val trips = filterTripsByYear(tripViewModel.completedTrips.value ?: emptyList())
         val grouped = PredictionUtils.totalDistanceByMonth(trips)
 
         val entries = grouped.mapIndexed { index, pair ->
             Entry(index.toFloat(), pair.second.toFloat())
         }
 
-        val movingAvg = PredictionUtils.movingAverage(grouped.map { it.second.toInt() }, 3)
+        val movingAvg = PredictionUtils.adaptiveMovingAverage(grouped.map { it.second.toInt() }, 3)
         val movingAvgEntries = movingAvg.mapIndexed { index, value ->
-            Entry((index + 2).toFloat(), value.toFloat())
+            Entry(index.toFloat(), value)
         }
 
         val dataSet = LineDataSet(entries, "Monthly distance (m)")
-        dataSet.color = android.graphics.Color.GREEN
+        dataSet.color = android.graphics.Color.BLUE
         dataSet.setDrawValues(false)
         dataSet.setDrawCircles(true)
 
         val movingAvgSet = LineDataSet(movingAvgEntries, "Average monthly distance (m)")
-        movingAvgSet.color = android.graphics.Color.MAGENTA
+        movingAvgSet.color = android.graphics.Color.RED
         movingAvgSet.setDrawCircles(false)
         movingAvgSet.setDrawValues(false)
         movingAvgSet.lineWidth = 2f
@@ -184,5 +246,10 @@ class PredictionFragment : Fragment() {
         tvDistanceForecast.text = predictedDistanceText
     }
 
+    private fun showSnackbar(message: String) {
+        view?.let {
+            Snackbar.make(it, message, Snackbar.LENGTH_SHORT).show()
+        }
+    }
 
 }
