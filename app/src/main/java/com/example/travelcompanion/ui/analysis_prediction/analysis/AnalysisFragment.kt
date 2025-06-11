@@ -97,11 +97,9 @@ class AnalysisFragment : Fragment() {
 
                 setDataToBarChart(values)
                 setXLabelsToBarChart(labels)
-                barChart.invalidate()
+                configureBarChartXAxis()
+                configureBarChart()
             }
-
-            configureBarChartXAxis()
-            configureBarChart()
 
             // top destinations
             val topDestinations = getTopDestinations(completedTrips)
