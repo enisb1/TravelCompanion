@@ -7,6 +7,10 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import android.app.PendingIntent
+import android.content.Intent
+import androidx.core.app.TaskStackBuilder
+import com.example.travelcompanion.MainActivity
 
 class InactivityReminderWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
     override fun doWork(): Result {
@@ -31,12 +35,21 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
                 manager.createNotificationChannel(channel)
             }
 
+            val intent = Intent(applicationContext, MainActivity::class.java).apply {
+                putExtra("navigate_to_start", true)
+            }
+            val pendingIntent = TaskStackBuilder.create(applicationContext).run {
+                addNextIntentWithParentStack(intent)
+                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
             val builder = NotificationCompat.Builder(applicationContext, channelId)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("Inactivity Reminder")
                 .setContentText("You haven't logged any trips in a while. Remember to add one!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
             val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.notify(notificationId, builder.build())
         }
