@@ -1,5 +1,13 @@
 package com.example.travelcompanion.ui.settings
 
+import android.Manifest
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
 import android.content.Context
 import android.os.Bundle
 import android.text.InputType
@@ -9,6 +17,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.travelcompanion.R
+import androidx.core.content.edit
+import com.example.travelcompanion.MainActivity
+import com.example.travelcompanion.ui.home.start.StartFragment
+import com.example.travelcompanion.workers.ActivityRecognitionReceiver
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import android.widget.NumberPicker
 import android.widget.Toast
 import com.example.travelcompanion.R
@@ -29,9 +54,23 @@ import androidx.work.OneTimeWorkRequestBuilder
 
 class SettingsFragment : Fragment() {
 
+    companion object {
+        const val TRACK_CAR = "trackCar"
+        const val TRACK_BICYCLE = "trackBicycle"
+        const val TRACK_RUNNING = "trackRunning"
+    }
+    
     private val notificationPermissionRequestCode = 1001
 
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+
+    private lateinit var requestPermissionLauncherForActivityRecognition: ActivityResultLauncher<String>
+
+    private lateinit var prefs: SharedPreferences
+
+    private lateinit var carLayout: FrameLayout
+    private lateinit var bicycleLayout: FrameLayout
+    private lateinit var runningLayout: FrameLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,10 +81,24 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val prefs = requireContext().getSharedPreferences("goals", 0)
+        prefs = requireContext().getSharedPreferences("goals", 0)   //TODO: change to name "settings"
         val etTrips = view.findViewById<EditText>(R.id.etMonthlyTripsGoal)
         val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
         val btnSave = view.findViewById<Button>(R.id.btnSaveGoals)
+        carLayout = view.findViewById(R.id.car_layout)
+        bicycleLayout = view.findViewById(R.id.bicycle_layout)
+        runningLayout = view.findViewById(R.id.running_layout)
+
+        requestPermissionLauncherForActivityRecognition = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                startNewActivityRecognition()
+                Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(activity, "Activity recognition permission is required", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         notificationPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -111,13 +164,109 @@ class SettingsFragment : Fragment() {
                     saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
                 }
             }
+            launchActivityRecognition()
+            //Toast.makeText(requireContext(), "Objectives set!", Toast.LENGTH_SHORT).show()
         }
-
+        
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
             "inactivity_reminder",
             ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
+
+        // activity recognition
+        val trackCar = prefs.getBoolean(TRACK_CAR, false)
+        val trackBicycle = prefs.getBoolean(TRACK_BICYCLE, false)
+        val trackRunning = prefs.getBoolean(TRACK_RUNNING, false)
+        if (trackCar)
+            carLayout.isSelected = true
+        if (trackBicycle)
+            bicycleLayout.isSelected = true
+        if (trackRunning)
+            runningLayout.isSelected = true
+
+        for (frameLayout in listOf(carLayout, bicycleLayout, runningLayout)) {
+            frameLayout.setOnClickListener {
+                it.isSelected = !it.isSelected
+            }
+        }
+    }
+
+    private fun launchActivityRecognition() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION)
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncherForActivityRecognition.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            } else {
+                startNewActivityRecognition()
+            }
+        } else {    // no runtime permission needed
+            startNewActivityRecognition()
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    private fun startNewActivityRecognition() {
+        val activityRecognitionClient = ActivityRecognition.getClient(requireContext())
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            322,
+            Intent(requireContext(), ActivityRecognitionReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        activityRecognitionClient.removeActivityTransitionUpdates(pendingIntent).addOnCompleteListener {
+            val transitions = getTransitions()
+            if (transitions.isNotEmpty()) { // if user selected some transition to track
+                val request = ActivityTransitionRequest(transitions)
+                activityRecognitionClient.requestActivityTransitionUpdates(request, pendingIntent)
+                    .addOnSuccessListener {
+                        prefs.edit {
+                            putBoolean(TRACK_CAR, carLayout.isSelected)
+                            .putBoolean(TRACK_BICYCLE, bicycleLayout.isSelected)
+                            .putBoolean(TRACK_RUNNING, runningLayout.isSelected)
+                        }
+                        Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
+                        Log.d("Transition", "Started successfully.")
+                }.addOnFailureListener {
+                    Log.e("Transition", "Failed to start updates", it)
+                    Toast.makeText(requireContext(), "Failed to set activity recognition tracking!", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Log.d("Transition", "User disabled activity updates.")
+                Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun getTransitions(): List<ActivityTransition> {
+        val transitions = mutableListOf<ActivityTransition>()
+
+        if (carLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.IN_VEHICLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        if (bicycleLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        if (runningLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.RUNNING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        return transitions.toList()
+    }
+        }
+
     }
 
     private var pendingTripsGoal: Int = 0
@@ -157,5 +306,4 @@ class SettingsFragment : Fragment() {
             Toast.makeText(requireContext(), "Saved new settings", Toast.LENGTH_SHORT).show()
         }
     }
-
 }
