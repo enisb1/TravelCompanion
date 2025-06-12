@@ -18,8 +18,16 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 import com.example.travelcompanion.workers.InactivityReminderWorker
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.work.OneTimeWorkRequestBuilder
 
 class SettingsFragment : Fragment() {
+
+    private val notificationPermissionRequestCode = 1001
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,9 +42,17 @@ class SettingsFragment : Fragment() {
         val etTrips = view.findViewById<EditText>(R.id.etMonthlyTripsGoal)
         val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
         val btnSave = view.findViewById<Button>(R.id.btnSaveGoals)
+
         val numberPicker = view.findViewById<NumberPicker>(R.id.np_inactivity_days)
-        numberPicker.minValue = 1
+        val daysOptions = Array(31) { i -> if (i == 0) "Off" else i.toString() }
+        numberPicker.minValue = 0
         numberPicker.maxValue = 30
+        numberPicker.displayedValues = daysOptions
+
+        val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val savedInactivityDays = settingsPrefs.getInt("inactivity_days", 0)
+        numberPicker.value = savedInactivityDays // 0 = Off, 1-30 = days
+
         var selectedInactivityDays = numberPicker.value
         val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
 
@@ -46,9 +62,7 @@ class SettingsFragment : Fragment() {
         etDistance.setText(
             prefs.getInt("monthlyDistanceGoal", 0).takeIf { it > 0 }?.toString() ?: ""
         )
-        val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val savedInactivityDays = settingsPrefs.getInt("inactivity_days", 3)
-        numberPicker.value = savedInactivityDays
+
         selectedInactivityDays = savedInactivityDays
 
         numberPicker.setOnValueChangedListener { _, _, newVal ->
@@ -66,7 +80,45 @@ class SettingsFragment : Fragment() {
             val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
             settingsPrefs.edit { putInt("inactivity_days", selectedInactivityDays) }
 
-            Toast.makeText(requireContext(), "Saved new settings!", Toast.LENGTH_SHORT).show()
+            if (selectedInactivityDays == 0) {
+                // Turn off reminder
+                WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")
+                Toast.makeText(requireContext(), "Reminder turned off.", Toast.LENGTH_SHORT).show()
+            } else {
+                // Requests notification permission if not already granted
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        requireActivity(),
+                        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                        notificationPermissionRequestCode
+                    )
+                }
+
+                // Comment out the following if you want to test notifications
+                // (Re)enqueue the worker with the new settings
+                val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
+                WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
+                    "inactivity_reminder",
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    workRequest
+                )
+
+                // Uncomment the following if you want to test notifications (will take 1 minute to trigger)
+                /*
+                val workRequest = OneTimeWorkRequestBuilder<InactivityReminderWorker>()
+                    .setInitialDelay(1, TimeUnit.MINUTES)
+                    .build()
+                context?.let { it1 -> WorkManager.getInstance(it1).enqueue(workRequest) }
+                */
+
+
+                Toast.makeText(requireContext(), "Saved new settings", Toast.LENGTH_SHORT).show()
+            }
         }
 
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
