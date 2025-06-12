@@ -24,8 +24,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.travelcompanion.R
 import androidx.core.content.edit
+import com.example.travelcompanion.MainActivity
+import com.example.travelcompanion.ui.home.start.StartFragment
 import com.example.travelcompanion.workers.ActivityRecognitionReceiver
 import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 
 class SettingsFragment : Fragment() {
 
@@ -119,39 +124,65 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     private fun startNewActivityRecognition() {
         val activityRecognitionClient = ActivityRecognition.getClient(requireContext())
         val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            Intent(context, ActivityRecognitionReceiver::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            requireContext(),
+            322,
+            Intent(requireContext(), ActivityRecognitionReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        activityRecognitionClient.removeActivityUpdates(pendingIntent).addOnCompleteListener {
-            // Now request updates again (based on user settings)
-            if (carLayout.isSelected || bicycleLayout.isSelected || runningLayout.isSelected) {
-                activityRecognitionClient.requestActivityUpdates(
-                    10_000, // interval in ms
-                    pendingIntent
-                ).addOnSuccessListener {
-                    prefs.edit {
-                        putBoolean(TRACK_CAR, carLayout.isSelected)
-                        .putBoolean(TRACK_BICYCLE, bicycleLayout.isSelected)
-                        .putBoolean(TRACK_RUNNING, runningLayout.isSelected)
-                    }
-                    bicycleLayout.isSelected
-                    Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
-                    Log.d("ActivityUpdates", "Started successfully.")
+        activityRecognitionClient.removeActivityTransitionUpdates(pendingIntent).addOnCompleteListener {
+            val transitions = getTransitions()
+            if (transitions.isNotEmpty()) { // if user selected some transition to track
+                val request = ActivityTransitionRequest(transitions)
+                activityRecognitionClient.requestActivityTransitionUpdates(request, pendingIntent)
+                    .addOnSuccessListener {
+                        prefs.edit {
+                            putBoolean(TRACK_CAR, carLayout.isSelected)
+                            .putBoolean(TRACK_BICYCLE, bicycleLayout.isSelected)
+                            .putBoolean(TRACK_RUNNING, runningLayout.isSelected)
+                        }
+                        Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
+                        Log.d("Transition", "Started successfully.")
                 }.addOnFailureListener {
-                    Log.e("ActivityUpdates", "Failed to start updates", it)
+                    Log.e("Transition", "Failed to start updates", it)
                     Toast.makeText(requireContext(), "Failed to set activity recognition tracking!", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.d("ActivityUpdates", "User disabled activity updates.")
+                Log.d("Transition", "User disabled activity updates.")
                 Toast.makeText(requireContext(), "Settings set!", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun getTransitions(): List<ActivityTransition> {
+        val transitions = mutableListOf<ActivityTransition>()
+
+        if (carLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.IN_VEHICLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        if (bicycleLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.ON_BICYCLE)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        if (runningLayout.isSelected)
+            transitions +=
+                ActivityTransition.Builder()
+                    .setActivityType(DetectedActivity.RUNNING)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build()
+
+        return transitions.toList()
     }
 
 }
