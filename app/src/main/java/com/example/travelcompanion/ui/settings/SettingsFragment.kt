@@ -1,6 +1,7 @@
 package com.example.travelcompanion.ui.settings
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.SharedPreferences
@@ -45,11 +46,9 @@ class SettingsFragment : Fragment() {
     
     private val notificationPermissionRequestCode = 1001
 
-    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var activityRecognitionPermissionLauncher: ActivityResultLauncher<String>
 
-    private lateinit var activityRecognitionAllPermissionsLauncher: ActivityResultLauncher<String>
-
-    private lateinit var activityRecognitionSinglePermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var notificationPermissionLauncherToActivityRecognition: ActivityResultLauncher<String>
 
     private lateinit var prefs: SharedPreferences
 
@@ -59,7 +58,11 @@ class SettingsFragment : Fragment() {
     private lateinit var numberPicker: NumberPicker
 
     // booleans for toast message
-    private var notificationPermissionNeededAndNotGiven = false
+    private var activityRecognitionSet = false
+
+    private var pendingTripsGoal: Int = 0
+    private var pendingDistanceGoal: Int = 0
+    private var pendingInactivityDays: Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -78,24 +81,9 @@ class SettingsFragment : Fragment() {
         bicycleLayout = view.findViewById(R.id.bicycle_layout)
         runningLayout = view.findViewById(R.id.running_layout)
 
-        // checks first for activity recognition permission and then for notification permission
-        activityRecognitionAllPermissionsLauncher = registerForActivityResult(
+        activityRecognitionPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {  // activity recognition permission granted, now notification permission is needed
-                notificationPermissionCheckForActivityTracking()
-            } else {
-                Toast.makeText(requireContext(), "Activity recognition not set due to missing permission", Toast.LENGTH_SHORT).show()
-                clearActivityRecognitionTrackingChoices()
-            }
-        }
-
-        // used only for final permission check regarding activity recognition (after notification
-        // check done by reminder for inactivity, if this permission is granted, or after activity
-        // recognition permission is given in the full permission check done for activity recognition)
-        activityRecognitionSinglePermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
+        ) @SuppressLint("MissingPermission") { isGranted ->
             if (isGranted) {
                 startNewActivityRecognition()
                 Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
@@ -107,25 +95,27 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        notificationPermissionLauncher = registerForActivityResult(
+        notificationPermissionLauncherToActivityRecognition = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                saveSettings(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
-                if (needToLaunchActivityRecognition())
+                if (pendingInactivityDays > 0) {
+                    saveSettings(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
+                }
+                if (activityRecognitionSet) {
                     permissionCheckForActivityRecognition()
+                    activityRecognitionSet = false
+                }
                 else
                     Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
             } else {
-                // Save settings without enabling the reminder
-                saveSettings(pendingTripsGoal, pendingDistanceGoal, 0)
-                numberPicker.value = 0
                 Toast.makeText(requireContext(), "Notification permission is required", Toast.LENGTH_SHORT).show()
-                clearActivityRecognitionTrackingChoices()
+                numberPicker.value = 0  // reset inactivity days number picker
+                clearActivityRecognitionTrackingChoices()   // reset selection of tracking choices
             }
         }
 
-        numberPicker = view.findViewById<NumberPicker>(R.id.np_inactivity_days)
+        numberPicker = view.findViewById(R.id.np_inactivity_days)
         val daysOptions = Array(31) { i -> if (i == 0) "Off" else i.toString() }
         numberPicker.minValue = 0
         numberPicker.maxValue = 30
@@ -155,14 +145,12 @@ class SettingsFragment : Fragment() {
             val tripsGoal = etTrips.text.toString().toIntOrNull() ?: 0
             val distanceGoal = etDistance.text.toString().toIntOrNull() ?: 0
 
-            // inactivity reminder and objectives
             if (selectedInactivityDays == 0 && !needToLaunchActivityRecognition()) {
                 // Turn off reminder
                 WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")
                 saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
-                // show toast message
                 Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-            } else if (selectedInactivityDays > 0) {
+            } else {
                 // Requests notification permission if not already granted
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                     ContextCompat.checkSelfPermission(
@@ -170,20 +158,25 @@ class SettingsFragment : Fragment() {
                         Manifest.permission.POST_NOTIFICATIONS
                     ) != PackageManager.PERMISSION_GRANTED
                 ) {
-                    pendingTripsGoal = tripsGoal
-                    pendingDistanceGoal = distanceGoal
-                    pendingInactivityDays = selectedInactivityDays
-
-                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    if (selectedInactivityDays == 0) { // needToLaunchActivityRecognition() = true
+                        Log.i("activityrecog", "yes")
+                        activityRecognitionSet = true
+                        saveSettings(tripsGoal, distanceGoal, 0)
+                        notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                    else { // selectedInactivityDays > 0
+                        pendingTripsGoal = tripsGoal
+                        pendingDistanceGoal = distanceGoal
+                        pendingInactivityDays = selectedInactivityDays
+                        if (needToLaunchActivityRecognition())
+                            activityRecognitionSet = true
+                        notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
                 } else {
                     saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
                     if (needToLaunchActivityRecognition())
                         permissionCheckForActivityRecognition()
                 }
-            }
-            else {  // needToLaunchActivityRecognition() == true && selectedInactivityDays == 0
-                saveSettings(tripsGoal, distanceGoal, 0)
-                fullPermissionCheckForActivityTracking()
             }
         }
         
@@ -220,46 +213,17 @@ class SettingsFragment : Fragment() {
         return carLayout.isSelected || bicycleLayout.isSelected || runningLayout.isSelected
     }
 
-    private fun fullPermissionCheckForActivityTracking() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION)
-                != PackageManager.PERMISSION_GRANTED) {
-                activityRecognitionAllPermissionsLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
-            } else {
-                notificationPermissionCheckForActivityTracking()
-            }
-        } else {    // no runtime permission needed and api not high enough to request permissions for notifications
-            startNewActivityRecognition()
-            Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     // notification permission is already granted
     private fun permissionCheckForActivityRecognition() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION)
                 != PackageManager.PERMISSION_GRANTED) {
-                activityRecognitionSinglePermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                activityRecognitionPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
             } else {
                 startNewActivityRecognition()
                 Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
             }
-        } else {    // no runtime permission needed and api not high enough to request permissions for notifications
-            startNewActivityRecognition()
-            Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun notificationPermissionCheckForActivityTracking() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-                activityRecognitionSinglePermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                startNewActivityRecognition()
-                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-            }
-        } else {
+        } else {    // no runtime permission needed
             startNewActivityRecognition()
             Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
         }
@@ -322,10 +286,6 @@ class SettingsFragment : Fragment() {
 
         return transitions.toList()
     }
-
-    private var pendingTripsGoal: Int = 0
-    private var pendingDistanceGoal: Int = 0
-    private var pendingInactivityDays: Int = 0
 
     private fun saveSettings(tripsGoal: Int, distanceGoal: Int, inactivityDays: Int) {
         val prefs = requireContext().getSharedPreferences("goals", Context.MODE_PRIVATE)
