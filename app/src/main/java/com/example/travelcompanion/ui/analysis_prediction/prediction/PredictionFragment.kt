@@ -103,7 +103,7 @@ class PredictionFragment : Fragment() {
 
         fabObjectiveWarning = view.findViewById(R.id.fabObjectiveWarning)
         fabObjectiveWarning.setOnClickListener {
-            val prefs = requireContext().getSharedPreferences("goals", 0)
+            val prefs = requireContext().getSharedPreferences("settings", 0)
             val tripsGoal = prefs.getInt("monthlyTripsGoal", 0)
             val distanceGoal = prefs.getInt("monthlyDistanceGoal", 0)
             val tripsText = "Predicted trips: $lastPredictedCount / Goal: $tripsGoal"
@@ -296,7 +296,7 @@ class PredictionFragment : Fragment() {
     }
 
     private fun checkObjectives(predictedTrips: Int, predictedDistance: Double) {
-        val prefs = requireContext().getSharedPreferences("goals", 0)
+        val prefs = requireContext().getSharedPreferences("settings", 0)
         val tripsGoal = prefs.getInt("monthlyTripsGoal", 0)
         val distanceGoal = prefs.getInt("monthlyDistanceGoal", 0)
         val show = (tripsGoal > 0 && predictedTrips < tripsGoal) ||

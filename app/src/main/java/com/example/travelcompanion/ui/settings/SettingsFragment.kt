@@ -74,7 +74,7 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        prefs = requireContext().getSharedPreferences("goals", 0)   //TODO: change to name "settings"
+        prefs = requireContext().getSharedPreferences("settings", 0)
         val etTrips = view.findViewById<EditText>(R.id.etMonthlyTripsGoal)
         val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
         numberPicker = view.findViewById(R.id.np_inactivity_days)
@@ -90,8 +90,7 @@ class SettingsFragment : Fragment() {
         numberPicker.maxValue = 30
         numberPicker.displayedValues = daysOptions
 
-        val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
-        val savedInactivityDays = settingsPrefs.getInt("inactivity_days", 0)
+        val savedInactivityDays = prefs.getInt("inactivity_days", 0)
         numberPicker.value = savedInactivityDays // 0 = Off, 1-30 = days
 
         var selectedInactivityDays = numberPicker.value
@@ -291,14 +290,13 @@ class SettingsFragment : Fragment() {
     }
 
     private fun saveSettings(tripsGoal: Int, distanceGoal: Int, inactivityDays: Int) {
-        val prefs = requireContext().getSharedPreferences("goals", Context.MODE_PRIVATE)
+        val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
 
         prefs.edit {
             putInt("monthlyTripsGoal", tripsGoal)
             putInt("monthlyDistanceGoal", distanceGoal)
         }
-        val settingsPrefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
-        settingsPrefs.edit { putInt("inactivity_days", inactivityDays) }
+        prefs.edit { putInt("inactivity_days", inactivityDays) }
 
         if (inactivityDays == 0) {
             WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")

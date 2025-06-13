@@ -29,7 +29,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             // transitionEvent = last updated activity transition
             val transitionEvent = result.transitionEvents[result.transitionEvents.size - 1]
 
-            val prefs = context.getSharedPreferences("goals", 0)   //TODO: change to name "settings"
+            val prefs = context.getSharedPreferences("settings", 0)
             val trackCar = prefs.getBoolean(TRACK_CAR, false)
             val trackBicycle = prefs.getBoolean(TRACK_BICYCLE, false)
             val trackRunning = prefs.getBoolean(TRACK_RUNNING, false)
