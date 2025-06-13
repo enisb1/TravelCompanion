@@ -27,6 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="Objective for monthly distance (m)" />
 
         <EditText
@@ -39,6 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:text="When would you like to be notified to start tracking?"/>
 
         <LinearLayout
@@ -46,8 +48,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginTop="8dp"
             android:gravity="center"
-            android:padding="16dp"
             android:weightSum="3">
 
             <FrameLayout
@@ -105,26 +107,28 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
                 android:text="Days of inactivity for reminder:" />
 
             <NumberPicker
                 android:id="@+id/np_inactivity_days"
                 android:layout_width="wrap_content"
-                android:layout_height="64dp" />
+                android:layout_height="64dp"
+                android:layout_marginStart="10dp"/>
         </LinearLayout>
 
         <Button
             android:id="@+id/btnSaveGoals"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save" />
+            android:text="Save"
+            android:layout_marginTop="16dp"/>
     </LinearLayout>
 </FrameLayout>
