@@ -33,6 +33,8 @@ class PlannedTripsFragment : Fragment() {
     private lateinit var planRecyclerView : RecyclerView
     private lateinit var planAdapter : PlanRecyclerViewAdapter
     private lateinit var plusButton: FloatingActionButton
+    private lateinit var noTripsLayout: View
+
     private var selectedDate: Calendar? = null
 
     override fun onCreateView(
@@ -50,7 +52,9 @@ class PlannedTripsFragment : Fragment() {
 
         planRecyclerView = view.findViewById(R.id.rvPlanned)
         plusButton = view.findViewById(R.id.fabAdd)
+        noTripsLayout = view.findViewById(R.id.no_trips_constraint_planned)
 
+        noTripsLayout.findViewById<TextView>(R.id.tvNoTripsMessage).text = getString(R.string.looks_like_you_have_no_planned_trips)
 
         val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
@@ -168,9 +172,16 @@ class PlannedTripsFragment : Fragment() {
     }
 
     private fun displayPlanList(){
-        tripViewModel.plans.observe(viewLifecycleOwner, {
-            planAdapter.setList(it)
+        tripViewModel.plans.observe(viewLifecycleOwner) { plans ->
+            planAdapter.setList(plans)
             planAdapter.notifyDataSetChanged()
-        })
+            if (plans.isEmpty()) {
+                planRecyclerView.visibility = View.GONE
+                noTripsLayout.visibility = View.VISIBLE
+            } else {
+                planRecyclerView.visibility = View.VISIBLE
+                noTripsLayout.visibility = View.GONE
+            }
+        }
     }
 }

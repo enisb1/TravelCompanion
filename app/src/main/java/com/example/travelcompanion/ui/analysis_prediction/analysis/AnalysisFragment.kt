@@ -51,6 +51,7 @@ class AnalysisFragment : Fragment() {
     private lateinit var totalDistanceTxtView: TextView
     private lateinit var travelFrequencyTxtView: TextView
     private lateinit var yearSpinner: Spinner
+    private lateinit var noTripsLayout: ConstraintLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,12 +68,22 @@ class AnalysisFragment : Fragment() {
         val factory = AnalysisViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         viewModel = ViewModelProvider(this, factory)[AnalysisViewModel::class.java]
 
+        noTripsLayout = view.findViewById(R.id.no_trips_constraint_analysis)
+
         initializeViews(view)
         setListeners()
 
         lifecycleScope.launch {
             val completedTrips = withContext(Dispatchers.IO) {
                 viewModel.getCompletedTrips()
+            }
+
+            if(completedTrips.isEmpty()){
+                noTripsLayout.visibility = View.VISIBLE
+                rootLayout.visibility = View.GONE
+            } else {
+                noTripsLayout.visibility = View.GONE
+                rootLayout.visibility = View.VISIBLE
             }
 
             //  bar chart
