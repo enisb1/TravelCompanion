@@ -117,17 +117,18 @@ class SettingsFragment : Fragment() {
         val monthlyTripsGoal = viewModel.monthlyTripsGoal ?: prefs.getInt("monthlyTripsGoal", 0)
         val monthlyDistanceGoal = viewModel.monthlyDistanceGoal ?: prefs.getInt("monthlyDistanceGoal", 0)
 
-        // Load existing objectives if available
-        etTrips.setText(monthlyTripsGoal.toString())
-        etDistance.setText(monthlyDistanceGoal.toString())
+        if(monthlyTripsGoal > 0)
+            etTrips.setText(monthlyTripsGoal.toString())
+        if(monthlyDistanceGoal > 0)
+            etDistance.setText(monthlyDistanceGoal.toString())
 
         etTrips.addTextChangedListener {
-            val tripsGoal = it.toString().toIntOrNull() ?: 0
+            val tripsGoal = it.toString().toIntOrNull()
             viewModel.monthlyTripsGoal = tripsGoal
         }
 
         etDistance.addTextChangedListener {
-            val distanceGoal = it.toString().toIntOrNull() ?: 0
+            val distanceGoal = it.toString().toIntOrNull()
             viewModel.monthlyDistanceGoal = distanceGoal
         }
 
