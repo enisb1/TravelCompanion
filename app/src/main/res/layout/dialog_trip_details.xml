@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:text="Title"
+                android:text="@string/title1"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Destination:"
+                    android:text="@string/destination1"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -81,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Type:"
+                    android:text="@string/type"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Start:"
+                    android:text="@string/start1"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -156,7 +156,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="End:"
+                    android:text="@string/end"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -193,7 +193,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Distance:"
+                    android:text="@string/distance"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -202,7 +202,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="placeholder"
+                    android:text=""
                     android:textAlignment="viewEnd"
                     android:textSize="16sp"
                     android:textColor="@color/black" />
@@ -230,7 +230,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Duration:"
+                    android:text="@string/duration"
                     android:textStyle="bold"
                     android:textSize="16sp" />
 
@@ -239,7 +239,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="placeholder"
+                    android:text=""
                     android:textAlignment="viewEnd"
                     android:textSize="16sp"
                     android:textColor="@color/black" />

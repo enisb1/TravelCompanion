@@ -162,13 +162,13 @@ class JournalListFragment : Fragment() {
         tvStart.setText(SimpleDateFormat("d/M/yyyy").format(trip.startTimestamp))
 
         val tvEnd = dialogView.findViewById<TextView>(R.id.tvTripDetailEnd)
-        tvEnd.setText(SimpleDateFormat("d/M/yyyy").format(trip.endTimestamp))
+        tvEnd.text = SimpleDateFormat("d/M/yyyy").format(trip.endTimestamp)
 
         val tvDistance = dialogView.findViewById<TextView>(R.id.tvTripDetailDistance)
-        tvDistance.setText(trip.distance.toString() + " m")
+        tvDistance.text = getString(R.string.trip_dist_m, trip.distance.toString())
 
         val tvDuration = dialogView.findViewById<TextView>(R.id.tvTripDetailDuration)
-        tvDuration.setText(trip.duration.toString() + " s")
+        tvDuration.text = getString(R.string.trip_duration_s, trip.duration.toString())
 
         // Remove background in dialog
         dialogView.setBackgroundResource(android.R.color.transparent)

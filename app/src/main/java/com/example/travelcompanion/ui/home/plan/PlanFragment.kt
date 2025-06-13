@@ -67,7 +67,12 @@ class PlanFragment : Fragment() {
                     selectedDate = Calendar.getInstance().apply {
                         set(selectedYear, selectedMonth, selectedDay)
                     }
-                    pickDateButton.text = "Selected Date: ${selectedDay}/${selectedMonth + 1}/${selectedYear}"
+                    pickDateButton.text = getString(
+                        R.string.selected_date,
+                        selectedDay.toString(),
+                        (selectedMonth + 1).toString(),
+                        selectedYear.toString()
+                    )
                 },
                 year, month, day
             )

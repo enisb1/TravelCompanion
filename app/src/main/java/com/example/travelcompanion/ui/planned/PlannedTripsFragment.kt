@@ -111,7 +111,12 @@ class PlannedTripsFragment : Fragment() {
                     selectedDate = Calendar.getInstance().apply {
                         set(selectedYear, selectedMonth, selectedDay)
                     }
-                    tvStart.text = "${selectedDay}/${selectedMonth + 1}/${selectedYear}"
+                    tvStart.text = getString(
+                        R.string.plan_dialog_start_date,
+                        selectedDay.toString(),
+                        (selectedMonth + 1).toString(),
+                        selectedYear.toString()
+                    )
                 },
                 year, month, day
             )

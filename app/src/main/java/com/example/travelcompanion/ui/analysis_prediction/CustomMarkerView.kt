@@ -14,7 +14,7 @@ class CustomMarkerView(context: Context, layoutResource: Int) : MarkerView(conte
 
     private val tvMarker: TextView = findViewById(R.id.tvMarker)
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
-        tvMarker.text = "Value: ${e?.y?.toInt()}"
+        tvMarker.text = context.getString(R.string.marker_value, e?.y?.toInt().toString())
         super.refreshContent(e, highlight)
     }
 }

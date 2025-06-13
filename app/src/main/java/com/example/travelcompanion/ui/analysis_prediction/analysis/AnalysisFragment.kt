@@ -119,7 +119,7 @@ class AnalysisFragment : Fragment() {
             // total distance
             val totalDistance = getTotalDistance(completedTrips)
             // TODO: check if metres is the correct measure unit and if sum is correct
-            totalDistanceTxtView.text = totalDistance.toString() + " " + getString(R.string.kilometres)
+            totalDistanceTxtView.text = getString(R.string.tot_dist_km, totalDistance.toString())
 
             // travel frequency
             val travelFrequency = formatDuration(estimateTravelFrequency(completedTrips))

@@ -118,13 +118,13 @@ class ArchiveFragment : Fragment() {
     private fun showNoPicturesLayout() {
         noResourceLayout.visibility = View.VISIBLE
         val noPicturesMessage = noResourceLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
-        noPicturesMessage.text = "It looks like no pictures have been taken!"
+        noPicturesMessage.text = getString(R.string.it_looks_like_no_pictures_have_been_taken)
     }
 
     private fun showNoNotesLayout() {
         noResourceLayout.visibility = View.VISIBLE
         val noNotesMessage = noResourceLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
-        noNotesMessage.text = "It looks like no notes have been written!"
+        noNotesMessage.text = getString(R.string.it_looks_like_no_notes_have_been_written)
     }
 
     private fun updateNotes(tripId: Long) {

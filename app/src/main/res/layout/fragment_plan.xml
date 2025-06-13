@@ -27,7 +27,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter title">
+                android:hint="@string/enter_title1">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/titleEditText"

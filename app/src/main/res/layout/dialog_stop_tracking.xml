@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Trip title"
+            android:text="@string/trip_title_1"
             android:textColor="@color/black"
             android:textStyle="bold" />
 
@@ -32,14 +32,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints=""
-            android:hint="Enter title"
+            android:hint="@string/enter_title"
             android:inputType="text" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Trip destination"
+            android:text="@string/trip_destination"
             android:textColor="@color/black"
             android:textStyle="bold" />
 
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Trip type"
+            android:text="@string/trip_type"
             android:textColor="@color/black"
             android:textStyle="bold" />
 

@@ -161,7 +161,7 @@ class PredictionFragment : Fragment() {
         lastPredictedCount = predictedCount
         val recommendations = PredictionUtils.generateRecommendations(trips)
 
-        tvForecast.text = "Predicted number of trips: $predictedCount"
+        tvForecast.text = getString(R.string.predicted_number_of_trips, predictedCount.toString())
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
 
