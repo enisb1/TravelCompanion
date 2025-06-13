@@ -19,7 +19,7 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
         val lastJourneyTime = prefs.getLong("last_journey_time", 0L)
         val now = System.currentTimeMillis()
         val daysSinceLast = (now - lastJourneyTime) / (1000 * 60 * 60 * 24)
-        if (daysSinceLast >= inactivityDays) {
+        if (daysSinceLast >= inactivityDays && lastJourneyTime > 0) {
             val channelId = "inactivity_reminder_channel"
             val channelName = "Inactivity Reminder"
             val notificationId = 1

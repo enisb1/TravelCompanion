@@ -3,38 +3,39 @@ package com.example.travelcompanion.ui.settings
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.content.Context
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
-import com.example.travelcompanion.R
 import androidx.core.content.edit
+import androidx.fragment.app.Fragment
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.travelcompanion.R
 import com.example.travelcompanion.workers.ActivityRecognitionReceiver
+import com.example.travelcompanion.workers.InactivityReminderWorker
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
-import android.widget.NumberPicker
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.concurrent.TimeUnit
-import com.example.travelcompanion.workers.InactivityReminderWorker
 
 class SettingsFragment : Fragment() {
 
@@ -80,6 +81,14 @@ class SettingsFragment : Fragment() {
         carLayout = view.findViewById(R.id.car_layout)
         bicycleLayout = view.findViewById(R.id.bicycle_layout)
         runningLayout = view.findViewById(R.id.running_layout)
+        val buttonSendIntent = view.findViewById<FloatingActionButton>(R.id.buttonSendIntent)
+        buttonSendIntent.setOnClickListener {
+            Log.i("myreceiver", "sent")
+            val intent  = Intent("prova").setClass(requireContext(), ActivityRecognitionReceiver::class.java)
+            val mActivityTransitionsPendingIntent =
+                PendingIntent.getBroadcast(requireContext(), 70, intent, PendingIntent.FLAG_IMMUTABLE)
+            mActivityTransitionsPendingIntent.send()
+        }
 
         activityRecognitionPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -231,19 +240,18 @@ class SettingsFragment : Fragment() {
 
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     private fun startNewActivityRecognition() {
+        val intent  = Intent("TRANSITIONS_RECEIVER_ACTION")
+            .setClass(requireContext(), ActivityRecognitionReceiver::class.java)
+        val mActivityTransitionsPendingIntent =
+            PendingIntent.getBroadcast(requireContext(), 70, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
         val activityRecognitionClient = ActivityRecognition.getClient(requireContext())
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            322,
-            Intent(requireContext(), ActivityRecognitionReceiver::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
 
-        activityRecognitionClient.removeActivityTransitionUpdates(pendingIntent).addOnCompleteListener {
+        activityRecognitionClient.removeActivityTransitionUpdates(mActivityTransitionsPendingIntent).addOnCompleteListener {
             val transitions = getTransitions()
             if (transitions.isNotEmpty()) { // if user selected some transition to track
                 val request = ActivityTransitionRequest(transitions)
-                activityRecognitionClient.requestActivityTransitionUpdates(request, pendingIntent)
+                activityRecognitionClient.requestActivityTransitionUpdates(request, mActivityTransitionsPendingIntent)
                     .addOnSuccessListener {
                         prefs.edit {
                             putBoolean(TRACK_CAR, carLayout.isSelected)
@@ -262,6 +270,27 @@ class SettingsFragment : Fragment() {
 
     private fun getTransitions(): List<ActivityTransition> {
         val transitions = mutableListOf<ActivityTransition>()
+
+        // TODO: remove, added for testing
+        transitions += ActivityTransition.Builder()
+            .setActivityType(DetectedActivity.WALKING)
+            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+            .build()
+
+        transitions += ActivityTransition.Builder()
+            .setActivityType(DetectedActivity.STILL)
+            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+            .build()
+
+        transitions += ActivityTransition.Builder()
+            .setActivityType(DetectedActivity.WALKING)
+            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+            .build()
+
+        transitions += ActivityTransition.Builder()
+            .setActivityType(DetectedActivity.STILL)
+            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+            .build()
 
         if (carLayout.isSelected)
             transitions +=
