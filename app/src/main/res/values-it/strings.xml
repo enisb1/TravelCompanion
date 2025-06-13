@@ -1,0 +1,109 @@
+<resources>
+    <string name="app_name" translatable="false">TravelCompanion</string>
+    <string name="navigation_drawer_open">Apri il menu di navigazione</string>
+    <string name="navigation_drawer_close">Chiudi il menu di navigazione</string>
+    <string name="nav_header_desc">Header di navigazione</string>
+    <string name="action_settings">Impostazioni</string>
+
+    <string name="menu_home" translatable="false">Home</string>
+    <string name="menu_planned_trips">Viaggi pianificati</string>
+    <string name="menu_journal">Diario di viaggio</string>
+    <string name="menu_progress_prediction">Analisi e previsione</string>
+    <string name="menu_settings">Impostazioni</string>
+    <string name="start">Avvia</string>
+    <string name="location_permission_needed">Abbiamo bisogno del permesso di localizzazione per tracciare il tuo viaggio. Per favore, abilitalo.</string>
+    <string name="positive_button_string">Ok</string>
+    <string name="negative_button_string">Annulla</string>
+    <string name="fine_location_permission_denied">Il permesso di localizzazione precisa è necessario per tracciare il tuo viaggio</string>
+    <string name="stop_tracking_trip">Ferma il tracciamento del viaggio</string>
+    <string name="start_fragment_title">TRACCIAMENTO DEL TUO VIAGGIO</string>
+    <string name="tracking_service_notification_description">Stiamo tracciando il tuo viaggio! Torna all\'app per vedere il percorso</string>
+    <string name="take_a_photo">Scatta una foto</string>
+    <string name="set_new_note">Aggiungi una nuova nota</string>
+    <string name="add_note">Aggiungi nota</string>
+    <string name="note_content">Contenuto della nota</string>
+    <string name="note_title">Titolo della nota</string>
+    <string name="add">Aggiungi</string>
+    <string name="cancel">Annulla</string>
+    <string name="pick_start_date">Seleziona la data di inizio</string>
+    <string name="enter_destination">Inserisci destinazione</string>
+    <string name="save">Salva</string>
+    <string name="archive">Archivia</string>
+    <string name="map">Mappa</string>
+    <string name="list">Lista</string>
+    <string name="plan">Pianifica</string>
+    <string name="looks_like_you_have_not_completed_any_trips_yet">Sembra che tu non abbia ancora completato alcun viaggio!</string>
+    <string name="looks_like_you_have_not_completed_any_type_trips_yet">Sembra che tu non abbia ancora completato alcun viaggio di tipo %1$s!</string>
+    <string name="check_out_your_completed_trips_on_the_map">GUARDA I TUOI VIAGGI COMPLETATI SULLA MAPPA!</string>
+    <string name="notes">Note</string>
+    <string name="pictures">Foto</string>
+    <string name="select_trip">Seleziona viaggio</string>
+    <string name="all">Tutti</string>
+    <string name="close">Chiudi</string>
+    <string name="complete_trip">Completa il viaggio</string>
+    <string name="analysis">Analisi</string>
+    <string name="prediction">Previsione</string>
+    <string name="kilometres">chilometri</string>
+    <string name="looks_like_you_have_no_planned_trips">Sembra che tu non abbia viaggi pianificati!\nTocca il pulsante + per aggiungerne uno.</string>
+    <string name="trip_title">Titolo del viaggio</string>
+    <string name="trip_title_value">Valore titolo viaggio</string>
+    <string name="when_was_the_picture_taken">Quando è stata scattata la foto?</string>
+    <string name="time_it_was_taken">Ora in cui è stata scattata</string>
+    <string name="how_much_into_the_trip_was_the_picture_taken">Quanto tempo dopo l\'inizio del viaggio è stata scattata la foto?</string>
+    <string name="time_into_the_trip">Tempo dall\'inizio del viaggio</string>
+    <string name="picture_info">Informazioni foto</string>
+    <string name="title">Titolo</string>
+    <string name="destination">Destinazione</string>
+    <string name="start_date">Data di inizio</string>
+    <string name="start_trip">Inizia viaggio</string>
+    <string name="edit_trip">Modifica viaggio</string>
+    <string name="delete_trip">Elimina viaggio</string>
+    <string name="enter_title">Inserisci titolo</string>
+    <string name="trip_destination">Destinazione del viaggio</string>
+    <string name="trip_type">Tipo di viaggio</string>
+    <string name="trip_title_1">Titolo del viaggio</string>
+    <string name="title1">Titolo</string>
+    <string name="destination1">Destinazione:</string>
+    <string name="type">Tipo:</string>
+    <string name="start1">Inizio:</string>
+    <string name="end">Fine:</string>
+    <string name="distance">Distanza:</string>
+    <string name="duration">Durata:</string>
+    <string name="distances_covered">Distanze percorse:</string>
+    <string name="top_destinations">Destinazioni principali:</string>
+    <string name="total_distance">Distanza totale:</string>
+    <string name="travel_frequency">Frequenza viaggi:</string>
+    <string name="debug_populate_db">DEBUG: POPOLA DB</string>
+    <string name="filter_by_type">Filtra per tipo:</string>
+    <string name="enter_title1">Inserisci titolo</string>
+    <string name="recommendations">Raccomandazioni</string>
+    <string name="trend_for_number_of_trips">Andamento numero viaggi</string>
+    <string name="trend_for_monthly_distance">Andamento distanza mensile</string>
+    <string name="filter_by_year">Filtra per anno</string>
+    <string name="objective_not_met">Obiettivo non raggiunto</string>
+    <string name="objective_for_number_of_monthly_trips">Obiettivo per numero di viaggi mensili</string>
+    <string name="number_of_trips">Numero di viaggi</string>
+    <string name="objective_for_monthly_distance_m">Obiettivo per distanza mensile (m)</string>
+    <string name="distance_in_meters">Distanza in metri</string>
+    <string name="when_would_you_like_to_be_notified_to_start_tracking">Quando vuoi essere avvisato per iniziare il tracciamento?</string>
+    <string name="days_of_inactivity_for_reminder">Giorni di inattività per il promemoria:</string>
+    <string name="save1">Salva</string>
+    <string name="_00_00" translatable="false">00:00</string>
+    <string name="title2">Titolo</string>
+    <string name="date1">Data</string>
+    <string name="type1">Tipo</string>
+    <string name="destination2">Destinazione</string>
+    <string name="note_title1">Titolo nota:</string>
+    <string name="trip_title1">Titolo viaggio:</string>
+    <string name="trip_destination1">Destinazione viaggio:</string>
+    <string name="date">Data:</string>
+    <string name="tot_dist_km" translatable="false">%1$s km</string>
+    <string name="it_looks_like_no_pictures_have_been_taken">Sembra che non siano state scattate foto!</string>
+    <string name="it_looks_like_no_notes_have_been_written">Sembra che non siano state scritte note!</string>
+    <string name="marker_value" translatable="false">Valore: %1$s</string>
+    <string name="trip_dist_m" translatable="false">%1$s m</string>
+    <string name="trip_duration_s" translatable="false">%1$s s</string>
+    <string name="selected_date">Data selezionata: %1$s/%2$s/%3$s</string>
+    <string name="plan_dialog_start_date" translatable="false">%1$s/%2$s/%3$s</string>
+    <string name="predicted_number_of_trips">Numero di viaggi previsti: %1$s</string>
+</resources>

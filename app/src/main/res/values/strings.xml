@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">TravelCompanion</string>
+    <string name="app_name" translatable="false">TravelCompanion</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Home</string>
+    <string name="menu_home" translatable="false">Home</string>
     <string name="menu_planned_trips">Planned trips</string>
     <string name="menu_journal">Travel Journal</string>
     <string name="menu_progress_prediction">Analysis &amp; Prediction</string>
@@ -88,7 +88,7 @@
     <string name="when_would_you_like_to_be_notified_to_start_tracking">When would you like to be notified to start tracking?</string>
     <string name="days_of_inactivity_for_reminder">Days of inactivity for reminder:</string>
     <string name="save1">Save</string>
-    <string name="_00_00">00:00</string>
+    <string name="_00_00" translatable="false">00:00</string>
     <string name="title2">Title</string>
     <string name="date1">Date</string>
     <string name="type1">Type</string>
@@ -97,13 +97,13 @@
     <string name="trip_title1">Trip title:</string>
     <string name="trip_destination1">Trip destination:</string>
     <string name="date">Date:</string>
-    <string name="tot_dist_km">%1$s km</string>
+    <string name="tot_dist_km" translatable="false">%1$s km</string>
     <string name="it_looks_like_no_pictures_have_been_taken">It looks like no pictures have been taken!</string>
     <string name="it_looks_like_no_notes_have_been_written">It looks like no notes have been written!</string>
-    <string name="marker_value">Value: %1$s</string>
-    <string name="trip_dist_m">%1$s m</string>
-    <string name="trip_duration_s">%1$s s</string>
+    <string name="marker_value" translatable="false">Value: %1$s</string>
+    <string name="trip_dist_m" translatable="false">%1$s m</string>
+    <string name="trip_duration_s" translatable="false">%1$s s</string>
     <string name="selected_date">Selected Date: %1$s/%2$s/%3$s</string>
-    <string name="plan_dialog_start_date">%1$s/%2$s/%3$s</string>
+    <string name="plan_dialog_start_date" translatable="false">%1$s/%2$s/%3$s</string>
     <string name="predicted_number_of_trips">Predicted number of trips: %1$s</string>
 </resources>
