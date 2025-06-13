@@ -7,11 +7,15 @@ class SettingsViewModel : ViewModel() {
     var isCarSelected: Boolean? = null
     var isBicycleSelected: Boolean? = null
     var isRunningSelected: Boolean? = null
+    var monthlyTripsGoal: Int? = null
+    var monthlyDistanceGoal: Int? = null
 
     fun resetData() {
         inactivityDays = 0
         isCarSelected = null
         isBicycleSelected = null
         isRunningSelected = null
+        monthlyTripsGoal = null
+        monthlyDistanceGoal = null
     }
 }

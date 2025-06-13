@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -81,8 +82,6 @@ class SettingsFragment : Fragment() {
         // don't keep state when navigating outside the fragment
         if (requireActivity().isChangingConfigurations.not()) {
             viewModel.resetData()
-            etTrips.setText("")
-            etDistance.setText("")
         }
     }
 
@@ -114,11 +113,23 @@ class SettingsFragment : Fragment() {
 
         val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
 
+
+        val monthlyTripsGoal = viewModel.monthlyTripsGoal ?: prefs.getInt("monthlyTripsGoal", 0)
+        val monthlyDistanceGoal = viewModel.monthlyDistanceGoal ?: prefs.getInt("monthlyDistanceGoal", 0)
+
         // Load existing objectives if available
-        etTrips.setText(prefs.getInt("monthlyTripsGoal", 0).takeIf { it > 0 }?.toString() ?: "")
-        etDistance.setText(
-            prefs.getInt("monthlyDistanceGoal", 0).takeIf { it > 0 }?.toString() ?: ""
-        )
+        etTrips.setText(monthlyTripsGoal.toString())
+        etDistance.setText(monthlyDistanceGoal.toString())
+
+        etTrips.addTextChangedListener {
+            val tripsGoal = it.toString().toIntOrNull() ?: 0
+            viewModel.monthlyTripsGoal = tripsGoal
+        }
+
+        etDistance.addTextChangedListener {
+            val distanceGoal = it.toString().toIntOrNull() ?: 0
+            viewModel.monthlyDistanceGoal = distanceGoal
+        }
 
         numberPicker.setOnValueChangedListener { _, _, newVal ->
             viewModel.inactivityDays = newVal
