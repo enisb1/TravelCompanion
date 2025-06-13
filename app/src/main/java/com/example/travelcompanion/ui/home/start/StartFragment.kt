@@ -216,6 +216,8 @@ class StartFragment : Fragment() {
 
             resetToStart()
             Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
+            val prefs = requireContext().getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
+            prefs.edit().putLong("last_journey_time", System.currentTimeMillis()).apply()
             //stop foreground tracking service
             val stopIntent = Intent(requireContext(), TrackingService::class.java)
             stopIntent.action = TrackingService.ACTION_STOP
