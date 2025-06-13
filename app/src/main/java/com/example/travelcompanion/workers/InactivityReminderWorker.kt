@@ -15,13 +15,13 @@ import com.example.travelcompanion.MainActivity
 
 class InactivityReminderWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
     override fun doWork(): Result {
+        val now = System.currentTimeMillis()
         val prefs = applicationContext.getSharedPreferences("settings", Context.MODE_PRIVATE)
         val inactivityDays = prefs.getInt("inactivity_days", -1)
-        val lastJourneyTime = prefs.getLong("last_journey_time", 0L)
-        val now = System.currentTimeMillis()
+        val lastJourneyTime = prefs.getLong("last_journey_time", now)
         val daysSinceLast = (now - lastJourneyTime) / (1000 * 60 * 60 * 24)
         Log.d("InactivityReminderWorker", "Days since last journey: $daysSinceLast, Inactivity threshold: $inactivityDays, Last journey time: $lastJourneyTime")
-        if (inactivityDays > -1 && lastJourneyTime > 0 && daysSinceLast >= inactivityDays) {
+        if (inactivityDays > 0 && daysSinceLast >= inactivityDays) {
             val channelId = "inactivity_reminder_channel"
             val channelName = "Inactivity Reminder"
             val notificationId = 1
