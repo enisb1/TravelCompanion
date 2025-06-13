@@ -192,6 +192,11 @@ class MapFragment : Fragment() {
         viewPager.isUserInputEnabled = true
     }
 
+    override fun onPause() {
+        enableTabSwiping()
+        super.onPause()
+    }
+
     private fun vectorToBitmap(context: Context, vectorResId: Int): BitmapDescriptor {
         val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)!!
         val bitmap = createBitmap(vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
