@@ -27,13 +27,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class PredictionFragment : Fragment() {
-    /*
-    private lateinit var tvTotalTrips : TextView
-    private lateinit var tvAvgDistance : TextView
-    private lateinit var tvAvgDuration : TextView
-    private lateinit var tvTopDestination : TextView
-    private lateinit var tvMonthlyVariance : TextView
-    */
 
     private lateinit var tvForecast: TextView
     private lateinit var tvRecommendations: TextView
@@ -47,6 +40,8 @@ class PredictionFragment : Fragment() {
     private var selectedYear: Int? = null
     private var lastPredictedCount: Int = 0
     private var lastPredictedDistance: Double = 0.0
+    private lateinit var noTripsLayout: View
+    private lateinit var scrollView: View
 
 
     companion object {
@@ -74,19 +69,14 @@ class PredictionFragment : Fragment() {
         val factory =
             CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         tripViewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
-
-        /*
-        tvTotalTrips = view.findViewById(R.id.tvTotalTrips)
-        tvAvgDistance = view.findViewById(R.id.tvAvgDistance)
-        tvAvgDuration = view.findViewById(R.id.tvAvgDuration)
-        tvTopDestination = view.findViewById(R.id.tvTopDestination)
-        tvMonthlyVariance = view.findViewById(R.id.tvMonthlyVariance)
-         */
         tvForecast = view.findViewById(R.id.tvPredictionForecast)
         tvRecommendations = view.findViewById(R.id.tvPredictionRecommend)
         lineChart = view.findViewById(R.id.lineChart)
         lineChartDistance = view.findViewById(R.id.lineChartDistance)
         tvDistanceForecast = view.findViewById(R.id.tvPredictionDistanceForecast)
+        noTripsLayout = view.findViewById(R.id.no_trips_constraint_prediction)
+        scrollView = view.findViewById(R.id.scrollView)
+
 
         lineChart.setTouchEnabled(true)
         lineChart.setPinchZoom(true)
@@ -171,15 +161,6 @@ class PredictionFragment : Fragment() {
         lastPredictedCount = predictedCount
         val recommendations = PredictionUtils.generateRecommendations(trips)
 
-        /*
-        val summary = PredictionUtils.getTripSummary(trips)
-        tvTotalTrips.text = "Total Trips: ${summary.totalTrips}"
-        tvAvgDistance.text = "Avg Distance: %.1f m".format(summary.avgDistance)
-        tvAvgDuration.text = "Avg Duration: %.1f s".format(summary.avgDuration)
-        tvTopDestination.text = "Top Destination: ${summary.topDestination}"
-        tvMonthlyVariance.text = "Monthly Variance: %.1f".format(summary.monthlyVariance)
-         */
-
         tvForecast.text = "Predicted number of trips: $predictedCount"
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
@@ -188,6 +169,14 @@ class PredictionFragment : Fragment() {
             PredictionUtils.totalDistanceByMonth(trips)
         )
         lastPredictedDistance = predictedDistance
+
+        if (trips.isEmpty()) {
+            scrollView.visibility = View.GONE
+            noTripsLayout.visibility = View.VISIBLE
+        } else {
+            scrollView.visibility = View.VISIBLE
+            noTripsLayout.visibility = View.GONE
+        }
 
         checkObjectives(predictedCount, predictedDistance)
 

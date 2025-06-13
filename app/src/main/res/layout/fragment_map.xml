@@ -13,7 +13,7 @@
         android:id="@+id/journal_map_constraint_layout">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/no_trips_layout_map"
+            android:id="@+id/no_trips_constraint_planned"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
