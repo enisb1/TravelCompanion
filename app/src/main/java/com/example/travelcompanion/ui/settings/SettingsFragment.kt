@@ -77,54 +77,14 @@ class SettingsFragment : Fragment() {
         prefs = requireContext().getSharedPreferences("goals", 0)   //TODO: change to name "settings"
         val etTrips = view.findViewById<EditText>(R.id.etMonthlyTripsGoal)
         val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
+        numberPicker = view.findViewById(R.id.np_inactivity_days)
         val btnSave = view.findViewById<Button>(R.id.btnSaveGoals)
         carLayout = view.findViewById(R.id.car_layout)
         bicycleLayout = view.findViewById(R.id.bicycle_layout)
         runningLayout = view.findViewById(R.id.running_layout)
-        val buttonSendIntent = view.findViewById<FloatingActionButton>(R.id.buttonSendIntent)
-        buttonSendIntent.setOnClickListener {
-            Log.i("myreceiver", "sent")
-            val intent  = Intent("prova").setClass(requireContext(), ActivityRecognitionReceiver::class.java)
-            val mActivityTransitionsPendingIntent =
-                PendingIntent.getBroadcast(requireContext(), 70, intent, PendingIntent.FLAG_IMMUTABLE)
-            mActivityTransitionsPendingIntent.send()
-        }
 
-        activityRecognitionPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) @SuppressLint("MissingPermission") { isGranted ->
-            if (isGranted) {
-                startNewActivityRecognition()
-                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-            }
-            else {
-                clearActivityRecognitionTrackingChoices()
-                Toast.makeText(requireContext(), "Activity recognition not possible due " +
-                        "to missing permissions", Toast.LENGTH_SHORT).show()
-            }
-        }
+        initializePermissionLaunchers()
 
-        notificationPermissionLauncherToActivityRecognition = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                if (pendingInactivityDays > 0) {
-                    saveSettings(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
-                }
-                if (activityRecognitionSet) {
-                    permissionCheckForActivityRecognition()
-                    activityRecognitionSet = false
-                }
-                else
-                    Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "Notification permission is required", Toast.LENGTH_SHORT).show()
-                numberPicker.value = 0  // reset inactivity days number picker
-                clearActivityRecognitionTrackingChoices()   // reset selection of tracking choices
-            }
-        }
-
-        numberPicker = view.findViewById(R.id.np_inactivity_days)
         val daysOptions = Array(31) { i -> if (i == 0) "Off" else i.toString() }
         numberPicker.minValue = 0
         numberPicker.maxValue = 30
@@ -136,7 +96,6 @@ class SettingsFragment : Fragment() {
 
         var selectedInactivityDays = numberPicker.value
         val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
-
 
         // Load existing objectives if available
         etTrips.setText(prefs.getInt("monthlyTripsGoal", 0).takeIf { it > 0 }?.toString() ?: "")
@@ -213,6 +172,42 @@ class SettingsFragment : Fragment() {
         }
     }
 
+    private fun initializePermissionLaunchers() {
+        activityRecognitionPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) @SuppressLint("MissingPermission") { isGranted ->
+            if (isGranted) {
+                startNewActivityRecognition()
+                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                clearActivityRecognitionTrackingChoices()
+                Toast.makeText(requireContext(), "Activity recognition not possible due " +
+                        "to missing permissions", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        notificationPermissionLauncherToActivityRecognition = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                if (pendingInactivityDays > 0) {
+                    saveSettings(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
+                }
+                if (activityRecognitionSet) {
+                    permissionCheckForActivityRecognition()
+                    activityRecognitionSet = false
+                }
+                else
+                    Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Notification permission is required", Toast.LENGTH_SHORT).show()
+                numberPicker.value = 0  // reset inactivity days number picker
+                clearActivityRecognitionTrackingChoices()   // reset selection of tracking choices
+            }
+        }
+    }
+
     private fun clearActivityRecognitionTrackingChoices() {
         for (layout in listOf(carLayout, bicycleLayout, runningLayout))
             layout.isSelected = false
@@ -270,27 +265,6 @@ class SettingsFragment : Fragment() {
 
     private fun getTransitions(): List<ActivityTransition> {
         val transitions = mutableListOf<ActivityTransition>()
-
-        // TODO: remove, added for testing
-        transitions += ActivityTransition.Builder()
-            .setActivityType(DetectedActivity.WALKING)
-            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-            .build()
-
-        transitions += ActivityTransition.Builder()
-            .setActivityType(DetectedActivity.STILL)
-            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-            .build()
-
-        transitions += ActivityTransition.Builder()
-            .setActivityType(DetectedActivity.WALKING)
-            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-            .build()
-
-        transitions += ActivityTransition.Builder()
-            .setActivityType(DetectedActivity.STILL)
-            .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-            .build()
 
         if (carLayout.isSelected)
             transitions +=

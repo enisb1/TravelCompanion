@@ -7,8 +7,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.text.TextUtils
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.travelcompanion.MainActivity
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_BICYCLE
@@ -16,10 +14,6 @@ import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_RUNNING
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
 
 class ActivityRecognitionReceiver : BroadcastReceiver() {
 
@@ -29,21 +23,10 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-
-        Log.i("myreceiver", intent.toString())
-        //sendNotification(context, intent.action.toString())
-
-        if (!TextUtils.equals("TRANSITIONS_RECEIVER_ACTION", intent.getAction())) {
-
-            Log.i("myreceiver", "received intent with wrong action: " +
-                    intent.action
-            );
-            return;
-        }
-
         if (ActivityTransitionResult.hasResult(intent)) {
             val result = ActivityTransitionResult.extractResult(intent)!!
-            Log.i("myreceiver", result.transitionEvents.toString())
+            // result.transitionEvents = list with updates about the activity transition
+            // transitionEvent = last updated activity transition
             val transitionEvent = result.transitionEvents[result.transitionEvents.size - 1]
 
             val prefs = context.getSharedPreferences("goals", 0)   //TODO: change to name "settings"
@@ -51,39 +34,18 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             val trackBicycle = prefs.getBoolean(TRACK_BICYCLE, false)
             val trackRunning = prefs.getBoolean(TRACK_RUNNING, false)
 
-            for (event in result.transitionEvents) {
-                val info = "Transition: " + event.activityType +
-                        " (" + event.transitionType + ")" + "   " +
-                        SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
-
-                Log.i("myreceiver", info)
-            }
-
             when (transitionEvent.activityType) {
                 DetectedActivity.IN_VEHICLE -> {
                     if (trackCar)
-                        Log.i("myreceiver", "User started driving")
-                    sendNotification(context, "Driving")
+                        sendNotification(context, "Driving")
                 }
                 DetectedActivity.ON_BICYCLE -> {
                     if (trackBicycle)
-                        Log.i("myreceiver", "User started cycling")
-                    sendNotification(context, "Cycling")
+                        sendNotification(context, "Cycling")
                 }
                 DetectedActivity.RUNNING -> {
                     if (trackRunning)
-                        Log.i("myreceiver", "User started running")
-                    sendNotification(context, "Running")
-                }
-                DetectedActivity.WALKING -> {
-                    if (trackRunning)
-                        Log.i("myreceiver", "User started running")
-                    sendNotification(context, "Walking")
-                }
-                DetectedActivity.STILL -> {
-                    if (trackRunning)
-                        Log.i("myreceiver", "User started running")
-                    sendNotification(context, "Still")
+                        sendNotification(context, "Running")
                 }
             }
         }
