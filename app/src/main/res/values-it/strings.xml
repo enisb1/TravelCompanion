@@ -106,4 +106,17 @@
     <string name="selected_date">Data selezionata: %1$s/%2$s/%3$s</string>
     <string name="plan_dialog_start_date" translatable="false">%1$s/%2$s/%3$s</string>
     <string name="predicted_number_of_trips">Numero di viaggi previsti: %1$s</string>
+    <string name="predicted_distance">Distanza prevista: %1$.1f m</string>
+    <string name="legend_monthly_trips">Viaggi mensili</string>
+    <string name="legend_monthly_distance">Distanza mensile</string>
+    <string name="legend_moving_avg">Media mobile</string>
+    <string name="legend_prediction">Previsione</string>
+    <string name="recommendation_min_trips">Cerca di fare almeno 2 viaggi al mese per creare una buona abitudine!</string>
+    <string name="recommendation_consistency">Ottima costanza! La tua media è di %1$.1f viaggi al mese.</string>
+    <string name="recommendation_explore">Considera di esplorare nuove destinazioni per diversificare le tue esperienze di viaggio!</string>
+    <string name="recommendation_long_trips">Stai facendo viaggi lunghi. Continua così!</string>
+    <string name="recommendation_plan_long_trip">Pensa a organizzare un viaggio lungo per esplorare mete più lontane!</string>
+    <string name="recommendation_decline">Si prevede un calo dell\’attività di viaggio. Ecco alcune idee per nuovi viaggi: visita una città vicina, esplora un parco naturale o organizza una gita nel weekend!</string>
+    <string name="recommendation_increase_frequency">Prova ad aumentare la frequenza dei tuoi viaggi per mantenere alta la motivazione.</string>
+    <string name="recommendation_trend">In base alle tendenze, punta a circa %1$d viaggi il prossimo mese. La media attuale è di %2$.1f viaggi al mese.</string>
 </resources>

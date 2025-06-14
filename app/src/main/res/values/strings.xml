@@ -106,4 +106,17 @@
     <string name="selected_date">Selected Date: %1$s/%2$s/%3$s</string>
     <string name="plan_dialog_start_date" translatable="false">%1$s/%2$s/%3$s</string>
     <string name="predicted_number_of_trips">Predicted number of trips: %1$s</string>
+    <string name="predicted_distance">Predicted distance: %1$.1f m</string>
+    <string name="legend_monthly_trips">Monthly trips</string>
+    <string name="legend_monthly_distance">Monthly distance</string>
+    <string name="legend_moving_avg">Moving avg.</string>
+    <string name="legend_prediction">Prediction</string>
+    <string name="recommendation_min_trips">Try to go on at least 2 trips per month to build a good habit!</string>
+    <string name="recommendation_consistency">Great consistency! You are averaging %1$.1f trips per month.</string>
+    <string name="recommendation_explore">Consider exploring new destinations to diversify your travel experiences!</string>
+    <string name="recommendation_long_trips">You are going on long trips. Keep it up!</string>
+    <string name="recommendation_plan_long_trip">Consider planning a long trip to explore further destinations!</string>
+    <string name="recommendation_decline">A decline in travel activity is forecast. Here are some ideas for new trips: visit a nearby city, explore a natural park, or plan a weekend getaway!</string>
+    <string name="recommendation_increase_frequency">Try to increase the frequency of your trips to keep your motivation high.</string>
+    <string name="recommendation_trend">Based on trends, aim for ~%1$d trips next month. Current average is %2$.1f trips per month.</string>
 </resources>

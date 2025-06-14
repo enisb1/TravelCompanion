@@ -1,5 +1,8 @@
 package com.example.travelcompanion.ui.analysis_prediction.prediction
 
+import android.content.Context
+import android.provider.Settings.Global.getString
+import com.example.travelcompanion.R
 import com.example.travelcompanion.db.trip.Trip
 import java.util.Calendar
 import kotlin.math.pow
@@ -95,12 +98,7 @@ object PredictionUtils {
         return (slope * nextMonth + intercept).coerceAtLeast(0.0)
     }
 
-    fun predictNextMonthDistanceText(monthlyData: List<Pair<Int, Double>>): String {
-        val predictedDistance = predictNextMonthDistance(monthlyData)
-        return "Predicted distance: ${Math.round(predictedDistance * 10) / 10.0} m"
-    }
-
-    fun generateRecommendations(trips: List<Trip>): List<String> {
+    fun generateRecommendations(context: Context, trips: List<Trip>): List<String> {
         val messages = mutableListOf<String>()
 
         val byMonth = groupTripsByMonth(trips)
@@ -111,28 +109,26 @@ object PredictionUtils {
         val predicted = predictNextMonthTripCount(byMonth)
 
         if (avgTrips < 2) {
-            messages.add("Try to go on at least 2 trips per month to build a good habit!")
+            messages.add(context.getString(R.string.recommendation_min_trips))
         } else {
-            messages.add("Great consistency! You are averaging $avgTrips trips per month.")
+            messages.add(context.getString(R.string.recommendation_consistency, avgTrips))
         }
 
         if (distinctPlaces.size < 3) {
-            messages.add("Consider exploring new destinations to diversify your travel experiences!")
+            messages.add(context.getString(R.string.recommendation_explore))
         }
 
         if (longTrips > 0) {
-            messages.add("You are going on long trips. Keep it up!")
-        }
-        else {
-            messages.add("Consider planning a long trip to explore further destinations!")
+            messages.add(context.getString(R.string.recommendation_long_trips))
+        } else {
+            messages.add(context.getString(R.string.recommendation_plan_long_trip))
         }
 
-        // If predicted trips are below average, suggest new travel ideas
         if (predicted < avgTrips) {
-            messages.add("A decline in travel activity is forecast. Here are some ideas for new trips: visit a nearby city, explore a natural park, or plan a weekend getaway!")
-            messages.add("Try to increase the frequency of your trips to keep your motivation high.")
+            messages.add(context.getString(R.string.recommendation_decline))
+            messages.add(context.getString(R.string.recommendation_increase_frequency))
         } else {
-            messages.add("Based on trends, aim for ~$predicted trips next month. Current average is $avgTrips trips per month.")
+            messages.add(context.getString(R.string.recommendation_trend, predicted, avgTrips))
         }
 
         return messages
