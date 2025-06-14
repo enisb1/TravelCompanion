@@ -119,4 +119,9 @@
     <string name="recommendation_decline">A decline in travel activity is forecast. Here are some ideas for new trips: visit a nearby city, explore a natural park, or plan a weekend getaway!</string>
     <string name="recommendation_increase_frequency">Try to increase the frequency of your trips to keep your motivation high.</string>
     <string name="recommendation_trend">Based on trends, aim for ~%1$d trips next month. Current average is %2$.1f trips per month.</string>
+    <string name="duration_months_days">%1$d months %2$d days</string>
+    <string name="duration_days_hours">%1$d days %2$d hours</string>
+    <string name="duration_hours_minutes">%1$d hours %2$d minutes</string>
+    <string name="duration_minutes_seconds">%1$d minutes %2$d seconds</string>
+    <string name="duration_seconds">%1$d seconds</string>
 </resources>
