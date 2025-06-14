@@ -65,11 +65,9 @@ class ArchiveFragment : Fragment() {
         initializeViews(view)
         setListeners()
 
-        lifecycleScope.launch {
-            completedTrips = withContext(Dispatchers.IO) {
-                viewModel.getCompletedTrips()
-            }
-            val tripTitles: List<String> = completedTrips.map { it.title }
+        viewModel.completedTrips.observe(viewLifecycleOwner) { newCompletedTrips ->
+            completedTrips = newCompletedTrips
+            val tripTitles: List<String> = newCompletedTrips.map { it.title }
             setTripsToSpinner(tripTitles)
             tripSelectionSpinner.setSelection(viewModel.spinnerSelection)
             showGalleryOrNotes()
