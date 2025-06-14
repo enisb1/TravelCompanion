@@ -111,7 +111,12 @@ class PlannedTripsFragment : Fragment() {
                     selectedDate = Calendar.getInstance().apply {
                         set(selectedYear, selectedMonth, selectedDay)
                     }
-                    tvStart.text = "${selectedDay}/${selectedMonth + 1}/${selectedYear}"
+                    tvStart.text = getString(
+                        R.string.plan_dialog_start_date,
+                        selectedDay.toString(),
+                        (selectedMonth + 1).toString(),
+                        selectedYear.toString()
+                    )
                 },
                 year, month, day
             )
@@ -153,13 +158,13 @@ class PlannedTripsFragment : Fragment() {
             }
 
             tripViewModel.updatePlan(trip)
-            Toast.makeText(requireContext(), "Trip updated", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.trip_updated), Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
             tripViewModel.deletePlan(trip)
-            Toast.makeText(requireContext(), "Trip deleted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.trip_deleted), Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }

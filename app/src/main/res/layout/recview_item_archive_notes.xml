@@ -27,7 +27,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black"
-                android:text="Note title:"/>
+                android:text="@string/note_title1"/>
 
             <TextView
                 android:id="@+id/note_title"
@@ -52,7 +52,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black"
-                android:text="Trip title:"/>
+                android:text="@string/trip_title1"/>
 
             <TextView
                 android:id="@+id/trip_title"
@@ -77,7 +77,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black"
-                android:text="Trip destination:"/>
+                android:text="@string/trip_destination1"/>
 
             <TextView
                 android:id="@+id/trip_destination"
@@ -102,7 +102,7 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="@color/black"
-                android:text="Date:"/>
+                android:text="@string/date"/>
 
             <TextView
                 android:id="@+id/note_date"

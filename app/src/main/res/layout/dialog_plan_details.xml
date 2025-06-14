@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:text="Title"
+                android:text="@string/title"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_weight="1"
-                    android:hint="Destination">
+                    android:hint="@string/destination">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etDetailDestination"
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_weight="1"
-                    android:text="Start date"
+                    android:text="@string/start_date"
                     android:textSize="16sp"
                     android:textColor="@color/black" />
             </LinearLayout>
@@ -120,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Start trip"
+                android:text="@string/start_trip"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             <Button
@@ -128,7 +128,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Edit trip"
+                android:text="@string/edit_trip"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             <Button
@@ -136,7 +136,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Delete trip"
+                android:text="@string/delete_trip"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
         </LinearLayout>
     </ScrollView>

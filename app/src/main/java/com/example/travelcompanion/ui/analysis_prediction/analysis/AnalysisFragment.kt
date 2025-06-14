@@ -119,7 +119,7 @@ class AnalysisFragment : Fragment() {
             // total distance
             val totalDistance = getTotalDistance(completedTrips)
             // TODO: check if metres is the correct measure unit and if sum is correct
-            totalDistanceTxtView.text = totalDistance.toString() + " " + getString(R.string.kilometres)
+            totalDistanceTxtView.text = getString(R.string.tot_dist_km, totalDistance.toString())
 
             // travel frequency
             val travelFrequency = formatDuration(estimateTravelFrequency(completedTrips))
@@ -289,11 +289,11 @@ class AnalysisFragment : Fragment() {
         val months = days / 30  // Approximation: 30 days = 1 month
 
         return when {
-            months > 0 -> "$months months ${days % 30} days"
-            days > 0 -> "$days days ${hours % 24} hours"
-            hours > 0 -> "$hours hours ${minutes % 60} minutes"
-            minutes > 0 -> "$minutes minutes ${seconds % 60} seconds"
-            else -> "$seconds seconds"
+            months > 0 -> getString(R.string.duration_months_days, months, days % 30)
+            days > 0 -> getString(R.string.duration_days_hours, days, hours % 24)
+            hours > 0 -> getString(R.string.duration_hours_minutes, hours, minutes % 60)
+            minutes > 0 -> getString(R.string.duration_minutes_seconds, minutes, seconds % 60)
+            else -> getString(R.string.duration_seconds, seconds)
         }
     }
 

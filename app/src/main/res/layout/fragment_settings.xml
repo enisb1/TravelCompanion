@@ -15,35 +15,35 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Objective for number of monthly trips" />
+            android:text="@string/objective_for_number_of_monthly_trips" />
 
         <EditText
             android:id="@+id/etMonthlyTripsGoal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Number of trips"
+            android:hint="@string/number_of_trips"
             android:inputType="number"
-            android:saveEnabled="false" />
+            android:saveEnabled="false"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Objective for monthly distance (m)" />
+            android:text="@string/objective_for_monthly_distance_m" />
 
         <EditText
             android:id="@+id/etMonthlyDistanceGoal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Distance in meters"
+            android:hint="@string/distance_in_meters"
             android:inputType="number"
-            android:saveEnabled="false" />
+            android:saveEnabled="false"/>
       
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="When would you like to be notified to start tracking?"/>
+            android:text="@string/when_would_you_like_to_be_notified_to_start_tracking"/>
 
         <LinearLayout
             android:id="@+id/imageSelectorLayout"
@@ -59,7 +59,7 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/image_selector_background"
                 android:padding="10dp">
 
@@ -76,7 +76,7 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/image_selector_background"
                 android:padding="10dp">
 
@@ -93,7 +93,7 @@
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_weight="1"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/image_selector_background"
                 android:padding="10dp">
 
@@ -117,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="Days of inactivity for reminder:" />
+                android:text="@string/days_of_inactivity_for_reminder" />
 
             <NumberPicker
                 android:id="@+id/np_inactivity_days"
@@ -130,7 +130,7 @@
             android:id="@+id/btnSaveGoals"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="@string/save1"
             android:layout_marginTop="16dp"/>
     </LinearLayout>
 </ScrollView>

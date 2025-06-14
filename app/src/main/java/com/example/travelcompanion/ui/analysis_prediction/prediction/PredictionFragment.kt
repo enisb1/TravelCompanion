@@ -1,8 +1,10 @@
 package com.example.travelcompanion.ui.analysis_prediction.prediction
 
 import android.app.AlertDialog
+import android.graphics.Color
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.provider.Settings.Global
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.Trip
-import com.example.travelcompanion.ui.analysis_prediction.prediction.PredictionUtils.predictNextMonthDistanceText
 import com.example.travelcompanion.ui.home.plan.CompletedTripViewModelFactory
 import com.example.travelcompanion.ui.home.plan.TripViewModel
 import com.github.mikephil.charting.charts.LineChart
@@ -22,6 +23,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.example.travelcompanion.ui.analysis_prediction.CustomMarkerView
+import com.example.travelcompanion.ui.analysis_prediction.prediction.PredictionUtils.predictNextMonthDistance
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.LegendEntry
 import java.util.Calendar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -147,7 +151,14 @@ class PredictionFragment : Fragment() {
                 updateViews()
                 updateChart()
                 updateDistanceChartAndForecast()
-                Toast.makeText(this.context, if (selectedYear == null) "Filter: All" else "Filter by year: $selectedYear", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this.context,
+                    if (selectedYear == null)
+                        getString(R.string.filter_all)
+                    else
+                        getString(R.string.filter_by_year1, selectedYear.toString()),
+                    Toast.LENGTH_SHORT
+                ).show()
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
@@ -159,9 +170,12 @@ class PredictionFragment : Fragment() {
         val grouped = PredictionUtils.groupTripsByMonth(trips)
         val predictedCount = PredictionUtils.predictNextMonthTripCount(grouped)
         lastPredictedCount = predictedCount
-        val recommendations = PredictionUtils.generateRecommendations(trips)
+        val recommendations = PredictionUtils.generateRecommendations(
+            requireContext(),
+            trips
+        )
 
-        tvForecast.text = "Predicted number of trips: $predictedCount"
+        tvForecast.text = getString(R.string.predicted_number_of_trips, predictedCount.toString())
 
         tvRecommendations.text = recommendations.joinToString("\n") { "- $it" }
 
@@ -172,9 +186,11 @@ class PredictionFragment : Fragment() {
 
         if (trips.isEmpty()) {
             scrollView.visibility = View.GONE
+            fabFilterYear.visibility = View.GONE
             noTripsLayout.visibility = View.VISIBLE
         } else {
             scrollView.visibility = View.VISIBLE
+            fabFilterYear.visibility = View.VISIBLE
             noTripsLayout.visibility = View.GONE
         }
 
@@ -200,19 +216,19 @@ class PredictionFragment : Fragment() {
             Entry(index.toFloat(), value)
         }
 
-        val dataSet = LineDataSet(entries, "Monthly trips")
+        val dataSet = LineDataSet(entries, "")
         dataSet.color = android.graphics.Color.BLUE
         dataSet.setDrawValues(false)
         dataSet.setDrawCircles(true)
 
-        val movingAvgSet = LineDataSet(movingAvgEntries, "Moving Average (3 months)")
+        val movingAvgSet = LineDataSet(movingAvgEntries, "")
         movingAvgSet.color = android.graphics.Color.RED
         movingAvgSet.setDrawCircles(false)
         movingAvgSet.setDrawValues(false)
         movingAvgSet.lineWidth = 2f
 
         // DataSet for prediction
-        val predictionSet = LineDataSet(listOf(predictedEntry), "Prediction")
+        val predictionSet = LineDataSet(listOf(predictedEntry), "")
         predictionSet.color = android.graphics.Color.GREEN
         predictionSet.setDrawCircles(true)
         predictionSet.setDrawValues(true)
@@ -220,8 +236,33 @@ class PredictionFragment : Fragment() {
         predictionSet.setCircleColor(android.graphics.Color.GREEN)
         predictionSet.lineWidth = 0f // No line for prediction
 
-        val lineData = LineData(dataSet, movingAvgSet, predictionSet)
-        lineChart.data = lineData
+        val legend = lineChart.legend
+        // remove last entry from legend
+        legend.setCustom(
+            listOf(
+                LegendEntry(getString(R.string.legend_monthly_trips), Legend.LegendForm.SQUARE, 10f, 2f, null, Color.BLUE),
+                LegendEntry(getString(R.string.legend_moving_avg), Legend.LegendForm.SQUARE, 10f, 2f, null, android.graphics.Color.RED),
+                LegendEntry(getString(R.string.legend_prediction), Legend.LegendForm.SQUARE, 10f, 2f, null, android.graphics.Color.GREEN)
+            )
+        )
+
+        if (entries.isNotEmpty()) {
+            val lastEntry = entries.last()
+            val connectingSet = LineDataSet(listOf(lastEntry, predictedEntry), "")
+            connectingSet.color = android.graphics.Color.GREEN
+            connectingSet.setDrawCircles(false)
+            connectingSet.setDrawValues(false)
+            connectingSet.enableDashedLine(10f, 10f, 0f)
+            connectingSet.lineWidth = 2f
+
+            val lineData = LineData(dataSet, movingAvgSet, predictionSet, connectingSet)
+            lineChart.data = lineData
+        } else {
+            val lineData = LineData(dataSet, movingAvgSet, predictionSet)
+            lineChart.data = lineData
+        }
+
+
         lineChart.description.isEnabled = false
 
         val months = grouped.map { monthIndexToString(it.first) } +
@@ -258,19 +299,19 @@ class PredictionFragment : Fragment() {
             Entry(index.toFloat(), value)
         }
 
-        val dataSet = LineDataSet(entries, "Monthly distance (m)")
+        val dataSet = LineDataSet(entries, "")
         dataSet.color = android.graphics.Color.BLUE
         dataSet.setDrawValues(false)
         dataSet.setDrawCircles(true)
 
-        val movingAvgSet = LineDataSet(movingAvgEntries, "Average monthly distance (m)")
+        val movingAvgSet = LineDataSet(movingAvgEntries, "")
         movingAvgSet.color = android.graphics.Color.RED
         movingAvgSet.setDrawCircles(false)
         movingAvgSet.setDrawValues(false)
         movingAvgSet.lineWidth = 2f
 
         // DataSet for prediction
-        val predictionSet = LineDataSet(listOf(predictedEntry), "Prediction")
+        val predictionSet = LineDataSet(listOf(predictedEntry), "")
         predictionSet.color = android.graphics.Color.GREEN
         predictionSet.setDrawCircles(true)
         predictionSet.setDrawValues(true)
@@ -278,12 +319,35 @@ class PredictionFragment : Fragment() {
         predictionSet.setCircleColor(android.graphics.Color.GREEN)
         predictionSet.lineWidth = 0f // No line for prediction
 
-        val lineData = LineData(dataSet, movingAvgSet, predictionSet)
-        lineChartDistance.data = lineData
+        val legend = lineChartDistance.legend
+        // remove last entry from legend
+        legend.setCustom(
+            listOf(
+                LegendEntry(getString(R.string.legend_monthly_distance), Legend.LegendForm.SQUARE, 10f, 2f, null, Color.BLUE),
+                LegendEntry(getString(R.string.legend_moving_avg), Legend.LegendForm.SQUARE, 10f, 2f, null, android.graphics.Color.RED),
+                LegendEntry(getString(R.string.legend_prediction), Legend.LegendForm.SQUARE, 10f, 2f, null, android.graphics.Color.GREEN)
+            )
+        )
+
+        if (entries.isNotEmpty()) {
+            val lastEntry = entries.last()
+            val connectingSet = LineDataSet(listOf(lastEntry, predictedEntry), "")
+            connectingSet.color = android.graphics.Color.GREEN
+            connectingSet.setDrawCircles(false)
+            connectingSet.setDrawValues(false)
+            connectingSet.enableDashedLine(10f, 10f, 0f)
+            connectingSet.lineWidth = 2f
+
+            val lineData = LineData(dataSet, movingAvgSet, predictionSet, connectingSet)
+            lineChartDistance.data = lineData
+        } else {
+            val lineData = LineData(dataSet, movingAvgSet, predictionSet)
+            lineChartDistance.data = lineData
+        }
+
         lineChartDistance.description.isEnabled = false
 
-        val months = grouped.map { monthIndexToString(it.first) } +
-                listOf("Next")
+        val months = grouped.map { monthIndexToString(it.first) } + listOf("Next")
         lineChartDistance.xAxis.valueFormatter = IndexAxisValueFormatter(months)
         lineChartDistance.xAxis.granularity = 1f
         lineChartDistance.xAxis.labelRotationAngle = -45f
@@ -291,9 +355,9 @@ class PredictionFragment : Fragment() {
 
         lineChartDistance.invalidate()
 
-        val predictedDistanceText = predictNextMonthDistanceText(grouped)
-        tvDistanceForecast.text = predictedDistanceText
-    }
+        tvDistanceForecast.text = getString(R.string.predicted_distance, predictNextMonthDistance(grouped))
+        }
+
 
     private fun checkObjectives(predictedTrips: Int, predictedDistance: Double) {
         val prefs = requireContext().getSharedPreferences("settings", 0)

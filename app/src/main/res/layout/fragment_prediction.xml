@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:paddingTop="8dp"
-                android:text="Recommendations"
+                android:text="@string/recommendations"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Trend for Number of Trips"
+                android:text="@string/trend_for_number_of_trips"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -79,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Trend for Monthly Distance"
+                android:text="@string/trend_for_monthly_distance"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -131,7 +131,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="24dp"
-        android:contentDescription="Filter by year"
+        android:contentDescription="@string/filter_by_year"
         android:src="@drawable/outline_filter_alt_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -141,7 +141,7 @@
         android:layout_gravity="top|end"
         android:layout_margin="24dp"
         android:backgroundTint="@android:color/holo_red_dark"
-        android:contentDescription="Objective not met"
+        android:contentDescription="@string/objective_not_met"
         android:src="@drawable/outline_exclamation_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

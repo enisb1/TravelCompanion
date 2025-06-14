@@ -67,7 +67,12 @@ class PlanFragment : Fragment() {
                     selectedDate = Calendar.getInstance().apply {
                         set(selectedYear, selectedMonth, selectedDay)
                     }
-                    pickDateButton.text = "Selected Date: ${selectedDay}/${selectedMonth + 1}/${selectedYear}"
+                    pickDateButton.text = getString(
+                        R.string.selected_date,
+                        selectedDay.toString(),
+                        (selectedMonth + 1).toString(),
+                        selectedYear.toString()
+                    )
                 },
                 year, month, day
             )
@@ -97,14 +102,14 @@ class PlanFragment : Fragment() {
             }
             Toast.makeText(
                 requireContext(),
-                "Plan created successfully",
+                getString(R.string.plan_created_successfully),
                 Toast.LENGTH_SHORT
             ).show()
             clearInput()
         } else {
             Toast.makeText(
                 requireContext(),
-                "Please fill all fields",
+                getString(R.string.please_fill_all_fields),
                 Toast.LENGTH_SHORT
             ).show()
         }
