@@ -39,6 +39,8 @@ import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripType
+import com.example.travelcompanion.ui.journal.list.JournalListFragment
+import com.example.travelcompanion.ui.journal.list.JournalListFragment.Companion
 import com.example.travelcompanion.ui.journal.list.JournalListFragment.Companion.all_trips_label
 
 class MapFragment : Fragment() {
@@ -66,6 +68,7 @@ class MapFragment : Fragment() {
     private lateinit var noTripsLayout: ConstraintLayout
     private lateinit var filterSpinner: Spinner
     private lateinit var linearLayoutMapFilter: LinearLayout
+    private lateinit var noTripsLayoutMessage: TextView
 
     private lateinit var allLocations: List<TripLocation>
     private lateinit var locationsTypeLocal: List<TripLocation>
@@ -133,8 +136,6 @@ class MapFragment : Fragment() {
             }
         }
 
-        //TODO: bisogna mantenere livedata per le trips per con la delete non si tolgono dallo spinner
-
     }
 
     private fun showSelectedTypeOfTrips() {
@@ -152,14 +153,28 @@ class MapFragment : Fragment() {
             .values
             .map { it.sortedBy { location -> location.timestamp } }
         Log.i("trips", locationsPerTrip.toString())
-        if (locationsPerTrip.isNotEmpty()) {
+        if (locationsPerTrip.isNotEmpty()) {    // draw and show map
             drawMap(locationsPerTrip)
+            titleTxtView.visibility = View.VISIBLE
+            linearLayoutMapFilter.visibility = View.VISIBLE
+            mapFrameLayout.visibility = View.VISIBLE
+            noTripsLayout.visibility = View.GONE
         }
-        else {
-            titleTxtView.visibility = View.GONE
-            linearLayoutMapFilter.visibility = View.GONE
+        else {  // hide map and show no trips layout
+            if (allLocations.isEmpty()) {
+                titleTxtView.visibility = View.GONE
+                linearLayoutMapFilter.visibility = View.GONE
+            }
             mapFrameLayout.visibility = View.GONE
             noTripsLayout.visibility = View.VISIBLE
+            if (viewModel.spinnerSelection != 0) {
+                noTripsLayoutMessage.text = getString(
+                    R.string.looks_like_you_have_not_completed_any_type_trips_yet,
+                    filterSpinner.selectedItem
+                )
+            } else {
+                noTripsLayoutMessage.setText(R.string.looks_like_you_have_not_completed_any_trips_yet)
+            }
         }
     }
 
@@ -168,6 +183,7 @@ class MapFragment : Fragment() {
         parentConstraintLayout = view.findViewById(R.id.journal_map_constraint_layout)
         mapFrameLayout = view.findViewById(R.id.journal_map_frame)
         noTripsLayout = view.findViewById(R.id.no_trips_constraint_planned)
+        noTripsLayoutMessage = noTripsLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
         filterSpinner = view.findViewById(R.id.spinnerJournalMapTripType)
         linearLayoutMapFilter = view.findViewById(R.id.linearLayoutMapFilter)
         viewPager = requireParentFragment().requireView().findViewById(R.id.journal_viewPager)
