@@ -1,5 +1,6 @@
 package com.example.travelcompanion.db.locations
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -12,7 +13,7 @@ interface TripLocationDao {
     fun insertLocation(tripLocation: TripLocation)
 
     @Query("SELECT * FROM  locations_table")
-    fun getLocations(): List<TripLocation>
+    fun getLocations(): LiveData<List<TripLocation>>
 
     @Query("SELECT * FROM locations_table WHERE trip_id = :tripId")
     fun getLocationsByTripId(tripId: Long): List<TripLocation>

@@ -1,5 +1,6 @@
 package com.example.travelcompanion.ui.journal.map
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.db.TravelCompanionRepository
@@ -10,9 +11,8 @@ import com.example.travelcompanion.db.trip.TripType
 class MapViewModel(private val repository: TravelCompanionRepository): ViewModel() {
     var spinnerSelection: Int = 0
 
-    fun getLocations(): List<TripLocation> {
-        return repository.getLocations()
-    }
+    private val _allLocations: LiveData<List<TripLocation>> = repository.getLocations()
+    val allLocations: LiveData<List<TripLocation>> = _allLocations
 
     fun getLocationsByTripType(type: TripType): List<TripLocation> {
         return repository.getLocationsByTripType(type)

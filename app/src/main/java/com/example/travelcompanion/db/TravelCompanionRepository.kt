@@ -74,8 +74,6 @@ class TravelCompanionRepository(app: Application) {
             }
 
             tripDao.deleteTrip(trip)
-
-            // TODO: update the shown notes and pictures in the Archive fragment
         }
     }
 
@@ -107,7 +105,7 @@ class TravelCompanionRepository(app: Application) {
     
     // -------------------- LOCATIONS --------------------
 
-    fun getLocations(): List<TripLocation> {
+    fun getLocations(): LiveData<List<TripLocation>> {
         return tripLocationDao.getLocations()
     }
 

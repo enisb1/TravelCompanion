@@ -22,6 +22,7 @@ import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.ui.home.plan.CompletedTripViewModelFactory
 import com.example.travelcompanion.ui.home.plan.TripViewModel
+import com.example.travelcompanion.ui.journal.archive.ArchiveFragment
 
 class JournalListFragment : Fragment() {
     private lateinit var tripViewModel: TripViewModel
@@ -173,6 +174,7 @@ class JournalListFragment : Fragment() {
         val btnDelete = dialogView.findViewById<Button>(R.id.btnDeleteTrip)
         btnDelete.setOnClickListener {
             tripViewModel.deleteTrip(trip)
+            ArchiveFragment.deletedTrip = true
             dialog.dismiss()
             Toast.makeText(requireContext(), R.string.trip_deleted, Toast.LENGTH_SHORT).show()
         }

@@ -116,21 +116,25 @@ class MapFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        lifecycleScope.launch {
-            allLocations = withContext(Dispatchers.IO) {
-                viewModel.getLocations()
+        // observe changes and update locations to show on map
+        viewModel.allLocations.observe(viewLifecycleOwner) { newAllLocations ->
+            allLocations = newAllLocations
+            lifecycleScope.launch {
+                locationsTypeLocal = withContext(Dispatchers.IO) {
+                    viewModel.getLocationsByTripType(TripType.LOCAL)
+                }
+                locationsTypeOneDay = withContext(Dispatchers.IO) {
+                    viewModel.getLocationsByTripType(TripType.ONEDAY)
+                }
+                locationsTypeMultiDay = withContext(Dispatchers.IO) {
+                    viewModel.getLocationsByTripType(TripType.MULTIDAY)
+                }
+                showSelectedTypeOfTrips()
             }
-            locationsTypeLocal = withContext(Dispatchers.IO) {
-                viewModel.getLocationsByTripType(TripType.LOCAL)
-            }
-            locationsTypeOneDay = withContext(Dispatchers.IO) {
-                viewModel.getLocationsByTripType(TripType.ONEDAY)
-            }
-            locationsTypeMultiDay = withContext(Dispatchers.IO) {
-                viewModel.getLocationsByTripType(TripType.MULTIDAY)
-            }
-            showSelectedTypeOfTrips()
         }
+
+        //TODO: bisogna mantenere livedata per le trips per con la delete non si tolgono dallo spinner
+
     }
 
     private fun showSelectedTypeOfTrips() {

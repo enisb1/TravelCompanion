@@ -124,7 +124,7 @@ class TrackingService : Service() {
             .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.tracking_service_notification_description))
-            .setSmallIcon(R.drawable.ic_stop)   //TODO: replace with app's icon
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)  // reduces delay in showing the notification
             .build()

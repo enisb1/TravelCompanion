@@ -35,6 +35,7 @@ class ArchiveFragment : Fragment() {
 
     companion object {
         const val SHOW_ALL_DATA_CODE = 0L
+        var deletedTrip = false
     }
 
     private lateinit var viewModel: ArchiveViewModel
@@ -65,10 +66,13 @@ class ArchiveFragment : Fragment() {
         initializeViews(view)
         setListeners()
 
+        // observe changes
         viewModel.completedTrips.observe(viewLifecycleOwner) { newCompletedTrips ->
             completedTrips = newCompletedTrips
             val tripTitles: List<String> = newCompletedTrips.map { it.title }
             setTripsToSpinner(tripTitles)
+            if (deletedTrip)    // if a trip was deleted reset spinner to 'All' to avoid errors with saved position
+                viewModel.spinnerSelection = 1
             tripSelectionSpinner.setSelection(viewModel.spinnerSelection)
             showGalleryOrNotes()
             updateGalleryOrNotes()
