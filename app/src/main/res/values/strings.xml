@@ -17,7 +17,6 @@
     <string name="fine_location_permission_denied">Fine location permission is required to track your trip</string>
     <string name="stop_tracking_trip">Stop tracking trip</string>
     <string name="start_fragment_title">TRACKING YOUR TRIP</string>
-    <string name="tracking_service_notification_description">We are tracking your trip! Go back to the app to see your path</string>
     <string name="take_a_photo">Take a photo</string>
     <string name="set_new_note">Set a new note</string>
     <string name="add_note">Add note</string>
@@ -98,8 +97,8 @@
     <string name="trip_destination1">Trip destination:</string>
     <string name="date">Date:</string>
     <string name="tot_dist_km" translatable="false">%1$s km</string>
-    <string name="it_looks_like_no_pictures_have_been_taken">It looks like no pictures have been taken!</string>
-    <string name="it_looks_like_no_notes_have_been_written">It looks like no notes have been written!</string>
+    <string name="it_looks_like_no_pictures_have_been_taken">Looks like no pictures have been taken!</string>
+    <string name="it_looks_like_no_notes_have_been_written">Looks like no notes have been written!</string>
     <string name="marker_value" translatable="false">Value: %1$s</string>
     <string name="trip_dist_m" translatable="false">%1$s m</string>
     <string name="trip_duration_s" translatable="false">%1$s s</string>
@@ -140,4 +139,6 @@
     <string name="destination_needed">Destination is needed</string>
     <string name="title_and_note_needed">Title and note content are needed</string>
     <string name="note_added_to_trip">Note added to trip</string>
+    <string name="tracking_your_trip">Tracking your trip!</string>
+    <string name="go_back_to_the_app_to_see_your_path">Go back to the app to see your path</string>
 </resources>

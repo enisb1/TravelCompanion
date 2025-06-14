@@ -122,8 +122,8 @@ class TrackingService : Service() {
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.tracking_service_notification_description))
+            .setContentTitle(getString(R.string.tracking_your_trip))
+            .setContentText(getString(R.string.go_back_to_the_app_to_see_your_path))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)  // reduces delay in showing the notification

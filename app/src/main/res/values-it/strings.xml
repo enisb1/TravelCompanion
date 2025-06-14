@@ -17,7 +17,6 @@
     <string name="fine_location_permission_denied">Il permesso di localizzazione precisa è necessario per tracciare il tuo viaggio</string>
     <string name="stop_tracking_trip">Ferma il tracciamento del viaggio</string>
     <string name="start_fragment_title">TRACCIAMENTO DEL TUO VIAGGIO</string>
-    <string name="tracking_service_notification_description">Stiamo tracciando il tuo viaggio! Torna all\'app per vedere il percorso</string>
     <string name="take_a_photo">Scatta una foto</string>
     <string name="set_new_note">Aggiungi una nuova nota</string>
     <string name="add_note">Aggiungi nota</string>
@@ -140,4 +139,6 @@
     <string name="destination_needed">Destinazione è richiesta</string>
     <string name="title_and_note_needed">Nota deve avere titolo e contenuto</string>
     <string name="note_added_to_trip">Nota aggiunta al viaggio</string>
+    <string name="tracking_your_trip">Tracciando il tuo percorso!</string>
+    <string name="go_back_to_the_app_to_see_your_path">Torna all\'app per vedere il tuo tragitto</string>
 </resources>
