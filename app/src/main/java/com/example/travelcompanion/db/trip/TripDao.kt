@@ -13,10 +13,10 @@ interface TripDao {
     fun insertTrip(trip: Trip): Long
 
     @Update
-    suspend fun updateTrip(trip: Trip)
+    fun updateTrip(trip: Trip)
 
     @Delete
-    suspend fun deleteTrip(trip: Trip)
+    fun deleteTrip(trip: Trip)
 
     @Query("SELECT * FROM trip_table")
     fun getAllTrips(): LiveData<List<Trip>>
@@ -32,4 +32,7 @@ interface TripDao {
 
     @Query("SELECT * FROM trip_table WHERE trip_state = \"COMPLETED\" AND trip_start_date BETWEEN :startDate AND :endDate AND trip_end_date BETWEEN :startDate AND :endDate ORDER BY trip_start_date ASC")
     suspend fun getTripsByDateRange(startDate: Long, endDate: Long): List<Trip>
+
+    @Query("SELECT DISTINCT trip_destination FROM trip_table WHERE trip_destination IS NOT NULL AND trip_destination != ''")
+    suspend fun getDistinctDestinations(): List<String>
 }

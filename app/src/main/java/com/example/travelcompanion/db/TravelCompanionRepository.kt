@@ -62,14 +62,32 @@ class TravelCompanionRepository(app: Application) {
     }
 
     fun updateTrip(trip: Trip) {
-        GlobalScope.launch {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
             tripDao.updateTrip(trip)
         }
     }
 
     fun deleteTrip(trip: Trip) {
-        GlobalScope.launch {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+
+            val notes = noteDao.getNotesByTripId(trip.id)
+            for (note in notes) {
+                noteDao.deleteNote(note)
+            }
+
+            val pictures = pictureDao.getPicturesByTripId(trip.id)
+            for (picture in pictures) {
+                pictureDao.deletePicture(picture)
+            }
+
+            val locations = tripLocationDao.getLocationsByTripId(trip.id)
+            for (location in locations) {
+                tripLocationDao.deleteLocation(location)
+            }
+
             tripDao.deleteTrip(trip)
+
+            // TODO: update the shown notes and pictures in the Archive fragment
         }
     }
 
@@ -93,6 +111,10 @@ class TravelCompanionRepository(app: Application) {
     // Not sure this will work
     suspend fun getTripsByDateRange(startDate: Long, endDate: Long): List<Trip> {
         return tripDao.getTripsByDateRange(startDate, endDate)
+    }
+
+    suspend fun getDistinctDestinations(): List<String> {
+        return tripDao.getDistinctDestinations()
     }
 
     // -------------------- NOTES --------------------

@@ -9,12 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +26,7 @@ import com.example.travelcompanion.ui.home.plan.TripViewModel
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
 import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
+import com.example.travelcompanion.util.setupDestinationAutoComplete
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Calendar
 
@@ -92,8 +95,9 @@ class PlannedTripsFragment : Fragment() {
         val tvTitle = dialogView.findViewById<TextView>(R.id.tvDetailTitle)
         tvTitle.text = trip.title
 
-        val etDestination = dialogView.findViewById<EditText>(R.id.etDetailDestination)
+        val etDestination = dialogView.findViewById<AutoCompleteTextView>(R.id.etDetailDestination)
         etDestination.setText(trip.destination)
+        setupDestinationAutoComplete(requireContext(), etDestination, tripViewModel, viewLifecycleOwner.lifecycleScope)
 
         val tvStart = dialogView.findViewById<TextView>(R.id.tvDetailStart)
         tvStart.text = SimpleDateFormat("d/M/yyyy").format(trip.startTimestamp)
@@ -163,7 +167,7 @@ class PlannedTripsFragment : Fragment() {
             displayPlanList()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
-            tripViewModel.deletePlan(trip)
+            tripViewModel.deleteTrip(trip)
             Toast.makeText(requireContext(), getString(R.string.trip_deleted), Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
