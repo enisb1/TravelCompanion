@@ -116,7 +116,7 @@ class SettingsFragment : Fragment() {
                 // Turn off reminder
                 WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")
                 saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
-                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             } else {
                 // Requests notification permission if not already granted
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -177,12 +177,11 @@ class SettingsFragment : Fragment() {
         ) @SuppressLint("MissingPermission") { isGranted ->
             if (isGranted) {
                 startNewActivityRecognition()
-                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             }
             else {
                 clearActivityRecognitionTrackingChoices()
-                Toast.makeText(requireContext(), "Activity recognition not possible due " +
-                        "to missing permissions", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.activity_recognition_permission_missing), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -198,9 +197,9 @@ class SettingsFragment : Fragment() {
                     activityRecognitionSet = false
                 }
                 else
-                    Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Notification permission is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.notification_permission_required), Toast.LENGTH_SHORT).show()
                 numberPicker.value = 0  // reset inactivity days number picker
                 clearActivityRecognitionTrackingChoices()   // reset selection of tracking choices
             }
@@ -224,11 +223,11 @@ class SettingsFragment : Fragment() {
                 activityRecognitionPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
             } else {
                 startNewActivityRecognition()
-                Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
             }
         } else {    // no runtime permission needed
             startNewActivityRecognition()
-            Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
         }
     }
 

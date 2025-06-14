@@ -167,7 +167,7 @@ class StartFragment : Fragment() {
             if (granted) {
                 viewModel.startTrip()
             } else {
-                Toast.makeText(activity, "Notification permission is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, getString(R.string.notification_permission_required), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -177,7 +177,7 @@ class StartFragment : Fragment() {
             if (granted) {
                 takePicture()
             } else {
-                Toast.makeText(activity, "Camera permission is required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, getString(R.string.camera_permission_required), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -193,96 +193,96 @@ class StartFragment : Fragment() {
                 if (currentPictureFile.exists()) {
                     currentPictureFile.delete()
                 }
-                Toast.makeText(requireContext(), "Photo capture cancelled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.photo_capture_cancelled), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
-        lifecycleScope.launch {
-            val tripId = withContext(Dispatchers.IO) {
-                viewModel.saveTrip(title, viewModel.start, tripType,
-                    tripDestination, TripState.COMPLETED)
-            }
-            viewModel.notes.forEach {
-                it.tripId = tripId
-                viewModel.saveNote(it)
-            }
-            viewModel.pictures.forEach {
-                it.tripId = tripId
-                viewModel.savePicture(it)
-            }
-            viewModel.saveLocations(tripId)
+        private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
+            lifecycleScope.launch {
+                val tripId = withContext(Dispatchers.IO) {
+                    viewModel.saveTrip(title, viewModel.start, tripType,
+                        tripDestination, TripState.COMPLETED)
+                }
+                viewModel.notes.forEach {
+                    it.tripId = tripId
+                    viewModel.saveNote(it)
+                }
+                viewModel.pictures.forEach {
+                    it.tripId = tripId
+                    viewModel.savePicture(it)
+                }
+                viewModel.saveLocations(tripId)
 
-            resetToStart()
-            Toast.makeText(requireContext(), "Trip completed!", Toast.LENGTH_SHORT).show()
-            val prefs = requireContext().getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
-            prefs.edit().putLong("last_journey_time", System.currentTimeMillis()).apply()
-            //stop foreground tracking service
-            val stopIntent = Intent(requireContext(), TrackingService::class.java)
-            stopIntent.action = TrackingService.ACTION_STOP
-            requireContext().startService(stopIntent)
+                resetToStart()
+                Toast.makeText(requireContext(), getString(R.string.trip_completed), Toast.LENGTH_SHORT).show()
+                val prefs = requireContext().getSharedPreferences("settings", android.content.Context.MODE_PRIVATE)
+                prefs.edit().putLong("last_journey_time", System.currentTimeMillis()).apply()
+                //stop foreground tracking service
+                val stopIntent = Intent(requireContext(), TrackingService::class.java)
+                stopIntent.action = TrackingService.ACTION_STOP
+                requireContext().startService(stopIntent)
+            }
         }
-    }
 
-    private fun buildDialogs() {
-        // --- stop dialog ---
-        val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
-        val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
-        val titleEditText: EditText = dialogStopView.findViewById(R.id.titleEditTextStopTracking)
-        val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+        private fun buildDialogs() {
+            // --- stop dialog ---
+            val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
+            val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
+            val titleEditText: EditText = dialogStopView.findViewById(R.id.titleEditTextStopTracking)
+            val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
 
-        // Configure spinner
-        val types = TripType.entries.map { it.name }
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        tripTypeSpinner.adapter = adapter
+            // Configure spinner
+            val types = TripType.entries.map { it.name }
+            val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, types)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            tripTypeSpinner.adapter = adapter
 
-        stopDialog = AlertDialog.Builder(requireContext())
-            .setView(dialogStopView)
-            .setPositiveButton(getString(R.string.add)) { _, _ ->
-                val destination = destinationEditText.text.toString()
-                val titleInput = titleEditText.text.toString()
-                if (titleInput.isEmpty())
-                    Toast.makeText(requireContext(), "Title is needed", Toast.LENGTH_SHORT).show()
-                else if (destination.isEmpty())
-                    Toast.makeText(requireContext(), "Destination is needed", Toast.LENGTH_SHORT).show()
-                else {
-                    endTrip(
-                        title = titleInput,
-                        TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
-                        destination
-                    )
+            stopDialog = AlertDialog.Builder(requireContext())
+                .setView(dialogStopView)
+                .setPositiveButton(getString(R.string.add)) { _, _ ->
+                    val destination = destinationEditText.text.toString()
+                    val titleInput = titleEditText.text.toString()
+                    if (titleInput.isEmpty())
+                        Toast.makeText(requireContext(), getString(R.string.title_needed), Toast.LENGTH_SHORT).show()
+                    else if (destination.isEmpty())
+                        Toast.makeText(requireContext(), getString(R.string.destination_needed), Toast.LENGTH_SHORT).show()
+                    else {
+                        endTrip(
+                            title = titleInput,
+                            TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
+                            destination
+                        )
+                    }
                 }
-            }
-            .setNegativeButton(
-                getString(R.string.cancel)
-            ) { dialog: DialogInterface, _ -> dialog.dismiss() }
-            .setOnDismissListener {
-                tripTypeSpinner.setSelection(0)
-                titleEditText.setText("")
-                destinationEditText.setText("")
-            }
-            .create()
-
-        // --- new note dialog ---
-        val dialogNewNoteView = inflater.inflate(R.layout.dialog_add_note, null)
-
-        val editTextTitle = dialogNewNoteView.findViewById<EditText>(R.id.titleEditText)
-        val editTextContent = dialogNewNoteView.findViewById<EditText>(R.id.contentEditText)
-
-        newNoteDialog = AlertDialog.Builder(requireContext())
-            .setView(dialogNewNoteView)
-            .setPositiveButton(getString(R.string.add)) { _, _ ->
-                val title = editTextTitle.text.toString()
-                val content = editTextContent.text.toString()
-                if (title.isEmpty() || content.isEmpty())
-                    Toast.makeText(requireContext(), "Title and note content are needed", Toast.LENGTH_SHORT).show()
-                else {
-                    viewModel.notes.add(Note(id = 0, title = title, date = Date().time, content = content))
-                    Toast.makeText(requireContext(), "Note added to trip", Toast.LENGTH_SHORT).show()
+                .setNegativeButton(
+                    getString(R.string.cancel)
+                ) { dialog: DialogInterface, _ -> dialog.dismiss() }
+                .setOnDismissListener {
+                    tripTypeSpinner.setSelection(0)
+                    titleEditText.setText("")
+                    destinationEditText.setText("")
                 }
-            }
+                .create()
+
+            // --- new note dialog ---
+            val dialogNewNoteView = inflater.inflate(R.layout.dialog_add_note, null)
+
+            val editTextTitle = dialogNewNoteView.findViewById<EditText>(R.id.titleEditText)
+            val editTextContent = dialogNewNoteView.findViewById<EditText>(R.id.contentEditText)
+
+            newNoteDialog = AlertDialog.Builder(requireContext())
+                .setView(dialogNewNoteView)
+                .setPositiveButton(getString(R.string.add)) { _, _ ->
+                    val title = editTextTitle.text.toString()
+                    val content = editTextContent.text.toString()
+                    if (title.isEmpty() || content.isEmpty())
+                        Toast.makeText(requireContext(), getString(R.string.title_and_note_needed), Toast.LENGTH_SHORT).show()
+                    else {
+                        viewModel.notes.add(Note(id = 0, title = title, date = Date().time, content = content))
+                        Toast.makeText(requireContext(), getString(R.string.note_added_to_trip), Toast.LENGTH_SHORT).show()
+                    }
+                }
             .setNegativeButton(
                 getString(R.string.cancel)
             ) { dialog: DialogInterface, _ -> dialog.dismiss() }
@@ -292,6 +292,7 @@ class StartFragment : Fragment() {
             }
             .create()
     }
+
 
     private fun instantiateViews(view: View) {
         viewPager = requireParentFragment().requireView().findViewById(R.id.home_viewPager)

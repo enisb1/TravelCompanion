@@ -102,14 +102,14 @@ class PlanFragment : Fragment() {
             }
             Toast.makeText(
                 requireContext(),
-                "Plan created successfully",
+                getString(R.string.plan_created_successfully),
                 Toast.LENGTH_SHORT
             ).show()
             clearInput()
         } else {
             Toast.makeText(
                 requireContext(),
-                "Please fill all fields",
+                getString(R.string.please_fill_all_fields),
                 Toast.LENGTH_SHORT
             ).show()
         }

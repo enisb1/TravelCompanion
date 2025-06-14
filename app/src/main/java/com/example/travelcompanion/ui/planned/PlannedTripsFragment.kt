@@ -158,13 +158,13 @@ class PlannedTripsFragment : Fragment() {
             }
 
             tripViewModel.updatePlan(trip)
-            Toast.makeText(requireContext(), "Trip updated", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.trip_updated), Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }
         dialogView.findViewById<Button>(R.id.btnDeleteTrip).setOnClickListener{
             tripViewModel.deletePlan(trip)
-            Toast.makeText(requireContext(), "Trip deleted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.trip_deleted), Toast.LENGTH_SHORT).show()
             dialog.dismiss()
             displayPlanList()
         }

@@ -124,4 +124,20 @@
     <string name="duration_hours_minutes">%1$d ore %2$d minuti</string>
     <string name="duration_minutes_seconds">%1$d minuti %2$d secondi</string>
     <string name="duration_seconds">%1$d secondi</string>
+    <string name="filter_all">Filtro: Tutti</string>
+    <string name="filter_by_year1">Filtro per anno: %1$s</string>
+    <string name="plan_created_successfully">Piano creato con successo</string>
+    <string name="please_fill_all_fields">Per favore compila tutti i campi</string>
+    <string name="settings_saved">Impostazioni salvate!</string>
+    <string name="trip_updated">Viaggio aggiornato</string>
+    <string name="trip_deleted">Viaggio eliminato</string>
+    <string name="activity_recognition_permission_missing">Rilevamento attività non possibile per mancanza di permessi</string>
+    <string name="notification_permission_required">Il permesso per le notifiche è richiesto</string>
+    <string name="camera_permission_required">Il permesso per la fotocamera è richiesto</string>
+    <string name="photo_capture_cancelled">Scatto di foto annullato</string>
+    <string name="trip_completed">Viaggio completato!</string>
+    <string name="title_needed">Titolo è richiesto</string>
+    <string name="destination_needed">Destinazione è richiesta</string>
+    <string name="title_and_note_needed">Nota deve avere titolo e contenuto</string>
+    <string name="note_added_to_trip">Nota aggiunta al viaggio</string>
 </resources>

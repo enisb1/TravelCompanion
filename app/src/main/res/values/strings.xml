@@ -124,4 +124,20 @@
     <string name="duration_hours_minutes">%1$d hours %2$d minutes</string>
     <string name="duration_minutes_seconds">%1$d minutes %2$d seconds</string>
     <string name="duration_seconds">%1$d seconds</string>
+    <string name="filter_all">Filter: All</string>
+    <string name="filter_by_year1">Filter by year: %1$s</string>
+    <string name="plan_created_successfully">Plan created successfully</string>
+    <string name="please_fill_all_fields">Please fill all fields</string>
+    <string name="settings_saved">Settings saved!</string>
+    <string name="trip_updated">Trip updated</string>
+    <string name="trip_deleted">Trip deleted</string>
+    <string name="activity_recognition_permission_missing">Activity recognition not possible due to missing permissions</string>
+    <string name="notification_permission_required">Notification permission is required</string>
+    <string name="camera_permission_required">Camera permission is required</string>
+    <string name="photo_capture_cancelled">Photo capture cancelled</string>
+    <string name="trip_completed">Trip completed!</string>
+    <string name="title_needed">Title is needed</string>
+    <string name="destination_needed">Destination is needed</string>
+    <string name="title_and_note_needed">Title and note content are needed</string>
+    <string name="note_added_to_trip">Note added to trip</string>
 </resources>

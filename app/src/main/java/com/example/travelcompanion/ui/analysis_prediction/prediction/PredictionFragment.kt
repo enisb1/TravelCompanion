@@ -151,7 +151,14 @@ class PredictionFragment : Fragment() {
                 updateViews()
                 updateChart()
                 updateDistanceChartAndForecast()
-                Toast.makeText(this.context, if (selectedYear == null) "Filter: All" else "Filter by year: $selectedYear", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this.context,
+                    if (selectedYear == null)
+                        getString(R.string.filter_all)
+                    else
+                        getString(R.string.filter_by_year1, selectedYear.toString()),
+                    Toast.LENGTH_SHORT
+                ).show()
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
