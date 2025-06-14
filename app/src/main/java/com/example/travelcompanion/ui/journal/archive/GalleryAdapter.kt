@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.pictures.Picture
 
@@ -30,7 +31,10 @@ class GalleryAdapter(private val pictures: List<Picture>, private val onPictureC
     override fun onBindViewHolder(holder: GalleryViewHolder, position: Int) {
         val picture = pictures[position]
         val uri: Uri = picture.uri.toUri()
-        holder.imageView.setImageURI(uri)
+        Glide.with(holder.imageView.context)
+            .load(uri)
+            .fitCenter()
+            .into(holder.imageView)
 
         // set itemView to square size
         holder.itemView.post {  // wait until the view is laid out

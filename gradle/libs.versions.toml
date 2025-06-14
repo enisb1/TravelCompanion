@@ -23,6 +23,7 @@ roomRuntimeAndroid = "2.7.1"
 searchableSpinner = "1.1.0"
 mpandroidchart = "3.1.0"
 workRuntimeKtx = "2.10.1"
+glide = "5.0.0-rc01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,7 @@ androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-
 searchablespinner = { module = "com.github.DonMat:searchablespinner", version.ref = "searchableSpinner" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
