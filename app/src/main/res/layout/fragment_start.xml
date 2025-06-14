@@ -19,6 +19,7 @@
             android:id="@+id/trackingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:fontFamily="sans-serif-medium"
             android:text="@string/start_fragment_title"
             android:textSize="30sp"
