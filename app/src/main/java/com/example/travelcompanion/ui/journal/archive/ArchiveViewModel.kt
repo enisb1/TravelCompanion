@@ -1,5 +1,6 @@
 package com.example.travelcompanion.ui.journal.archive
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.travelcompanion.db.TravelCompanionRepository
@@ -11,9 +12,8 @@ import com.example.travelcompanion.db.trip.TripState
 class ArchiveViewModel(private val repository: TravelCompanionRepository) : ViewModel() {
     var spinnerSelection: Int = 1
 
-    fun getCompletedTrips(): List<Trip> {
-        return repository.getTripsListByState(TripState.COMPLETED)
-    }
+    private val _completedTrips: LiveData<List<Trip>> = repository.getTripsByState(TripState.COMPLETED)
+    val completedTrips: LiveData<List<Trip>> = _completedTrips
 
     fun getAllPictures(): List<Picture> {
         return repository.getAllPictures()

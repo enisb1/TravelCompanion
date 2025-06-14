@@ -1,6 +1,7 @@
 package com.example.travelcompanion.db.locations
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.travelcompanion.db.trip.TripType
@@ -12,6 +13,12 @@ interface TripLocationDao {
 
     @Query("SELECT * FROM  locations_table")
     fun getLocations(): List<TripLocation>
+
+    @Query("SELECT * FROM locations_table WHERE trip_id = :tripId")
+    fun getLocationsByTripId(tripId: Long): List<TripLocation>
+
+    @Delete
+    fun deleteLocation(tripLocation: TripLocation)
 
     @Query("""
     SELECT locations_table.* 

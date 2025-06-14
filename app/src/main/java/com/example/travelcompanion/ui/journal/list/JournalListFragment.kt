@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.EditText
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -169,6 +169,13 @@ class JournalListFragment : Fragment() {
 
         val tvDuration = dialogView.findViewById<TextView>(R.id.tvTripDetailDuration)
         tvDuration.text = getString(R.string.trip_duration_s, trip.duration.toString())
+
+        val btnDelete = dialogView.findViewById<Button>(R.id.btnDeleteTrip)
+        btnDelete.setOnClickListener {
+            tripViewModel.deleteTrip(trip)
+            dialog.dismiss()
+            Toast.makeText(requireContext(), R.string.trip_deleted, Toast.LENGTH_SHORT).show()
+        }
 
         // Remove background in dialog
         dialogView.setBackgroundResource(android.R.color.transparent)

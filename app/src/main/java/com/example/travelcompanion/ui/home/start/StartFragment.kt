@@ -43,6 +43,7 @@ import java.io.File
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Spinner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -51,11 +52,14 @@ import com.example.travelcompanion.db.notes.Note
 import com.example.travelcompanion.db.pictures.Picture
 import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
+import com.example.travelcompanion.ui.home.plan.PlanViewModelFactory
+import com.example.travelcompanion.util.setupDestinationAutoComplete
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.Locale
+import com.example.travelcompanion.ui.home.plan.TripViewModel
 
 class StartFragment : Fragment() {
 
@@ -96,6 +100,9 @@ class StartFragment : Fragment() {
 
     private var startMarkerAdded: Boolean = false
 
+    private lateinit var tripViewModel: TripViewModel
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -109,6 +116,9 @@ class StartFragment : Fragment() {
         // instantiate ViewModel
         val factory = StartViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         viewModel = ViewModelProvider(this, factory)[StartViewModel::class.java]
+        val tripFactory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
+        tripViewModel = ViewModelProvider(this, tripFactory)[TripViewModel::class.java]
+
 
         inflater = LayoutInflater.from(requireContext())
 
@@ -230,7 +240,8 @@ class StartFragment : Fragment() {
             val dialogStopView = inflater.inflate(R.layout.dialog_stop_tracking, null)
             val tripTypeSpinner: Spinner = dialogStopView.findViewById(R.id.typeSpinnerStopTracking)
             val titleEditText: EditText = dialogStopView.findViewById(R.id.titleEditTextStopTracking)
-            val destinationEditText: EditText = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+            val destinationEditText: AutoCompleteTextView = dialogStopView.findViewById(R.id.destinationEditTextStopTracking)
+            setupDestinationAutoComplete(requireContext(), destinationEditText, tripViewModel, lifecycleScope)
 
             // Configure spinner
             val types = TripType.entries.map { it.name }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.trip.TripType
+import com.example.travelcompanion.util.setupDestinationAutoComplete
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,7 +28,7 @@ class PlanFragment : Fragment() {
     private lateinit var titleEditText: EditText
     private lateinit var pickDateButton: Button
     private lateinit var typeSpinner: Spinner
-    private lateinit var destinationEditText: EditText
+    private lateinit var destinationEditText: AutoCompleteTextView
     private lateinit var saveButton: Button
 
     private lateinit var viewModel: TripViewModel
@@ -45,8 +47,10 @@ class PlanFragment : Fragment() {
         titleEditText = view.findViewById(R.id.titleEditText)
         pickDateButton = view.findViewById(R.id.pickDateButton)
         typeSpinner = view.findViewById(R.id.typeSpinner)
-        destinationEditText = view.findViewById(R.id.destinationEditText)
+        destinationEditText = view.findViewById<AutoCompleteTextView>(R.id.destinationEditText)!!
         saveButton = view.findViewById(R.id.saveButton)
+
+
 
         // Configure spinner
         val types = TripType.entries.map { it.name }
@@ -81,6 +85,8 @@ class PlanFragment : Fragment() {
 
         val factory = PlanViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
         viewModel = ViewModelProvider(this, factory)[TripViewModel::class.java]
+
+        setupDestinationAutoComplete(requireContext(), destinationEditText, viewModel, lifecycleScope)
 
         // Manage save button
         saveButton.setOnClickListener {

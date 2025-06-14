@@ -49,13 +49,14 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/enter_destination">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <AutoCompleteTextView
                     android:id="@+id/destinationEditText"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="64dp"
                     android:drawableStart="@drawable/outline_add_location_24"
                     android:drawablePadding="8dp"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:paddingStart="8dp" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <View

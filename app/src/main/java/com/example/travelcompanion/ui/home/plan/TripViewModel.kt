@@ -27,8 +27,12 @@ class TripViewModel(private val repository: TravelCompanionRepository) : ViewMod
         repository.updateTrip(trip)
     }
 
-    fun deletePlan(trip: Trip) {
+    fun deleteTrip(trip: Trip) {
         repository.deleteTrip(trip)
+    }
+
+    suspend fun getDistinctDestinations(): List<String> {
+        return repository.getDistinctDestinations()
     }
 
 }
