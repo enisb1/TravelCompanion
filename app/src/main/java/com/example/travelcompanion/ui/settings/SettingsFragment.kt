@@ -23,7 +23,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -34,7 +36,6 @@ import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.concurrent.TimeUnit
 
 class SettingsFragment : Fragment() {
@@ -44,7 +45,9 @@ class SettingsFragment : Fragment() {
         const val TRACK_BICYCLE = "trackBicycle"
         const val TRACK_RUNNING = "trackRunning"
     }
-    
+
+    private val viewModel: SettingsViewModel by viewModels()
+
     private val notificationPermissionRequestCode = 1001
 
     private lateinit var activityRecognitionPermissionLauncher: ActivityResultLauncher<String>
@@ -57,6 +60,8 @@ class SettingsFragment : Fragment() {
     private lateinit var bicycleLayout: FrameLayout
     private lateinit var runningLayout: FrameLayout
     private lateinit var numberPicker: NumberPicker
+    private lateinit var etTrips: EditText
+    private lateinit var etDistance: EditText
 
     // booleans for toast message
     private var activityRecognitionSet = false
@@ -72,11 +77,19 @@ class SettingsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        // don't keep state when navigating outside the fragment
+        if (requireActivity().isChangingConfigurations.not()) {
+            viewModel.resetData()
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prefs = requireContext().getSharedPreferences("settings", 0)
-        val etTrips = view.findViewById<EditText>(R.id.etMonthlyTripsGoal)
-        val etDistance = view.findViewById<EditText>(R.id.etMonthlyDistanceGoal)
+        etTrips = view.findViewById(R.id.etMonthlyTripsGoal)
+        etDistance = view.findViewById(R.id.etMonthlyDistanceGoal)
         numberPicker = view.findViewById(R.id.np_inactivity_days)
         val btnSave = view.findViewById<Button>(R.id.btnSaveGoals)
         carLayout = view.findViewById(R.id.car_layout)
@@ -90,61 +103,43 @@ class SettingsFragment : Fragment() {
         numberPicker.maxValue = 30
         numberPicker.displayedValues = daysOptions
 
-        val savedInactivityDays = prefs.getInt("inactivity_days", 0)
-        numberPicker.value = savedInactivityDays // 0 = Off, 1-30 = days
+        val inactivityDays =
+            if (viewModel.inactivityDays != 0)
+                viewModel.inactivityDays
+            else
+                prefs.getInt("inactivity_days", 0)
+        numberPicker.value = inactivityDays // 0 = Off, 1-30 = days
+        viewModel.inactivityDays = inactivityDays
 
-        var selectedInactivityDays = numberPicker.value
         val workRequest = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
 
-        // Load existing objectives if available
-        etTrips.setText(prefs.getInt("monthlyTripsGoal", 0).takeIf { it > 0 }?.toString() ?: "")
-        etDistance.setText(
-            prefs.getInt("monthlyDistanceGoal", 0).takeIf { it > 0 }?.toString() ?: ""
-        )
 
-        selectedInactivityDays = savedInactivityDays
+        val monthlyTripsGoal = viewModel.monthlyTripsGoal ?: prefs.getInt("monthlyTripsGoal", 0)
+        val monthlyDistanceGoal = viewModel.monthlyDistanceGoal ?: prefs.getInt("monthlyDistanceGoal", 0)
+
+        if(monthlyTripsGoal > 0)
+            etTrips.setText(monthlyTripsGoal.toString())
+        if(monthlyDistanceGoal > 0)
+            etDistance.setText(monthlyDistanceGoal.toString())
+
+        etTrips.addTextChangedListener {
+            val tripsGoal = it.toString().toIntOrNull()
+            viewModel.monthlyTripsGoal = tripsGoal
+        }
+
+        etDistance.addTextChangedListener {
+            val distanceGoal = it.toString().toIntOrNull()
+            viewModel.monthlyDistanceGoal = distanceGoal
+        }
 
         numberPicker.setOnValueChangedListener { _, _, newVal ->
-            selectedInactivityDays = newVal
+            viewModel.inactivityDays = newVal
         }
 
         btnSave.setOnClickListener {
             val tripsGoal = etTrips.text.toString().toIntOrNull() ?: 0
             val distanceGoal = etDistance.text.toString().toIntOrNull() ?: 0
-
-            if (selectedInactivityDays == 0 && !needToLaunchActivityRecognition()) {
-                // Turn off reminder
-                WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")
-                saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
-                Toast.makeText(requireContext(), getString(R.string.settings_saved), Toast.LENGTH_SHORT).show()
-            } else {
-                // Requests notification permission if not already granted
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                    ContextCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    if (selectedInactivityDays == 0) { // needToLaunchActivityRecognition() = true
-                        Log.i("activityrecog", "yes")
-                        activityRecognitionSet = true
-                        saveSettings(tripsGoal, distanceGoal, 0)
-                        notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                    else { // selectedInactivityDays > 0
-                        pendingTripsGoal = tripsGoal
-                        pendingDistanceGoal = distanceGoal
-                        pendingInactivityDays = selectedInactivityDays
-                        if (needToLaunchActivityRecognition())
-                            activityRecognitionSet = true
-                        notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                } else {
-                    saveSettings(tripsGoal, distanceGoal, selectedInactivityDays)
-                    if (needToLaunchActivityRecognition())
-                        permissionCheckForActivityRecognition()
-                }
-            }
+            saveSettings(tripsGoal, distanceGoal)
         }
         
         WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
@@ -154,9 +149,15 @@ class SettingsFragment : Fragment() {
         )
 
         // activity recognition
-        val trackCar = prefs.getBoolean(TRACK_CAR, false)
-        val trackBicycle = prefs.getBoolean(TRACK_BICYCLE, false)
-        val trackRunning = prefs.getBoolean(TRACK_RUNNING, false)
+        val trackCar: Boolean = viewModel.isCarSelected ?: prefs.getBoolean(TRACK_CAR, false)
+        viewModel.isCarSelected = trackCar
+
+        val trackBicycle: Boolean = viewModel.isBicycleSelected ?: prefs.getBoolean(TRACK_BICYCLE, false)
+        viewModel.isBicycleSelected = trackBicycle
+
+        val trackRunning = viewModel.isRunningSelected ?: prefs.getBoolean(TRACK_RUNNING, false)
+        viewModel.isRunningSelected = trackRunning
+
         if (trackCar)
             carLayout.isSelected = true
         if (trackBicycle)
@@ -164,9 +165,59 @@ class SettingsFragment : Fragment() {
         if (trackRunning)
             runningLayout.isSelected = true
 
-        for (frameLayout in listOf(carLayout, bicycleLayout, runningLayout)) {
-            frameLayout.setOnClickListener {
-                it.isSelected = !it.isSelected
+        carLayout.setOnClickListener {
+            it.isSelected = !it.isSelected
+            viewModel.isCarSelected = it.isSelected
+        }
+        bicycleLayout.setOnClickListener {
+            it.isSelected = !it.isSelected
+            viewModel.isBicycleSelected = it.isSelected
+        }
+        runningLayout.setOnClickListener {
+            it.isSelected = !it.isSelected
+            viewModel.isRunningSelected = it.isSelected
+        }
+    }
+
+    private fun saveSettings(tripsGoal: Int, distanceGoal: Int) {
+        if (viewModel.inactivityDays == 0 && !needToLaunchActivityRecognition()) {
+            // Turn off reminder
+            WorkManager.getInstance(requireContext()).cancelUniqueWork("inactivity_reminder")
+            saveGoalsAndInactivityDays(tripsGoal, distanceGoal, viewModel.inactivityDays)
+            Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+        } else {
+            // Requests notification permission if not already granted
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                if (viewModel.inactivityDays == 0) { // needToLaunchActivityRecognition() = true
+                    activityRecognitionSet = true
+                    saveGoalsAndInactivityDays(tripsGoal, distanceGoal, 0)
+                    notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                else { // selectedInactivityDays > 0
+                    pendingTripsGoal = tripsGoal
+                    pendingDistanceGoal = distanceGoal
+                    pendingInactivityDays = viewModel.inactivityDays
+                    if (needToLaunchActivityRecognition())
+                        activityRecognitionSet = true
+                    notificationPermissionLauncherToActivityRecognition.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            } else {
+                saveGoalsAndInactivityDays(tripsGoal, distanceGoal, viewModel.inactivityDays)
+                if (needToLaunchActivityRecognition())
+                    permissionCheckForActivityRecognition()
+                else {
+                    prefs.edit {
+                        putBoolean(TRACK_CAR, carLayout.isSelected)
+                            .putBoolean(TRACK_BICYCLE, bicycleLayout.isSelected)
+                            .putBoolean(TRACK_RUNNING, runningLayout.isSelected)
+                    }
+                    Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -190,7 +241,7 @@ class SettingsFragment : Fragment() {
         ) { isGranted ->
             if (isGranted) {
                 if (pendingInactivityDays > 0) {
-                    saveSettings(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
+                    saveGoalsAndInactivityDays(pendingTripsGoal, pendingDistanceGoal, pendingInactivityDays)
                 }
                 if (activityRecognitionSet) {
                     permissionCheckForActivityRecognition()
@@ -251,12 +302,12 @@ class SettingsFragment : Fragment() {
                             .putBoolean(TRACK_BICYCLE, bicycleLayout.isSelected)
                             .putBoolean(TRACK_RUNNING, runningLayout.isSelected)
                         }
-                        Log.d("Transition", "Started successfully")
+                        Log.d("ActivityTransition", "Started successfully")
                 }.addOnFailureListener {
-                    Log.e("Transition", "Failed to start updates")
+                    Log.e("ActivityTransition", "Failed to start updates")
                 }
             } else {
-                Log.d("Transition", "User disabled activity updates")
+                Log.d("ActivityTransition", "User disabled activity updates")
             }
         }
     }
@@ -288,7 +339,7 @@ class SettingsFragment : Fragment() {
         return transitions.toList()
     }
 
-    private fun saveSettings(tripsGoal: Int, distanceGoal: Int, inactivityDays: Int) {
+    private fun saveGoalsAndInactivityDays(tripsGoal: Int, distanceGoal: Int, inactivityDays: Int) {
         val prefs = requireContext().getSharedPreferences("settings", Context.MODE_PRIVATE)
 
         prefs.edit {

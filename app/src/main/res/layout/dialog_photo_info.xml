@@ -1,66 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="15dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/picture_info"
-        android:textSize="20sp"
-        android:layout_gravity="center"
-        android:textColor="@color/black"
-        android:fontFamily="sans-serif-medium"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:text="@string/trip_title" />
-
-    <TextView
-        android:id="@+id/gallery_dialog_trip_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/trip_title_value" />
+        android:orientation="vertical"/>
+  
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/picture_info"
+            android:textSize="20sp"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"/>
 
-    <!-- wrap_content in height could make the dialog too tall, watch out! -->
-    <ImageView
-        android:id="@+id/gallery_dialog_photo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
-        android:layout_marginTop="10dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:text="@string/trip_title" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:text="@string/when_was_the_picture_taken" />
+        <TextView
+            android:id="@+id/gallery_dialog_trip_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/trip_title_value" />
+  
+        <!-- wrap_content in height could make the dialog too tall, watch out! -->
+        <ImageView
+            android:id="@+id/gallery_dialog_photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_marginTop="10dp" />
 
-    <TextView
-        android:id="@+id/gallery_dialog_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/time_it_was_taken" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:text="@string/when_was_the_picture_taken" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"
-        android:text="@string/how_much_into_the_trip_was_the_picture_taken" />
+        <TextView
+            android:id="@+id/gallery_dialog_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/time_it_was_taken" />
 
-    <TextView
-        android:id="@+id/gallery_dialog_time_into_trip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/time_into_the_trip"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textStyle="bold"
+            android:text="@string/how_much_into_the_trip_was_the_picture_taken" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/gallery_dialog_time_into_trip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/time_into_the_trip"/>
+
+    </LinearLayout>
+
+</ScrollView>

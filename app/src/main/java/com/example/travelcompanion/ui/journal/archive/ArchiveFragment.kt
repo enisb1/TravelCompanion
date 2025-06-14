@@ -111,6 +111,8 @@ class ArchiveFragment : Fragment() {
             }
             if (pictures.isEmpty())
                 showNoPicturesLayout()
+            else
+                hideNoResourcesLayout()
             galleryRecView.adapter = adapter
         }
     }
@@ -125,6 +127,10 @@ class ArchiveFragment : Fragment() {
         noResourceLayout.visibility = View.VISIBLE
         val noNotesMessage = noResourceLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
         noNotesMessage.text = getString(R.string.it_looks_like_no_notes_have_been_written)
+    }
+
+    private fun hideNoResourcesLayout() {
+        noResourceLayout.visibility = View.GONE
     }
 
     private fun updateNotes(tripId: Long) {
@@ -153,8 +159,11 @@ class ArchiveFragment : Fragment() {
                 )
                 notes = allNotes
             }
+            // check to show no resource layout or not
             if (notes.isEmpty())
                 showNoNotesLayout()
+            else
+                hideNoResourcesLayout()
             notesRecView.adapter = adapter
         }
     }
@@ -228,7 +237,7 @@ class ArchiveFragment : Fragment() {
         val photoTimeView = dialogView.findViewById<TextView>(R.id.gallery_dialog_time)
         val timeIntoTripView = dialogView.findViewById<TextView>(R.id.gallery_dialog_time_into_trip)
 
-        tripTitleView.text = trip?.destination
+        tripTitleView.text = trip?.title
         photoTimeView.text = formatTimestamp(picture.timestamp)
         timeIntoTripView.text = formatDuration(picture.timestamp - trip?.startTimestamp!!)
 
