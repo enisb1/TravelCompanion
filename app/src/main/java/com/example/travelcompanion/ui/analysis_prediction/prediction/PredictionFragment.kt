@@ -179,9 +179,11 @@ class PredictionFragment : Fragment() {
 
         if (trips.isEmpty()) {
             scrollView.visibility = View.GONE
+            fabFilterYear.visibility = View.GONE
             noTripsLayout.visibility = View.VISIBLE
         } else {
             scrollView.visibility = View.VISIBLE
+            fabFilterYear.visibility = View.VISIBLE
             noTripsLayout.visibility = View.GONE
         }
 
