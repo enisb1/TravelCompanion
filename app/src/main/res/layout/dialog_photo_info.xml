@@ -8,8 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"/>
-  
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/trip_title_value" />
-  
+
         <!-- wrap_content in height could make the dialog too tall, watch out! -->
         <ImageView
             android:id="@+id/gallery_dialog_photo"
@@ -67,7 +67,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/time_into_the_trip"/>
-
     </LinearLayout>
 
 </ScrollView>

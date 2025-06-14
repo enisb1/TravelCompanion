@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.travelcompanion.MainActivity
+import com.example.travelcompanion.R
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_BICYCLE
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_CAR
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_RUNNING
@@ -72,7 +73,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
         )
 
         val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("$activity detected")
             .setContentText("Start tracking your trip!")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

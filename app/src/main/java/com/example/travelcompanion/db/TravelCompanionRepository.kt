@@ -49,18 +49,6 @@ class TravelCompanionRepository(app: Application) {
         return tripDao.insertTrip(trip)
     }
 
-    fun getLocations(): List<TripLocation> {
-        return tripLocationDao.getLocations()
-    }
-
-    fun saveLocations(tripLocations: List<TripLocation>) {
-        TravelCompanionDatabase.databaseWriteExecutor.execute {
-            for (location in tripLocations) {
-                tripLocationDao.insertLocation(location)
-            }
-        }
-    }
-
     fun updateTrip(trip: Trip) {
         GlobalScope.launch {
             tripDao.updateTrip(trip)
@@ -93,6 +81,24 @@ class TravelCompanionRepository(app: Application) {
     // Not sure this will work
     suspend fun getTripsByDateRange(startDate: Long, endDate: Long): List<Trip> {
         return tripDao.getTripsByDateRange(startDate, endDate)
+    }
+
+    // -------------------- LOCATIONS --------------------
+
+    fun getLocations(): List<TripLocation> {
+        return tripLocationDao.getLocations()
+    }
+
+    fun getLocationsByTripType(type: TripType): List<TripLocation> {
+        return tripLocationDao.getLocationsByTripType(type)
+    }
+
+    fun saveLocations(tripLocations: List<TripLocation>) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            for (location in tripLocations) {
+                tripLocationDao.insertLocation(location)
+            }
+        }
     }
 
     // -------------------- NOTES --------------------

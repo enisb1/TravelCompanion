@@ -12,6 +12,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.TaskStackBuilder
 import com.example.travelcompanion.MainActivity
+import com.example.travelcompanion.R
 
 class InactivityReminderWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
     override fun doWork(): Result {
@@ -46,7 +47,7 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
             }
 
             val builder = NotificationCompat.Builder(applicationContext, channelId)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Inactivity Reminder")
                 .setContentText("You haven't logged any trips in a while. Remember to add one!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
