@@ -49,18 +49,6 @@ class TravelCompanionRepository(app: Application) {
         return tripDao.insertTrip(trip)
     }
 
-    fun getLocations(): List<TripLocation> {
-        return tripLocationDao.getLocations()
-    }
-
-    fun saveLocations(tripLocations: List<TripLocation>) {
-        TravelCompanionDatabase.databaseWriteExecutor.execute {
-            for (location in tripLocations) {
-                tripLocationDao.insertLocation(location)
-            }
-        }
-    }
-
     fun updateTrip(trip: Trip) {
         TravelCompanionDatabase.databaseWriteExecutor.execute {
             tripDao.updateTrip(trip)
@@ -115,6 +103,24 @@ class TravelCompanionRepository(app: Application) {
 
     suspend fun getDistinctDestinations(): List<String> {
         return tripDao.getDistinctDestinations()
+    }
+    
+    // -------------------- LOCATIONS --------------------
+
+    fun getLocations(): List<TripLocation> {
+        return tripLocationDao.getLocations()
+    }
+
+    fun getLocationsByTripType(type: TripType): List<TripLocation> {
+        return tripLocationDao.getLocationsByTripType(type)
+    }
+
+    fun saveLocations(tripLocations: List<TripLocation>) {
+        TravelCompanionDatabase.databaseWriteExecutor.execute {
+            for (location in tripLocations) {
+                tripLocationDao.insertLocation(location)
+            }
+        }
     }
 
     // -------------------- NOTES --------------------
