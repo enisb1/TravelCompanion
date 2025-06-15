@@ -47,7 +47,7 @@ class TrackingService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        val locationRequest = LocationRequest.Builder(5000)
+        val locationRequest = LocationRequest.Builder(2000)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
 
