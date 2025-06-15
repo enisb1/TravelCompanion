@@ -34,6 +34,7 @@ import java.util.Date
 class TrackingService : Service() {
 
     companion object {
+        // can be adjusted to find a balance between sensibility and quality of pathing
         const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 50   // meters
         val ACTION_STOP = "ACTION_STOP"
     }
