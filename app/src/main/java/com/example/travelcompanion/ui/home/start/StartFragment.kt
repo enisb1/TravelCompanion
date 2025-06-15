@@ -95,6 +95,7 @@ class StartFragment : Fragment() {
     private lateinit var inflater: LayoutInflater
 
     private var unpackedTripId: Long = NO_UNPACKED_TRIP_CODE
+    private lateinit var unpackedTripTitle: String
     private lateinit var unpackedTripType: String
     private lateinit var unpackedTripDestination: String
 
@@ -140,9 +141,11 @@ class StartFragment : Fragment() {
 
         // unpack received strings (empty if no value was sent)
         unpackedTripId = arguments?.getLong("plannedTripId") ?: NO_UNPACKED_TRIP_CODE
+        unpackedTripTitle = arguments?.getString("tripTitle") ?: ""
         unpackedTripType = arguments?.getString("tripType") ?: ""
         unpackedTripDestination = arguments?.getString("tripDestination") ?: ""
-        if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
+        if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripTitle.isNotEmpty()
+            && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty())
             startButton.performClick()
     }
 
@@ -208,12 +211,16 @@ class StartFragment : Fragment() {
         }
     }
 
-        private fun endTrip(title: String, tripType: TripType, tripDestination: String) {
+        private fun endTrip(id: Long, title: String, tripType: TripType, tripDestination: String) {
             lifecycleScope.launch {
-                val tripId = withContext(Dispatchers.IO) {
-                    viewModel.saveTrip(title, viewModel.start, tripType,
-                        tripDestination, TripState.COMPLETED)
-                }
+                val tripId =
+                    if (id == NO_UNPACKED_TRIP_CODE)
+                        withContext(Dispatchers.IO) {
+                        viewModel.saveTrip(title, viewModel.start, tripType, tripDestination,
+                            TripState.COMPLETED)
+                    }
+                    else
+                        id
                 viewModel.notes.forEach {
                     it.tripId = tripId
                     viewModel.saveNote(it)
@@ -259,7 +266,7 @@ class StartFragment : Fragment() {
                     else if (destination.isEmpty())
                         Toast.makeText(requireContext(), getString(R.string.destination_needed), Toast.LENGTH_SHORT).show()
                     else {
-                        endTrip(
+                        endTrip(id = NO_UNPACKED_TRIP_CODE, // stop dialog is called only when trip is not planned
                             title = titleInput,
                             TripType.valueOf(tripTypeSpinner.selectedItem.toString()),
                             destination
@@ -356,14 +363,25 @@ class StartFragment : Fragment() {
             }
         }
         stopButton.setOnClickListener {
-            if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
-                endTrip(
-                    title = unpackedTripId.toString(), TripType.valueOf(unpackedTripType), unpackedTripDestination)
+            if (unpackedTripId != NO_UNPACKED_TRIP_CODE &&  unpackedTripTitle.isNotEmpty()
+                && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()) {
+                endTrip(id = unpackedTripId,
+                    title = unpackedTripTitle, TripType.valueOf(unpackedTripType), unpackedTripDestination)
+                val tripIdToSetToCompleted = unpackedTripId
                 unpackedTripId = NO_UNPACKED_TRIP_CODE
+                unpackedTripTitle = ""
                 unpackedTripType = ""
                 unpackedTripDestination = ""
                 arguments?.clear()
                 // TODO: remove trip through its id
+                lifecycleScope.launch {
+                    val tripToSetToCompleted = withContext(Dispatchers.IO) {
+                        viewModel.getTripById(tripIdToSetToCompleted)
+                    }
+                    if (tripToSetToCompleted != null) {
+                        viewModel.setTripToCompleted(tripToSetToCompleted)
+                    }
+                }
             }
             else
                 stopDialog.show()

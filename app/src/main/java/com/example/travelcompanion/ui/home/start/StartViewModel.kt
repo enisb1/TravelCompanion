@@ -8,6 +8,7 @@ import com.example.travelcompanion.db.TravelCompanionRepository
 import com.example.travelcompanion.db.locations.TripLocation
 import com.example.travelcompanion.db.notes.Note
 import com.example.travelcompanion.db.pictures.Picture
+import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripState
 import com.example.travelcompanion.db.trip.TripType
 import java.util.Date
@@ -50,6 +51,15 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
         )
 
         return tripId
+    }
+
+    fun setTripToCompleted(trip: Trip) {
+        trip.state = TripState.COMPLETED
+        repository.updateTrip(trip)
+    }
+
+    fun getTripById(tripId: Long): Trip? {
+        return repository.getTripById(tripId)
     }
 
     fun saveLocations(tripId: Long) {

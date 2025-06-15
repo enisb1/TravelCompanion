@@ -221,7 +221,6 @@ class MapFragment : Fragment() {
             lifecycleScope.launch {
                 // show trips on map
                 for (locationList in locationsPerTrip) {
-                    Log.i("trips", "1")
                     val tripTitle = withContext(Dispatchers.IO) {
                         viewModel.getTripById(locationList[0].tripId)?.title
                     }
@@ -257,7 +256,6 @@ class MapFragment : Fragment() {
                 }
                 // zoom to last trip location
                 if (locationsPerTrip.isNotEmpty()) {
-                    Log.i("trips", "2")
                     val lastTripLocations: List<TripLocation> = locationsPerTrip[locationsPerTrip.size-1]
                     val startOfLastTrip = LatLng(
                         lastTripLocations[0].latitude,

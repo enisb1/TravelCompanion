@@ -32,6 +32,7 @@ class HomeFragment : Fragment() {
         viewPager.adapter = HomePagerAdapter(
             this,
             arguments?.getLong("plannedTripId") ?: StartFragment.NO_UNPACKED_TRIP_CODE,
+            arguments?.getString("tripTitle") ?: "",
             arguments?.getString("tripType") ?: "",
             arguments?.getString("tripDestination") ?: ""
         )
