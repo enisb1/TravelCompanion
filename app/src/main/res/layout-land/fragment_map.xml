@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.journal.map.MapFragment"
+    android:background="@color/background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/journal_map_constraint_layout">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/no_trips_constraint_planned"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone">
+            <include
+                android:id="@+id/noTripsLayout"
+                layout="@layout/no_trips_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/journal_map_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/check_out_your_completed_trips_on_the_map"
+            android:textSize="15sp"
+            android:paddingHorizontal="10dp"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/guideline_vertical_center"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutMapFilter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/guideline_vertical_center"
+            app:layout_constraintTop_toBottomOf="@id/journal_map_title"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tvJournalMapFilterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="@string/filter_by_type" />
+
+            <Spinner
+                android:id="@+id/spinnerJournalMapTripType"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_vertical_center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.3" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/journal_map_frame"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guideline_vertical_center"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/journal_map_container"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/journal_map_touchInterceptor"
+                android:background="@android:color/transparent"/>
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
