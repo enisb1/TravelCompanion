@@ -43,7 +43,7 @@
     <string name="analysis">Analysis</string>
     <string name="prediction">Prediction</string>
     <string name="kilometres">kilometres</string>
-    <string name="looks_like_you_have_no_planned_trips">Looks like you have no planned trips!\nTap the + button to add one.</string>
+    <string name="looks_like_you_have_no_planned_trips">Looks like you have no planned trips!\nTap the + button to add one</string>
     <string name="trip_title">Trip title</string>
     <string name="trip_title_value">Trip Title Value</string>
     <string name="when_was_the_picture_taken">When was the picture taken?</string>

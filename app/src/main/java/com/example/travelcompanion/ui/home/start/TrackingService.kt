@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -13,6 +14,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.travelcompanion.MainActivity
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.locations.TripLocation
 import com.example.travelcompanion.util.TRACKING_CHANNEL_ID
@@ -121,12 +123,26 @@ class TrackingService : Service() {
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
+
+        // create pending intent to navigate to start when clicking the notification
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("navigate_to_start", true)
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE for API 31+
+        )
+
         return NotificationCompat.Builder(this, TRACKING_CHANNEL_ID)
             .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
             .setContentTitle(getString(R.string.tracking_your_trip))
             .setContentText(getString(R.string.go_to_the_app_to_see_your_path))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)  // reduces delay in showing the notification
             .build()
     }
