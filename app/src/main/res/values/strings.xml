@@ -149,4 +149,11 @@
     <string name="hours">hours</string>
     <string name="days">days</string>
     <string name="months">months</string>
+    <string name="trip_start_title">Trip start: %1$s</string>
+    <string name="trip_end_title">Trip end: %1$s</string>
+    <string name="start_tracking_trip">Start tracking your trip!</string>
+    <string name="activity_detected_title">%1$s detected</string>
+    <string name="activity_driving">Driving</string>
+    <string name="activity_cycling">Cycling</string>
+    <string name="activity_running">Running</string>
 </resources>
