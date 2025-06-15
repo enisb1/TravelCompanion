@@ -72,14 +72,6 @@ class JournalListFragment : Fragment() {
 
         initRecyclerView()
 
-        val fabPopulateDb = view.findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>(R.id.fabPopulateDb)
-        fabPopulateDb.setOnClickListener {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                DatabaseSeeder.seed(TravelCompanionRepository(app = requireActivity().application))
-                Toast.makeText(this.context, "Database seeded with sample trips", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         spinnerTripType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 parent: AdapterView<*>,
