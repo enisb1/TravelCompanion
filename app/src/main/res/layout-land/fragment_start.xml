@@ -15,17 +15,17 @@
         <!-- TODO: put textSize in a size files -->
         <TextView
             android:id="@+id/trackingTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:fontFamily="sans-serif-medium"
             android:text="@string/start_fragment_title"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="20dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/guideline_vertical_center"/>
+            app:layout_constraintRight_toLeftOf="@id/mapFrame"/>
 
         <TextView
             android:id="@+id/trackingTimer"
