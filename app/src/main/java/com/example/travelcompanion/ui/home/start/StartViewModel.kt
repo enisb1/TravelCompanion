@@ -55,6 +55,10 @@ class StartViewModel(private val repository: TravelCompanionRepository) : ViewMo
 
     fun setTripToCompleted(trip: Trip) {
         trip.state = TripState.COMPLETED
+        trip.startTimestamp = start
+        trip.duration = TrackingRepository.timerSeconds.value ?: 0
+        trip.endTimestamp = trip.startTimestamp + trip.duration
+        trip.distance = TrackingRepository.currentDistance
         repository.updateTrip(trip)
     }
 

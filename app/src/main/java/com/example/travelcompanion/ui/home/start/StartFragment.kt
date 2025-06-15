@@ -234,6 +234,7 @@ class StartFragment : Fragment() {
         }
     }
 
+    // save data and stop tracking service
     private fun endTrip(id: Long, title: String, tripType: TripType, tripDestination: String) {
         lifecycleScope.launch {
             val tripId =
@@ -442,26 +443,26 @@ class StartFragment : Fragment() {
             if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripTitle.isNotEmpty()
                 && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()
             ) {
-                endTrip(
-                    id = unpackedTripId,
-                    title = unpackedTripTitle,
-                    TripType.valueOf(unpackedTripType),
-                    unpackedTripDestination
-                )
-                val tripIdToSetToCompleted = unpackedTripId
-                unpackedTripId = NO_UNPACKED_TRIP_CODE
-                unpackedTripTitle = ""
-                unpackedTripType = ""
-                unpackedTripDestination = ""
-                arguments?.clear()
-                // TODO: remove trip through its id
+                Log.i("datatrip", TrackingRepository.currentDistance.toString())
+                // complete the planned trip
                 lifecycleScope.launch {
                     val tripToSetToCompleted = withContext(Dispatchers.IO) {
-                        viewModel.getTripById(tripIdToSetToCompleted)
+                        viewModel.getTripById(unpackedTripId)
                     }
                     if (tripToSetToCompleted != null) {
                         viewModel.setTripToCompleted(tripToSetToCompleted)
                     }
+                    endTrip(
+                        id = unpackedTripId,
+                        title = unpackedTripTitle,
+                        TripType.valueOf(unpackedTripType),
+                        unpackedTripDestination
+                    )
+                    unpackedTripId = NO_UNPACKED_TRIP_CODE
+                    unpackedTripTitle = ""
+                    unpackedTripType = ""
+                    unpackedTripDestination = ""
+                    arguments?.clear()
                 }
             } else
                 stopDialog.show()
