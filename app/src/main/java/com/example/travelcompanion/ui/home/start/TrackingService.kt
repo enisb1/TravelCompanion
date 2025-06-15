@@ -136,10 +136,17 @@ class TrackingService : Service() {
     }
 
     override fun onDestroy() {
+        stopForeground(Service.STOP_FOREGROUND_REMOVE)
         super.onDestroy()
         // stop location updates
         fusedLocationClient.removeLocationUpdates(locationCallback)
         // stop incrementing timer
         incrementTimerThread.interrupt()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
     }
 }
