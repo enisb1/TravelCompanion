@@ -127,13 +127,10 @@ class StartFragment : Fragment() {
         buildDialogs()
         setListeners()
 
-        Log.i("points", viewModel.locationsList.value.toString())
-
         viewModel.isTripStarted.observe(viewLifecycleOwner) { started ->
             if (started) {
                 startButton.visibility = View.GONE
                 trackingLayout.visibility = View.VISIBLE
-                startTracking()
             }
             else {
                 startButton.visibility = View.VISIBLE
@@ -162,8 +159,10 @@ class StartFragment : Fragment() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                     viewModel.startTrip()
+                    startTracking()
+                }
                 else
                     requestPermissionLauncherForNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
@@ -176,6 +175,7 @@ class StartFragment : Fragment() {
         ) { granted ->
             if (granted) {
                 viewModel.startTrip()
+                startTracking()
             } else {
                 Toast.makeText(activity, getString(R.string.notification_permission_required), Toast.LENGTH_SHORT).show()
             }
@@ -352,6 +352,7 @@ class StartFragment : Fragment() {
             }
             else {
                 viewModel.startTrip()
+                startTracking()
             }
         }
         stopButton.setOnClickListener {

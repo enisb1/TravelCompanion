@@ -127,17 +127,17 @@ class TrackingService : Service() {
         // create pending intent to navigate to start when clicking the notification
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("navigate_to_start", true)
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP // else it would be restarted even if on top of the stack
         }
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE for API 31+
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         return NotificationCompat.Builder(this, TRACKING_CHANNEL_ID)
-            .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
+            .setOngoing(true)
             .setContentTitle(getString(R.string.tracking_your_trip))
             .setContentText(getString(R.string.go_to_the_app_to_see_your_path))
             .setSmallIcon(R.mipmap.ic_launcher)
