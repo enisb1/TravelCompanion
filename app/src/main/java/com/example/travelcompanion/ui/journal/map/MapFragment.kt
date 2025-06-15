@@ -37,11 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap
-import com.example.travelcompanion.db.trip.Trip
 import com.example.travelcompanion.db.trip.TripType
-import com.example.travelcompanion.ui.journal.list.JournalListFragment
-import com.example.travelcompanion.ui.journal.list.JournalListFragment.Companion
-import com.example.travelcompanion.ui.journal.list.JournalListFragment.Companion.all_trips_label
 
 class MapFragment : Fragment() {
 
@@ -69,6 +65,7 @@ class MapFragment : Fragment() {
     private lateinit var filterSpinner: Spinner
     private lateinit var linearLayoutMapFilter: LinearLayout
     private lateinit var noTripsLayoutMessage: TextView
+    private lateinit var allTripsLabel: String
 
     private lateinit var allLocations: List<TripLocation>
     private lateinit var locationsTypeLocal: List<TripLocation>
@@ -94,9 +91,11 @@ class MapFragment : Fragment() {
         instantiateViews(view)
         setListeners()
 
+        allTripsLabel = getString(R.string.all)
+
         // Initialize the spinner to filter results based on trip type
         val tripTypes =
-            listOf(all_trips_label) + TripType.entries.map { it.name }
+            listOf(allTripsLabel) + TripType.entries.map { it.name }
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tripTypes)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         filterSpinner.adapter = adapter

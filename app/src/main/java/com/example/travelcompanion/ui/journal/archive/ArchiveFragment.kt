@@ -111,10 +111,15 @@ class ArchiveFragment : Fragment() {
                     { pic -> showPictureInfoDialog(pic) }
                 pictures = allPictures
             }
-            if (pictures.isEmpty())
+            if (pictures.isEmpty()) {
+                if(tripId == SHOW_ALL_DATA_CODE)
+                    hideFilterSpinner()
                 showNoPicturesLayout()
-            else
+            }
+            else {
+                showFilterSpinner()
                 hideNoResourcesLayout()
+            }
             galleryRecView.adapter = adapter
         }
     }
@@ -162,12 +167,25 @@ class ArchiveFragment : Fragment() {
                 notes = allNotes
             }
             // check to show no resource layout or not
-            if (notes.isEmpty())
+            if (notes.isEmpty()) {
+                if(tripId == SHOW_ALL_DATA_CODE)
+                    hideFilterSpinner()
                 showNoNotesLayout()
-            else
+            }
+            else {
+                showFilterSpinner()
                 hideNoResourcesLayout()
+            }
             notesRecView.adapter = adapter
         }
+    }
+
+    private fun hideFilterSpinner() {
+        tripSelectionSpinner.visibility = View.GONE
+    }
+
+    private fun showFilterSpinner() {
+        tripSelectionSpinner.visibility = View.VISIBLE
     }
 
     private fun setListeners() {
