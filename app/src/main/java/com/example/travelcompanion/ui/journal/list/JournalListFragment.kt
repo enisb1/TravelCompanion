@@ -30,18 +30,16 @@ class JournalListFragment : Fragment() {
     private lateinit var journalListRecyclerView : RecyclerView
     private lateinit var journalListAdapter: JournalListRecyclerViewAdapter
     private lateinit var noTripsLayout: View
+    private lateinit var allTripsLabel: String
 
     companion object {
         fun newInstance() = JournalListFragment()
-        val all_trips_label = "All" // TODO: change to R.string value
     }
 
     private val viewModel: JournalListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // TODO: Use the ViewModel
     }
 
     override fun onCreateView(
@@ -57,7 +55,7 @@ class JournalListFragment : Fragment() {
         journalListRecyclerView = view.findViewById(R.id.rvJournalList)
         spinnerTripType = view.findViewById(R.id.spinnerJournalListTripType)
         noTripsLayout = view.findViewById(R.id.noTripsLayout)
-
+        allTripsLabel = getString(R.string.all)
 
         val factory =
             CompletedTripViewModelFactory(repository = TravelCompanionRepository(app = requireActivity().application))
@@ -65,7 +63,7 @@ class JournalListFragment : Fragment() {
 
         // Initialize the spinner to filter results based on trip type
         val tripTypes =
-            listOf(all_trips_label) + com.example.travelcompanion.db.trip.TripType.values()
+            listOf(allTripsLabel) + com.example.travelcompanion.db.trip.TripType.values()
                 .map { it.name }
         val adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, tripTypes)
@@ -105,12 +103,20 @@ class JournalListFragment : Fragment() {
         val selectedType = spinnerTripType.selectedItem?.toString()
         val filtered = getFilteredTrips(trips, selectedType)
         val tvNoTripsMessage = noTripsLayout.findViewById<TextView>(R.id.tvNoTripsMessage)
+        val linearLayoutListFilter = requireView().findViewById<View>(R.id.linearLayoutListFilter)
 
         if (filtered.isEmpty()) {
             journalListRecyclerView.visibility = View.GONE
             noTripsLayout.visibility = View.VISIBLE
 
-            if (selectedType != null && selectedType != Companion.all_trips_label) {
+            // Hide filter layout if there are no trips at all
+            if (selectedType != null && selectedType == allTripsLabel) {
+                linearLayoutListFilter.visibility = View.GONE
+            } else {
+                linearLayoutListFilter.visibility = View.VISIBLE
+            }
+
+            if (selectedType != null && selectedType != allTripsLabel) {
                 tvNoTripsMessage.text = getString(
                     R.string.looks_like_you_have_not_completed_any_type_trips_yet,
                     selectedType
@@ -121,13 +127,14 @@ class JournalListFragment : Fragment() {
         } else {
             journalListRecyclerView.visibility = View.VISIBLE
             noTripsLayout.visibility = View.GONE
+            linearLayoutListFilter.visibility = View.VISIBLE
             journalListAdapter.setList(filtered)
             journalListAdapter.notifyDataSetChanged()
         }
     }
 
     private fun getFilteredTrips(trips: List<Trip>, selectedType: String?): List<Trip> {
-        return if (selectedType == null || selectedType == Companion.all_trips_label) {
+        return if (selectedType == null || selectedType == allTripsLabel) {
             trips
         } else {
             trips.filter { it.type.name == selectedType }

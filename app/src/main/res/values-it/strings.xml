@@ -76,8 +76,8 @@
     <string name="filter_by_type">Filtra per tipo:</string>
     <string name="enter_title1">Inserisci titolo</string>
     <string name="recommendations">Raccomandazioni</string>
-    <string name="trend_for_number_of_trips">Andamento numero viaggi</string>
-    <string name="trend_for_monthly_distance">Andamento distanza mensile</string>
+    <string name="trend_for_number_of_trips">Andamento del numero di viaggi</string>
+    <string name="trend_for_monthly_distance">Andamento della distanza mensile</string>
     <string name="filter_by_year">Filtra per anno</string>
     <string name="objective_not_met">Obiettivo non raggiunto</string>
     <string name="objective_for_number_of_monthly_trips">Obiettivo per numero di viaggi mensili</string>
@@ -140,5 +140,13 @@
     <string name="title_and_note_needed">Nota deve avere titolo e contenuto</string>
     <string name="note_added_to_trip">Nota aggiunta al viaggio</string>
     <string name="tracking_your_trip">Tracciando il tuo percorso!</string>
-    <string name="go_back_to_the_app_to_see_your_path">Torna all\'app per vedere il tuo tragitto</string>
+    <string name="go_to_the_app_to_see_your_path">Vai all\'app per vedere il tuo tragitto</string>
+    <string name="struggling_to_meet_goals">Rischi di non soddisfare i tuoi obiettivi!</string>
+    <string name="predicted_trips_goal">Viaggi previsti: %1$d / Obiettivo: %2$d</string>
+    <string name="predicted_distance_goal">Distanza prevista: %1$.0f m / Obiettivo: %2$d m</string>
+    <string name="seconds">secondi</string>
+    <string name="minutes">minuti</string>
+    <string name="hours">ore</string>
+    <string name="days">giorni</string>
+    <string name="months">mesi</string>
 </resources>

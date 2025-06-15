@@ -48,7 +48,6 @@ class SettingsFragment : Fragment() {
 
     private val viewModel: SettingsViewModel by viewModels()
 
-    private val notificationPermissionRequestCode = 1001
 
     private lateinit var activityRecognitionPermissionLauncher: ActivityResultLauncher<String>
 

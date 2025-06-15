@@ -14,6 +14,7 @@ import com.example.travelcompanion.ui.home.start.StartFragment
 class HomePagerAdapter(
     fragment: Fragment,
     private val plannedTripId: Long,
+    private val tripTitle: String,
     private val tripType: String,
     private val tripDestination: String
 ) : FragmentStateAdapter(fragment) {
@@ -24,6 +25,7 @@ class HomePagerAdapter(
             0 -> StartFragment().apply {
                 arguments = Bundle().apply {
                     putLong("plannedTripId", plannedTripId)
+                    putString("tripTitle", tripTitle)
                     putString("tripType", tripType)
                     putString("tripDestination", tripDestination)
                 }

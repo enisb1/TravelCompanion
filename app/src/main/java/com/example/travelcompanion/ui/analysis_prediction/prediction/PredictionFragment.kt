@@ -46,6 +46,7 @@ class PredictionFragment : Fragment() {
     private var lastPredictedDistance: Double = 0.0
     private lateinit var noTripsLayout: View
     private lateinit var scrollView: View
+    private lateinit var allTripsLabel: String
 
 
     companion object {
@@ -57,8 +58,6 @@ class PredictionFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // TODO: Use the ViewModel
     }
 
     override fun onCreateView(
@@ -80,6 +79,7 @@ class PredictionFragment : Fragment() {
         tvDistanceForecast = view.findViewById(R.id.tvPredictionDistanceForecast)
         noTripsLayout = view.findViewById(R.id.no_trips_constraint_prediction)
         scrollView = view.findViewById(R.id.scrollView)
+        allTripsLabel = getString(R.string.all)
 
 
         lineChart.setTouchEnabled(true)
@@ -110,10 +110,10 @@ class PredictionFragment : Fragment() {
             val prefs = requireContext().getSharedPreferences("settings", 0)
             val tripsGoal = prefs.getInt("monthlyTripsGoal", 0)
             val distanceGoal = prefs.getInt("monthlyDistanceGoal", 0)
-            val tripsText = "Predicted trips: $lastPredictedCount / Goal: $tripsGoal"
-            val distanceText = "Predicted distance: ${"%.0f".format(lastPredictedDistance)} m / Goal: $distanceGoal m"
+            val tripsText = getString(R.string.predicted_trips_goal, lastPredictedCount, tripsGoal)
+            val distanceText = getString(R.string.predicted_distance_goal, lastPredictedDistance, distanceGoal)
             AlertDialog.Builder(requireContext())
-                .setTitle("You're struggling to meet your goals!")
+                .setTitle(R.string.struggling_to_meet_goals)
                 .setMessage("$tripsText\n$distanceText")
                 .setPositiveButton("OK", null)
                 .show()
@@ -127,8 +127,8 @@ class PredictionFragment : Fragment() {
             cal.timeInMillis = it.startTimestamp
             cal.get(Calendar.YEAR)
         }.distinct().sorted()
-        yearOptions = listOf("All") + years.map { it.toString() }
-        if (selectedYear == null) selectedYear = null // default "All"
+        yearOptions = listOf(allTripsLabel) + years.map { it.toString() }
+        if (selectedYear == null) selectedYear = null // default to allTripsLabel
     }
 
     private fun filterTripsByYear(trips: List<Trip>): List<Trip> {
@@ -142,9 +142,9 @@ class PredictionFragment : Fragment() {
     }
 
     private fun showYearFilterDialog() {
-        val checkedItem = yearOptions.indexOf(selectedYear?.toString() ?: "All")
+        val checkedItem = yearOptions.indexOf(selectedYear?.toString() ?: allTripsLabel)
         AlertDialog.Builder(requireContext())
-            .setTitle("Filter by year")
+            .setTitle(getString(R.string.filter_by_year))
             .setSingleChoiceItems(yearOptions.toTypedArray(), checkedItem) { dialog, which ->
                 val selected = yearOptions[which]
                 selectedYear = selected.toIntOrNull()
@@ -161,7 +161,7 @@ class PredictionFragment : Fragment() {
                 ).show()
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 

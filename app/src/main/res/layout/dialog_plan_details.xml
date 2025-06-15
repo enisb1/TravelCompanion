@@ -116,11 +116,11 @@
 
             <Button
                 android:id="@+id/btnStartTrip"
+                style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/start_trip"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:text="@string/start_trip" />
 
             <Button
                 android:id="@+id/btnEditTrip"
@@ -132,11 +132,13 @@
 
             <Button
                 android:id="@+id/btnDeleteTrip"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
+                android:backgroundTint="@android:color/holo_red_dark"
                 android:text="@string/delete_trip"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:textColor="@android:color/white" />
         </LinearLayout>
     </ScrollView>
 

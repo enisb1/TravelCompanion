@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavOptions
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,7 +52,10 @@ class MainActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent?.getBooleanExtra("navigate_to_start", false) == true) {
             val navController = findNavController(R.id.nav_host_fragment_content_main)
-            navController.navigate(R.id.nav_home)
+            if (navController.currentDestination?.id != R.id.nav_home) {
+                if (navController.popBackStack(R.id.nav_home, false).not()) //popBackStack needed to not lose state
+                    navController.navigate(R.id.nav_home)
+            }
         }
     }
 }

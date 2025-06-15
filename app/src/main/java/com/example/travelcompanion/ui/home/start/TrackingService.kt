@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -13,8 +14,12 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.travelcompanion.MainActivity
 import com.example.travelcompanion.R
 import com.example.travelcompanion.db.locations.TripLocation
+import com.example.travelcompanion.util.TRACKING_CHANNEL_ID
+import com.example.travelcompanion.util.TRACKING_CHANNEL_NAME
+import com.example.travelcompanion.util.TRACKING_NOTIFICATION_ID
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -29,10 +34,8 @@ import java.util.Date
 class TrackingService : Service() {
 
     companion object {
+        // TODO: Incrementa distanza tra posizioni prima di consegnare
         const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 1   // meters
-        val NOTIFICATION_ID = 1
-        val CHANNEL_ID = "location_tracking_service"
-        val CHANNEL_NAME = "Location tracking channel"
         val ACTION_STOP = "ACTION_STOP"
     }
 
@@ -44,7 +47,7 @@ class TrackingService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        val locationRequest = LocationRequest.Builder(5000)
+        val locationRequest = LocationRequest.Builder(2000)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build()
 
@@ -91,9 +94,9 @@ class TrackingService : Service() {
         val notification = createNotification()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+            startForeground(TRACKING_NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         else
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(TRACKING_NOTIFICATION_ID, notification)
         return START_STICKY
     }
 
@@ -114,18 +117,32 @@ class TrackingService : Service() {
     private fun createNotification(): Notification {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, CHANNEL_NAME,
+                TRACKING_CHANNEL_ID, TRACKING_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setOngoing(true)   //TODO: it's dismissable on higher APIs, need to recreate it with dismiss callback
+
+        // create pending intent to navigate to start when clicking the notification
+        val intent = Intent(this, MainActivity::class.java).apply {
+            putExtra("navigate_to_start", true)
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP // else it would be restarted even if on top of the stack
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, TRACKING_CHANNEL_ID)
+            .setOngoing(true)
             .setContentTitle(getString(R.string.tracking_your_trip))
-            .setContentText(getString(R.string.go_back_to_the_app_to_see_your_path))
+            .setContentText(getString(R.string.go_to_the_app_to_see_your_path))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)  // reduces delay in showing the notification
             .build()
     }
@@ -136,10 +153,17 @@ class TrackingService : Service() {
     }
 
     override fun onDestroy() {
+        stopForeground(Service.STOP_FOREGROUND_REMOVE)
         super.onDestroy()
         // stop location updates
         fusedLocationClient.removeLocationUpdates(locationCallback)
         // stop incrementing timer
         incrementTimerThread.interrupt()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        stopForeground(Service.STOP_FOREGROUND_REMOVE)
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
     }
 }

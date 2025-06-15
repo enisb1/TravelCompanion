@@ -25,9 +25,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val homeVM : HomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
-        // TODO: if VM is not used then delete it
         // TabLayout setup
         val tabLayout : TabLayout = view.findViewById(R.id.home_tabLayout)
         val viewPager: ViewPager2 = view.findViewById(R.id.home_viewPager)
@@ -35,6 +32,7 @@ class HomeFragment : Fragment() {
         viewPager.adapter = HomePagerAdapter(
             this,
             arguments?.getLong("plannedTripId") ?: StartFragment.NO_UNPACKED_TRIP_CODE,
+            arguments?.getString("tripTitle") ?: "",
             arguments?.getString("tripType") ?: "",
             arguments?.getString("tripDestination") ?: ""
         )

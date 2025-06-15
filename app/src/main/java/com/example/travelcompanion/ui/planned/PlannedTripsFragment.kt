@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -68,6 +69,7 @@ class PlannedTripsFragment : Fragment() {
             val action = PlannedTripsFragmentDirections.actionNavPlannedToHome(
                 1,
                 -1,
+                "",
                 "",
                 ""
             )
@@ -142,9 +144,11 @@ class PlannedTripsFragment : Fragment() {
 
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
             // start trip by navigating to home (start) fragment
+            Log.i("title", trip.title)
             val action = PlannedTripsFragmentDirections.actionNavPlannedToHome(
                 0,
                 trip.id,
+                trip.title,
                 trip.type.toString(),
                 trip.destination
             )
