@@ -149,4 +149,11 @@
     <string name="hours">ore</string>
     <string name="days">giorni</string>
     <string name="months">mesi</string>
+    <string name="trip_start_title">Inizio del viaggio: %1$s</string>
+    <string name="trip_end_title">Fine del viaggio: %1$s</string>
+    <string name="start_tracking_trip">Inizia a tracciare il tuo viaggio!</string>
+    <string name="activity_detected_title">%1$s rilevata</string>
+    <string name="activity_driving">Guida di auto</string>
+    <string name="activity_cycling">Guida di bici</string>
+    <string name="activity_running">Corsa</string>
 </resources>

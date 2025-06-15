@@ -36,15 +36,15 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             when (transitionEvent.activityType) {
                 DetectedActivity.IN_VEHICLE -> {
                     if (trackCar)
-                        sendNotification(context, "Driving")
+                        sendNotification(context, context.getString(R.string.activity_driving))
                 }
                 DetectedActivity.ON_BICYCLE -> {
                     if (trackBicycle)
-                        sendNotification(context, "Cycling")
+                        sendNotification(context, context.getString(R.string.activity_cycling))
                 }
                 DetectedActivity.RUNNING -> {
                     if (trackRunning)
-                        sendNotification(context, "Running")
+                        sendNotification(context, context.getString(R.string.activity_running))
                 }
             }
         }
@@ -72,8 +72,8 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
         val builder = NotificationCompat.Builder(context, ACTIVITY_RECOGNITION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("$activity detected")
-            .setContentText("Start tracking your trip!")
+            .setContentTitle(context.getString(R.string.activity_detected_title, activity))
+            .setContentText(context.getString(R.string.start_tracking_trip))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

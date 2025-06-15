@@ -230,7 +230,7 @@ class MapFragment : Fragment() {
                     val startMarker = map.addMarker(
                         MarkerOptions()
                             .position(LatLng(locationList[0].latitude, locationList[0].longitude))
-                            .title("Trip start: $tripTitle")
+                            .title(getString(R.string.trip_start_title, tripTitle))
                             .icon(startIcon)
                     )
                     startMarker?.showInfoWindow() // it's going to show the last start marker (zoomed)
@@ -247,7 +247,7 @@ class MapFragment : Fragment() {
                                 locationList[locationList.size - 1].latitude,
                                 locationList[locationList.size - 1].longitude
                             ))
-                            .title("Trip end: $tripTitle")
+                            .title(getString(R.string.trip_end_title, tripTitle))
                             .icon(finishIcon)
                             .anchor(0.2f, 1.0f)
                     )
