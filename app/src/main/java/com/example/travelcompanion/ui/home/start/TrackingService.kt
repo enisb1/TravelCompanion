@@ -34,8 +34,7 @@ import java.util.Date
 class TrackingService : Service() {
 
     companion object {
-        // TODO: Incrementa distanza tra posizioni prima di consegnare
-        const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 1   // meters
+        const val MINIMUM_DISTANCE_BETWEEN_LOCATIONS = 50   // meters
         val ACTION_STOP = "ACTION_STOP"
     }
 
@@ -65,7 +64,6 @@ class TrackingService : Service() {
                         val distance = SphericalUtil.computeDistanceBetween(
                             LatLng(previousLocation!!.latitude, previousLocation!!.longitude),
                             LatLng(location.latitude, location.longitude))
-                        Log.i("Tracking", distance.toString())
                         if (distance >= MINIMUM_DISTANCE_BETWEEN_LOCATIONS) {
                             TrackingRepository.addLocation(tripLocation)
                             TrackingRepository.incrementDistance(distance)
@@ -86,7 +84,6 @@ class TrackingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            Log.i("Tracking", "stop")
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
             return START_NOT_STICKY

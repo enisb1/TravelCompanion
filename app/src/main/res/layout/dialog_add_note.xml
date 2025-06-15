@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:padding="15dp">
 
-    <!-- TODO: set uniform style to dialog titles -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

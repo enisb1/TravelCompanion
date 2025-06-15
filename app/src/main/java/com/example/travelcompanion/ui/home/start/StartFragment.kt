@@ -443,7 +443,6 @@ class StartFragment : Fragment() {
             if (unpackedTripId != NO_UNPACKED_TRIP_CODE && unpackedTripTitle.isNotEmpty()
                 && unpackedTripType.isNotEmpty() && unpackedTripDestination.isNotEmpty()
             ) {
-                Log.i("datatrip", TrackingRepository.currentDistance.toString())
                 // complete the planned trip
                 lifecycleScope.launch {
                     val tripToSetToCompleted = withContext(Dispatchers.IO) {

@@ -23,15 +23,10 @@ class JournalFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val journalVM : JournalViewModel = ViewModelProvider(this).get(JournalViewModel::class.java)
-
         val tabLayout : TabLayout = view.findViewById(R.id.journal_tabLayout)
         val viewPager: ViewPager2 = view.findViewById(R.id.journal_viewPager)
 
         viewPager.adapter = JournalPagerAdapter(this)
-
-        // TODO: change default tab to list tab?
-        //viewPager.setCurrentItem(0, false)
 
         // Attach TabLayout with ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -42,7 +37,5 @@ class JournalFragment : Fragment() {
                 else -> null
             }
         }.attach()
-
-        // TODO: use VM
     }
 }

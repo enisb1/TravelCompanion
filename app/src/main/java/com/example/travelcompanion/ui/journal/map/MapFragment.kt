@@ -146,12 +146,10 @@ class MapFragment : Fragment() {
                 3 -> locationsTypeMultiDay
                 else -> allLocations
             }
-        Log.i("trips", locations.toString())
         val locationsPerTrip: List<List<TripLocation>> = locations
             .groupBy { it.tripId }
             .values
             .map { it.sortedBy { location -> location.timestamp } }
-        Log.i("trips", locationsPerTrip.toString())
         if (locationsPerTrip.isNotEmpty()) {    // draw and show map
             drawMap(locationsPerTrip)
             titleTxtView.visibility = View.VISIBLE

@@ -118,7 +118,6 @@ class AnalysisFragment : Fragment() {
 
             // total distance
             val totalDistance = getTotalDistance(completedTrips)
-            // TODO: check if metres is the correct measure unit and if sum is correct
             totalDistanceTxtView.text = getString(R.string.tot_dist_km, totalDistance.toString())
 
             // travel frequency
@@ -216,8 +215,7 @@ class AnalysisFragment : Fragment() {
         barChart.setPinchZoom(false)
         barChart.invalidate()
     }
-    
-    // TODO: put in separate calculating class together with other calculating functions
+
     // given a  list of trips, it returns a map that maps months to total distances
     private fun getDistancesPerMonth(trips: List<Trip>): Pair<List<String>, List<Float>> {
         val distancesPerMonth: MutableMap<String, Float> = mutableMapOf()

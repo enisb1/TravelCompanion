@@ -144,7 +144,6 @@ class PlannedTripsFragment : Fragment() {
 
         dialogView.findViewById<Button>(R.id.btnStartTrip).setOnClickListener {
             // start trip by navigating to home (start) fragment
-            Log.i("title", trip.title)
             val action = PlannedTripsFragmentDirections.actionNavPlannedToHome(
                 0,
                 trip.id,

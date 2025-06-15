@@ -14,7 +14,6 @@
         android:paddingVertical="10dp"
         android:visibility="gone">
 
-        <!-- TODO: put textSize in a size files -->
         <TextView
             android:id="@+id/trackingTitle"
             android:layout_width="wrap_content"
