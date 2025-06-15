@@ -13,15 +13,13 @@ import com.example.travelcompanion.R
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_BICYCLE
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_CAR
 import com.example.travelcompanion.ui.settings.SettingsFragment.Companion.TRACK_RUNNING
+import com.example.travelcompanion.util.ACTIVITY_RECOGNITION_CHANNEL_ID
+import com.example.travelcompanion.util.ACTIVITY_RECOGNITION_CHANNEL_NAME
+import com.example.travelcompanion.util.ACTIVITY_RECOGNITION_NOTIFICATION_ID
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 
 class ActivityRecognitionReceiver : BroadcastReceiver() {
-
-    companion object {
-        const val NOTIFICATION_CHANNEL_ID = "activity_recognition_channel"
-        const val NOTIFICATION_ID = 459
-    }
 
     override fun onReceive(context: Context, intent: Intent) {
         if (ActivityTransitionResult.hasResult(intent)) {
@@ -55,8 +53,8 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     private fun sendNotification(context: Context, activity: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                "Activity Recognition",
+                ACTIVITY_RECOGNITION_CHANNEL_ID,
+                ACTIVITY_RECOGNITION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -72,7 +70,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val builder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, ACTIVITY_RECOGNITION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("$activity detected")
             .setContentText("Start tracking your trip!")
@@ -80,6 +78,6 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        notificationManager.notify(ACTIVITY_RECOGNITION_NOTIFICATION_ID, builder.build())
     }
 }

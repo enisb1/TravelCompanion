@@ -25,9 +25,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val homeVM : HomeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
-        // TODO: if VM is not used then delete it
         // TabLayout setup
         val tabLayout : TabLayout = view.findViewById(R.id.home_tabLayout)
         val viewPager: ViewPager2 = view.findViewById(R.id.home_viewPager)

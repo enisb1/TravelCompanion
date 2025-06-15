@@ -141,4 +141,7 @@
     <string name="note_added_to_trip">Note added to trip</string>
     <string name="tracking_your_trip">Tracking your trip!</string>
     <string name="go_back_to_the_app_to_see_your_path">Go back to the app to see your path</string>
+    <string name="struggling_to_meet_goals">You\'re struggling to meet your goals!</string>
+    <string name="predicted_trips_goal">Predicted trips: %1$d / Goal: %2$d</string>
+    <string name="predicted_distance_goal">Predicted distance: %1$.0f m / Goal: %2$d m</string>
 </resources>

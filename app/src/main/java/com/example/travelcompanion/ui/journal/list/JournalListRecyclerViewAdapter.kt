@@ -15,7 +15,6 @@ class JournalListRecyclerViewAdapter(private val clickFun: (Trip) -> Unit) : Rec
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalListViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        // TODO: Decide whether to reuse plan_list_item or journal_list_item
         val listItem = layoutInflater.inflate(R.layout.plan_list_item, parent, false)
         return JournalListViewHolder(listItem)
     }

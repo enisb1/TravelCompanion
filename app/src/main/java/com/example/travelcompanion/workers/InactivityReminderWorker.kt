@@ -9,10 +9,12 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import android.app.PendingIntent
 import android.content.Intent
-import android.util.Log
 import androidx.core.app.TaskStackBuilder
 import com.example.travelcompanion.MainActivity
 import com.example.travelcompanion.R
+import com.example.travelcompanion.util.INACTIVITY_CHANNEL_ID
+import com.example.travelcompanion.util.INACTIVITY_CHANNEL_NAME
+import com.example.travelcompanion.util.INACTIVITY_NOTIFICATION_ID
 
 class InactivityReminderWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
     override fun doWork(): Result {
@@ -21,17 +23,14 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
         val inactivityDays = prefs.getInt("inactivity_days", -1)
         val lastJourneyTime = prefs.getLong("last_journey_time", now)
         val daysSinceLast = (now - lastJourneyTime) / (1000 * 60 * 60 * 24)
-        Log.d("InactivityReminderWorker", "Days since last journey: $daysSinceLast, Inactivity threshold: $inactivityDays, Last journey time: $lastJourneyTime")
+
         if (inactivityDays > 0 && daysSinceLast >= inactivityDays) {
-            val channelId = "inactivity_reminder_channel"
-            val channelName = "Inactivity Reminder"
-            val notificationId = 1
 
             // Create notification channel if necessary
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(
-                    channelId,
-                    channelName,
+                    INACTIVITY_CHANNEL_ID,
+                    INACTIVITY_CHANNEL_NAME,
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
                 val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -46,7 +45,7 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
                 getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             }
 
-            val builder = NotificationCompat.Builder(applicationContext, channelId)
+            val builder = NotificationCompat.Builder(applicationContext, INACTIVITY_CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Inactivity Reminder")
                 .setContentText("You haven't logged any trips in a while. Remember to add one!")
@@ -54,7 +53,7 @@ class InactivityReminderWorker(appContext: Context, workerParams: WorkerParamete
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
             val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.notify(notificationId, builder.build())
+            notificationManager.notify(INACTIVITY_NOTIFICATION_ID, builder.build())
         }
         return Result.success()
     }
