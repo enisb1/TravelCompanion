@@ -9,8 +9,12 @@ TravelCompanion is an Android application project developed in Kotlin for the La
 - **Trip Management:** Plan, track, and manage trips.
 - **Work Scheduling:** Background tasks handled with WorkManager.
 - **Room Database:** Uses Room for robust local data storage.
-- **Modern UI:** Built with ViewBinding, Material Components, and ConstraintLayout for a responsive and user-friendly interface.
+- **Modern UI:** Built with Material Components and with a responsive and user-friendly interface.
 - **Navigation:** Utilizes Navigation Component for seamless screen transitions.
+
+The image below shows an example view of the app after starting a trip.\
+The marker indicates the starting point and the user's path is displayed on the map. Buttons make it possible to write down a note, take a picture, or end the trip.
+<img src="./tracking_trip.png" alt="Tracking trip" height="400">
 
 ## Tech Stack
 
