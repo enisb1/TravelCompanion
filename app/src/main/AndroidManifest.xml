@@ -49,7 +49,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCMBhKFa9IKdn6lHpajZdfFYyF2NZWJwcw" />
+            android:value="add new API KEY" />
 
         <receiver android:name=".workers.ActivityRecognitionReceiver"/>
 
