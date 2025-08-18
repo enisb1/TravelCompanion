@@ -7,11 +7,11 @@ TravelCompanion is an Android application project developed in Kotlin for the La
 - **Interactive Maps:** Integration with Google Maps and location services to track the user's path on the map.
 - **Trip Management:** Plan, track, and manage trips.
 - **Travel Archive:** Save notes and pictures during your trip to create a personal travel archive that can be revisited in any moment.
-- **Data Visualization:** Uses MPAndroidChart to visualize travel statistics and predictions of their future values.
+- **Data Visualization:** MPAndroidChart is used to visualize travel statistics and predictions of their future values.
 - **Work Scheduling:** Background tasks handled with WorkManager (such as a reminder to track your trips after the user has not used the app for a while).
-- **Room Database:** Uses Room for robust local data storage.
-- **Modern UI:** Built with Material Components and with a responsive and user-friendly interface.
-- **Navigation:** Utilizes Navigation Component for seamless screen transitions.
+- **Room Database:** Room is used for robust local data storage.
+- **Modern UI:** Material Components are used to obtain a responsive and user-friendly interface.
+- **Navigation:** Navigation Component is used for seamless screen transitions.
 
 The image below shows an example view of the app after starting a trip.\
 The marker indicates the starting point and the user's path is displayed on the map.\
